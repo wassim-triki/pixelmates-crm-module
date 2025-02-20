@@ -1,0 +1,63 @@
+.star-review2{
+	i{
+		font-size:14px;
+		&.text-gray {
+			color: #d9d9d9;
+		}
+	}
+	&>div{
+		border:1px solid $border-color;
+		padding: 4px 8px;
+		border-radius: 30px;
+	}
+}
+
+//favourite-items
+.favourite-items{
+	.food-img{
+		width:125px;
+	}
+}
+
+.items-list-1 {
+    padding: 20px 30px;
+    border-bottom: 1px solid $border-color;
+	.number {
+		font-size: 22px;
+		color: $dark;
+		font-weight: 500;
+	}
+	@include respond ('phone'){
+		display:block;
+		img{
+			width:67px;
+			float:left;
+		}
+		.number{
+			display:none;
+		}
+	}
+}
+
+.items-list-2 {
+	@include respond ('phone'){
+		img{
+			width:40px;
+			float:left;
+		}
+	}
+}
+
+//most-favourite-items
+.most-favourite-items{
+	.media{
+		@include respond ('phone'){
+			display:block;
+			img{
+				float:left;
+				width:68px;
+				margin-bottom:15px;
+			}
+		}
+	}
+}

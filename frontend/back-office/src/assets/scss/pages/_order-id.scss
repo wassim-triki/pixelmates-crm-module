@@ -1,0 +1,68 @@
+.map-bx{
+	position:relative;
+	margin-bottom: 35px;
+	img{
+		max-width:100%;
+		@include respond ('phone'){
+			height: 195px;
+			object-fit: cover;
+		}
+	}
+	.map-content{
+		position:absolute;
+		top:0;
+		right:0;
+		padding: 20px 35px;
+	}
+}
+
+.widget-timeline-icon2{
+	li{
+		padding-left: 35px;
+		position: relative;
+		margin-left: 10px;
+		border-left: 2px solid $primary;
+		min-height: 100px;
+		padding-top: 1px;
+		.icon{
+			height:22px;
+			width:22px;
+			position: absolute;
+			border-radius:100%;
+			left: -12px;
+			top: 0;
+		}
+		&:first-child{
+			border-color:$dark;
+		}
+		&:last-child{
+			border-color:$white;
+		}
+	}
+}
+.items-table{
+	.media{
+		img{
+			@include respond ('phone'){
+				//width:55px;
+			}
+		}
+	}
+}
+
+.order-list{
+	table{
+		tr{
+			&:last-child{
+				td{
+				border-bottom:0;
+				}
+			}
+		}
+	}
+	.media{
+		@include respond('phone-land') {
+			width:340px;
+		}
+	}
+}

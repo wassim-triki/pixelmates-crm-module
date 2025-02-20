@@ -1,0 +1,129 @@
+.login-form-bx{
+	padding-bottom: 0;
+	background-color: #fbfbfb;
+	overflow: hidden;
+	
+	.form-control {
+		border: 1px solid #d3d3d3;
+	}
+	.login-logo{
+		margin-bottom: 30px;
+		display: block;
+	
+		.logo-icon{
+			width: 60px;
+		}
+		.logo-text{
+			width: 120px;
+		}
+	}
+	.inner-content{
+		max-width: 500px;
+		padding-left: 50px;
+		padding-right: 30px;
+	}
+	.social-icons{
+		li{
+			display: inline-block;
+			margin-right: 10px;
+			a{
+				display: block;
+				background-color: #fff;
+				width: 40px;
+				height: 40px;
+				text-align: center;
+				line-height: 40px;
+				border-radius: 4px;
+				color: $primary;
+			}
+		}
+	}
+	.box-skew,
+	.box-skew1{
+		height:100vh;
+		min-height:100vh;
+		position:relative;
+	}
+	.box-skew1{
+		z-index:1;
+		background-color: var(--white);
+		&:after{
+			content: "";
+			background-image: url(../images/bg-login.jpg);
+			height: 100%;
+			position: absolute;
+			width: 120%;
+			left: -30px;
+			top: 0;
+			background-size: cover;
+			z-index: -1;
+			transform: skew(-5deg);
+		}
+	}
+	.box-skew{
+		.authincation-content{
+			box-shadow: none;
+			position: absolute;
+			z-index: 1;
+			right: 50px;
+			top: 50%;
+			transform: translateY(-50%);
+			padding: 50px 50px;
+			width: 500px;
+			background-color:$white	;
+			&:after{
+				box-shadow: 0px 12px 23px 0px rgba(62, 73, 84, 0.08);
+				background-color:#fff;
+				content:"";
+				height:100%;
+				width:200%;
+				position:absolute;
+				left:0;
+				top:0;
+				z-index:-1;
+			}
+		}
+	}
+	@include respond('tab-port'){
+		.inner-content {
+			padding-left: 0;
+		}
+		.box-skew{
+			.authincation-content{
+				width: auto;
+			}
+		}
+	}
+	@include respond('phone-land'){
+		.box-skew{
+			.authincation-content{
+				position: relative;
+				transform: unset;
+				top: unset;
+				right: unset;
+				margin: auto;
+				display: block;
+				width: 100%;
+
+				&:after{
+					width: 100%;
+				}
+			}
+		}
+		.box-skew,
+		.box-skew1{
+			height: 100%;
+			min-height: 100%;
+			padding: 50px;
+		}
+	}
+	@include respond('phone'){
+		.box-skew,
+		.box-skew1{
+			padding: 30px;
+		}
+		.box-skew .authincation-content{
+			padding: 30px;
+		}
+	}
+}
