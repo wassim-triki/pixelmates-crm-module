@@ -30,17 +30,15 @@ jobs:
         run: npm install
         working-directory: ./backend
 
-      # Configuration de Node.js avec gestion du cache pour frontend
+      # Configuration de Node.js pour frontend (sans cache)
       - name: Set up Node.js for frontend
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
 
-      # Installation des dépendances du frontend
+      # Installation des dépendances du frontend (sans package-lock.json)
       - name: Install frontend dependencies
-        run: npm install
+        run: npm install --no-package-lock
         working-directory: ./frontend
 
       # Ajoute ici les commandes pour tester ou builder l’application
