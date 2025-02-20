@@ -18,8 +18,8 @@ jobs:
       - name: Télécharger le code
         uses: actions/checkout@v3
 
-      - name: Vérifier la structure du projet
-        run: ls -R  # Affiche l'arborescence des fichiers pour voir où sont package.json
+      - name: Vérifier le contenu du repo
+        run: ls -la  # Vérifie les fichiers clonés
 
       - name: Installer Node.js
         uses: actions/setup-node@v3
@@ -27,35 +27,34 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      # 🔹 Backend
+      # 🔹 Installation & Tests du Backend
       - name: Installer les dépendances du Backend
         run: |
           cd backend
           npm install
 
-      - name: Lancer les tests du Backend
+      - name: Lint du Backend
+        run: |
+          cd backend
+          npm run lint
+
+      - name: Tests du Backend
         run: |
           cd backend
           npm test
 
-      # 🔹 Frontend Back-Office
-      - name: Installer les dépendances du Frontend Back-Office
+      # 🔹 Installation & Tests du Frontend
+      - name: Installer les dépendances du Frontend
         run: |
-          cd frontend/back-office
+          cd frontend
           npm install
 
-      - name: Lancer les tests du Frontend Back-Office
+      - name: Lint du Frontend
         run: |
-          cd frontend/back-office
-          npm test
+          cd frontend
+          npm run lint
 
-      # 🔹 Frontend Front-Office
-      - name: Installer les dépendances du Frontend Front-Office
+      - name: Tests du Frontend
         run: |
-          cd frontend/front-office
-          npm install
-
-      - name: Lancer les tests du Frontend Front-Office
-        run: |
-          cd frontend/front-office
+          cd frontend
           npm test
