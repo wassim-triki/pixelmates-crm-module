@@ -1,6 +1,5 @@
 import js from '@eslint/js';
 import prettierPlugin from 'eslint-plugin-prettier';
-import prettierConfig from 'eslint-config-prettier';
 import globals from 'globals';
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
@@ -27,5 +26,4 @@ export default [
       'no-console': 'off', // Disable the no-console rule
     },
   },
-  prettierConfig,
 ];
