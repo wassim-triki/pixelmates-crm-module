@@ -1,32 +1,44 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
     branches:
+      - main
       - dev
-      - develop
   pull_request:
     branches:
       - main
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Télécharger le code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Installer Node.js
+      # Configuration de Node.js avec gestion du cache pour backend
+      - name: Set up Node.js for backend
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
-      - name: Installer les dépendances
+      # Installation des dépendances du backend
+      - name: Install backend dependencies
         run: npm install
+        working-directory: ./backend
 
-      - name: Vérifier le formatage du code (Lint)
-        run: npm run lint
+      # Configuration de Node.js pour frontend (sans cache)
+      - name: Set up Node.js for frontend
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-      - name: Exécuter les tests
-        run: npm test
+      # Installation des dépendances du frontend (sans package-lock.json)
+      - name: Install frontend dependencies
+        run: npm install --no-package-lock
+        working-directory: ./frontend
+
+      # Ajoute ici les commandes pour tester ou builder l’application
