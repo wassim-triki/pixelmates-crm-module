@@ -1,7 +1,7 @@
-import User from '../models/User.js';
+const User = require('../models/User.js');
 
 // Get all users
-export const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.status(200).json(users);
@@ -11,7 +11,7 @@ export const getAllUsers = async (req, res) => {
 };
 
 // Get a single user by ID
-export const getUserById = async (req, res) => {
+const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -24,7 +24,7 @@ export const getUserById = async (req, res) => {
 };
 
 // Create a new user
-export const createUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
     const newUser = new User(req.body);
     const savedUser = await newUser.save();
@@ -35,9 +35,11 @@ export const createUser = async (req, res) => {
 };
 
 // Update a user by ID
-export const updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -48,7 +50,7 @@ export const updateUser = async (req, res) => {
 };
 
 // Delete a user by ID
-export const deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser) {
@@ -58,4 +60,12 @@ export const deleteUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
+};
+
+module.exports = {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
 };

@@ -1,9 +1,9 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import connectDB from './config/database.js';
-import restaurantRoutes from './routes/restaurant.routes.js';
-import userRoutes from './routes/user.routes.js';
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const connectDB = require('./config/database.js');
+const restaurantRoutes = require('./routes/restaurant.routes.js');
+const userRoutes = require('./routes/user.routes.js');
 
 dotenv.config();
 
