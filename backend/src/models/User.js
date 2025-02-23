@@ -1,4 +1,4 @@
-const { default: mongoose } = require('mongoose');
+const { default: mongoose } = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -10,14 +10,14 @@ const UserSchema = new mongoose.Schema(
     address: { type: String, required: false },
     birthday: { type: Date, required: false },
     password: { type: String, required: true }, // Hashed password
-    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' }, // Reference to Role
+    role: { type: mongoose.Schema.Types.ObjectId, ref: "Role" }, // Reference to Role
     restaurantId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Restaurant',
+      ref: "Restaurant",
       required: false,
     }, // Only for Admins/Employees
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);
