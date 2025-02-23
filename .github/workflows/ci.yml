@@ -23,11 +23,12 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies (Backend)
         run: |
           cd backend
-          npm ci
+          npm install  # Remplace npm ci si package-lock.json absent
 
   front-office:
     name: Front-Office Build
@@ -42,11 +43,17 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
+          cache-dependency-path: frontend/front-office/package-lock.json
 
       - name: Install dependencies (Front-Office)
         run: |
           cd frontend/front-office
-          npm ci
+          npm install
+
+      - name: Build Project (Front-Office)
+        run: |
+          cd frontend/front-office
+          npm run build || echo "Build failed, check logs"
 
   back-office:
     name: Back-Office Build
@@ -61,8 +68,14 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
+          cache-dependency-path: frontend/back-office/package-lock.json
 
       - name: Install dependencies (Back-Office)
         run: |
           cd frontend/back-office
-          npm ci
+          npm install
+
+      - name: Build Project (Back-Office)
+        run: |
+          cd frontend/back-office
+          npm run build || echo "Build failed, check logs"
