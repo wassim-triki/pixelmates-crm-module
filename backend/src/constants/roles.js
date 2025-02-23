@@ -1,5 +1,6 @@
-import { PERMISSIONS } from './permissions';
-export const ROLES = {
+const { PERMISSIONS } = require('./permissions');
+
+const ROLES = {
   SUPERADMIN: {
     name: 'SuperAdmin',
     permissions: [
@@ -29,3 +30,5 @@ export const ROLES = {
     permissions: [PERMISSIONS.MAKE_RESERVATION, PERMISSIONS.SUBMIT_COMPLAINT],
   },
 };
+
+module.exports = { ROLES };

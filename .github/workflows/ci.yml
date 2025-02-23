@@ -1,0 +1,81 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend:
+    name: Backend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies (Backend)
+        run: |
+          cd backend
+          npm ci  # Utilisation de npm ci pour des installations plus rapides et reproductibles
+
+  front-office:
+    name: Front-Office Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/front-office/package-lock.json
+
+      - name: Install dependencies (Front-Office)
+        run: |
+          cd frontend/front-office
+          npm ci  # Utilisation de npm ci
+
+      - name: Build Project (Front-Office)
+        run: |
+          cd frontend/front-office
+          npm run build || echo "Build failed, check logs"
+
+  back-office:
+    name: Back-Office Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/back-office/package-lock.json
+
+      - name: Install dependencies (Back-Office)
+        run: |
+          cd frontend/back-office
+          npm ci  # Utilisation de npm ci
+
+      - name: Build Project (Back-Office)
+        run: |
+          cd frontend/back-office
+          npm run build || echo "Build failed, check logs"

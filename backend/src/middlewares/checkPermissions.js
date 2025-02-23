@@ -1,4 +1,4 @@
-import User from '../models/User.js';
+const User = require('../models/User');
 const checkPermission = (requiredPermissions) => {
   return async (req, res, next) => {
     try {

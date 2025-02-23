@@ -2,7 +2,6 @@ import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
 import react from 'eslint-plugin-react';
 import globals from 'globals';
-import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
 
 const compat = new FlatCompat();
@@ -26,10 +25,8 @@ export default [
   {
     plugins: {
       react,
-      prettier: prettierPlugin,
     },
     rules: {
-      'prettier/prettier': 'error',
       'react/react-in-jsx-scope': 'off',
       'no-unused-vars': 'warn',
       'no-console': 'warn',

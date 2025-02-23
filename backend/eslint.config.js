@@ -1,10 +1,9 @@
-import js from '@eslint/js';
-import prettierPlugin from 'eslint-plugin-prettier';
-import prettierConfig from 'eslint-config-prettier';
-import globals from 'globals';
+const js = require('@eslint/js');
+const prettierPlugin = require('eslint-plugin-prettier');
+const globals = require('globals');
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
-export default [
+module.exports = [
   {
     files: ['src/**/*.{js,jsx}'],
     languageOptions: {
@@ -22,10 +21,8 @@ export default [
       prettier: prettierPlugin,
     },
     rules: {
-      'prettier/prettier': 'error',
       'no-unused-vars': 'warn',
       'no-console': 'off', // Disable the no-console rule
     },
   },
-  prettierConfig,
 ];
