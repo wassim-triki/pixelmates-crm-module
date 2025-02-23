@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies (Backend)
         run: |
           cd backend
-          npm install  # Remplace npm ci si package-lock.json absent
+          npm ci  # Utilisation de npm ci pour des installations plus rapides et reproductibles
 
   front-office:
     name: Front-Office Build
@@ -48,7 +48,7 @@ jobs:
       - name: Install dependencies (Front-Office)
         run: |
           cd frontend/front-office
-          npm install
+          npm ci  # Utilisation de npm ci
 
       - name: Build Project (Front-Office)
         run: |
@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies (Back-Office)
         run: |
           cd frontend/back-office
-          npm install
+          npm ci  # Utilisation de npm ci
 
       - name: Build Project (Back-Office)
         run: |
