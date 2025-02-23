@@ -1,8 +1,8 @@
-const { PERMISSIONS } = require('./permissions');
+const { PERMISSIONS } = require("./permissions");
 
 const ROLES = {
   SUPERADMIN: {
-    name: 'SuperAdmin',
+    name: "SuperAdmin",
     permissions: [
       PERMISSIONS.MANAGE_USERS,
       PERMISSIONS.MANAGE_RESTAURANTS,
@@ -13,7 +13,7 @@ const ROLES = {
     ],
   },
   ADMIN: {
-    name: 'Admin',
+    name: "Admin",
     permissions: [
       PERMISSIONS.MANAGE_RESTAURANTS,
       PERMISSIONS.MANAGE_EMPLOYEES,
@@ -22,11 +22,11 @@ const ROLES = {
     ],
   },
   EMPLOYEE: {
-    name: 'Employee',
+    name: "Employee",
     permissions: [PERMISSIONS.VIEW_RESERVATIONS, PERMISSIONS.HANDLE_COMPLAINTS],
   },
   CLIENT: {
-    name: 'Client',
+    name: "Client",
     permissions: [PERMISSIONS.MAKE_RESERVATION, PERMISSIONS.SUBMIT_COMPLAINT],
   },
 };
