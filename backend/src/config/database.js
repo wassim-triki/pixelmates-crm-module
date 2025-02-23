@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const ENV = process.env.NODE_ENV || "development";
 const mongoURI =
-  process.env.MONGO_URI || "mongodb://localhost:27017/themenufy-dev";
+  process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/themenufy-dev';
 
 mongoose.set("strictQuery", false); // Avoid future deprecation warnings
 

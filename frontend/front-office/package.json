@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test": "react-scripts test",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -41,6 +42,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "postcss": "^8.5.2",
+    "react-scripts": "^5.0.1",
     "tailwindcss": "^4.0.7",
     "vite": "^6.1.0"
   }

@@ -35,7 +35,7 @@ const seedAll = async () => {
     }
 
     const existingUser = await User.findOne({ 
-      email: process.env.SUPERADMIN_EMAIL 
+      email:  'superadmin@themenufy.com'
     });
 
     if (!existingUser) {
