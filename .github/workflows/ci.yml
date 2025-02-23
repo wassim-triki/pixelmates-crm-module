@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -10,35 +10,59 @@ on:
       - main
 
 jobs:
-  build:
+  backend:
+    name: Backend Build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Configuration de Node.js avec gestion du cache pour backend
-      - name: Set up Node.js for backend
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
 
-      # Installation des dépendances du backend
-      - name: Install backend dependencies
-        run: npm install
-        working-directory: ./backend
+      - name: Install dependencies (Backend)
+        run: |
+          cd backend
+          npm ci
 
-      # Configuration de Node.js pour frontend (sans cache)
-      - name: Set up Node.js for frontend
+  front-office:
+    name: Front-Office Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
+          cache: 'npm'
 
-      # Installation des dépendances du frontend (sans package-lock.json)
-      - name: Install frontend dependencies
-        run: npm install --no-package-lock
-        working-directory: ./frontend
+      - name: Install dependencies (Front-Office)
+        run: |
+          cd frontend/front-office
+          npm ci
 
-      # Ajoute ici les commandes pour tester ou builder l’application
+  back-office:
+    name: Back-Office Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies (Back-Office)
+        run: |
+          cd frontend/back-office
+          npm ci
