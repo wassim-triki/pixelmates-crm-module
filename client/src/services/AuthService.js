@@ -63,26 +63,26 @@ export function runLogoutTimer(dispatch, timer, navigate) {
 }
 
 export function checkAutoLogin(dispatch, navigate) {
-  const tokenDetailsString = localStorage.getItem('userDetails');
-  let tokenDetails = '';
-  if (!tokenDetailsString) {
+  const accessTokenString = localStorage.getItem('accessToken');
+  if (!accessTokenString) {
     dispatch(Logout(navigate));
     return;
   }
 
-  tokenDetails = JSON.parse(tokenDetailsString);
-  let expireDate = new Date(tokenDetails.expireDate);
-  let todaysDate = new Date();
+  let accessToken = { accessToken: accessTokenString };
+  // let expireDate = new Date(tokenDetails.expireDate);
+  // let todaysDate = new Date();
+  // console.log(expireDate, todaysDate);
 
-  if (todaysDate > expireDate) {
-    dispatch(Logout(navigate));
-    return;
-  }
+  // if (todaysDate > expireDate) {
+  //   dispatch(Logout(navigate));
+  //   return;
+  // }
 
-  dispatch(loginConfirmedAction(tokenDetails));
+  dispatch(loginConfirmedAction(accessToken));
 
-  const timer = expireDate.getTime() - todaysDate.getTime();
-  runLogoutTimer(dispatch, timer, navigate);
+  // const timer = expireDate.getTime() - todaysDate.getTime();
+  // runLogoutTimer(dispatch, timer, navigate);
 }
 export function isLogin() {
   const tokenDetailsString = localStorage.getItem('userDetails');

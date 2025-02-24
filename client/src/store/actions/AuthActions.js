@@ -1,6 +1,6 @@
 import React from 'react';
 //import { useNavigate } from "react-router-dom";
-
+import { jwtDecode } from 'jwt-decode';
 import {
   formatError,
   login,
@@ -52,14 +52,23 @@ export function loginAction(email, password, navigate) {
     login(email, password)
       .then((response) => {
         saveTokenInLocalStorage(response.data.accessToken);
-        // runLogoutTimer(
-        //     dispatch,
-        //     response.data.expiresIn * 1000,
-        //     navigate,
-        // );
-        dispatch(loginConfirmedAction(response.data));
+        const decodedUser = jwtDecode(response.data.accessToken);
+        const {
+          userId,
+          role: { _id, name, permissions },
+          iat,
+          exp,
+        } = decodedUser;
 
-        // navigate('/dashboard');
+        dispatch(
+          loginConfirmedAction({
+            userId,
+            role: { _id, name, permissions },
+            iat,
+            exp,
+          })
+        );
+        navigate('/dashboard');
       })
       .catch((error) => {
         const errorMessage = formatError(error.response.data);
