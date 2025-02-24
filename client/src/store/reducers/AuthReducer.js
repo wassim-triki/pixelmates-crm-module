@@ -1,11 +1,11 @@
 import {
-  LOADING_TOGGLE_ACTION,
-  LOGIN_CONFIRMED_ACTION,
-  LOGIN_FAILED_ACTION,
-  LOGOUT_ACTION,
   SIGNUP_CONFIRMED_ACTION,
   SIGNUP_FAILED_ACTION,
-} from '../actions/AuthActions';
+  LOGIN_CONFIRMED_ACTION,
+  LOGIN_FAILED_ACTION,
+  LOADING_TOGGLE_ACTION,
+  LOGOUT_ACTION,
+} from '../actions/ActionTypes';
 
 const initialState = {
   auth: {
