@@ -1,6 +1,9 @@
 import axios from './AxiosInstance';
 import swal from 'sweetalert';
-import { loginConfirmedAction, Logout } from '../store/actions/AuthActions';
+import {
+  loginConfirmedAction,
+  logoutAction,
+} from '../store/actions/AuthActions';
 import { jwtDecode } from 'jwt-decode';
 
 export function signUp(email, password) {
@@ -22,6 +25,10 @@ export function login(email, password) {
     password,
   };
   return axios.post(`/auth/login`, postData);
+}
+
+export function logout() {
+  return axios.post(`/auth/logout`);
 }
 
 export function formatError(errorResponse) {
@@ -59,7 +66,7 @@ export function saveTokenInLocalStorage(accessToken) {
 export function runLogoutTimer(dispatch, timer, navigate) {
   setTimeout(() => {
     //dispatch(Logout(history));
-    dispatch(Logout(navigate));
+    dispatch(logoutAction(navigate));
   }, timer);
 }
 
@@ -80,7 +87,10 @@ export const refreshTokenAction = (navigate) => {
 
       dispatch(loginConfirmedAction({ userId, role, iat, exp }));
     } catch (error) {
-      dispatch(Logout(navigate)); // If refresh fails, logout the user
+      if (error.response && error.response.status === 403) {
+        // Stop retrying and force logout
+        dispatch(logoutAction(navigate));
+      }
     }
   };
 };
@@ -89,7 +99,7 @@ export function checkAutoLogin(dispatch, navigate) {
   const token = localStorage.getItem('accessToken');
 
   if (!token) {
-    dispatch(Logout(navigate));
+    dispatch(logoutAction(navigate));
     return;
   }
 
@@ -105,9 +115,9 @@ export function checkAutoLogin(dispatch, navigate) {
   }
 }
 export function isLogin() {
-  const tokenDetailsString = localStorage.getItem('userDetails');
+  const tokenString = localStorage.getItem('accessToken');
 
-  if (tokenDetailsString) {
+  if (tokenString) {
     return true;
   } else {
     return false;

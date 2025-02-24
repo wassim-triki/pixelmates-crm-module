@@ -46,15 +46,19 @@ export function AuthReducer(state = initialState, action) {
   if (action.type === LOGOUT_ACTION) {
     return {
       ...state,
+      auth: {
+        userId: '',
+        role: {
+          _id: '',
+          name: '',
+          permissions: [],
+        },
+        iat: null,
+        exp: null,
+      },
       errorMessage: '',
       successMessage: '',
-      auth: {
-        email: '',
-        idToken: '',
-        localId: '',
-        expiresIn: '',
-        refreshToken: '',
-      },
+      showLoading: false,
     };
   }
 

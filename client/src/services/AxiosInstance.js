@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { store } from '../store/store';
 import { refreshTokenAction } from './AuthService';
-import { Logout } from '../store/actions/AuthActions';
+import { logoutAction } from '../store/actions/AuthActions';
 
 const axiosInstance = axios.create({
   baseURL: `http://localhost:5000/api`,
@@ -39,9 +39,11 @@ axiosInstance.interceptors.response.use(
 
         // Retry the original request
         return axiosInstance(originalRequest);
-      } catch (err) {
-        store.dispatch(Logout());
-        return Promise.reject(err);
+      } catch (refreshError) {
+        if (refreshError.response && refreshError.response.status === 403) {
+          store.dispatch(logoutAction());
+        }
+        return Promise.reject(refreshError);
       }
     }
 

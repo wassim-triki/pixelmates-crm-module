@@ -7,6 +7,7 @@ import {
   runLogoutTimer,
   saveTokenInLocalStorage,
   signUp,
+  logout,
 } from '../../services/AuthService';
 
 import {
@@ -39,13 +40,23 @@ export function signupAction(email, password, navigate) {
   };
 }
 
-export function Logout(navigate) {
-  localStorage.removeItem('userDetails');
-  navigate('/login');
-  //history.push('/login');
-
-  return {
-    type: LOGOUT_ACTION,
+export function logoutAction(navigate) {
+  return (dispatch) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      return; // Prevent multiple logout calls
+    }
+    logout()
+      .then(() => {
+        dispatch({
+          type: LOGOUT_ACTION,
+        });
+        localStorage.removeItem('accessToken');
+        navigate('/login');
+      })
+      .catch((error) => {
+        formatError(error.response.data);
+      });
   };
 }
 
