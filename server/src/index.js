@@ -18,7 +18,7 @@ const app = express();
 // Middleware
 app.use(express.json()); // Body parser
 app.use(cookieParser()); // Parse cookies
-app.use(cors({ origin: 'http://localhost:3000', credentials: true })); // Allow CORS
+app.use(cors({ origin: 'http://localhost:5173', credentials: true })); // Allow CORS
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
