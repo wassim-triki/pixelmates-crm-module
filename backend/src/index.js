@@ -4,6 +4,9 @@ const cors = require('cors');
 const connectDB = require('./config/database.js');
 const restaurantRoutes = require('./routes/restaurant.routes.js');
 const userRoutes = require('./routes/user.routes.js');
+const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
+const authRoutes = require('./routes/auth.routes.js');
 
 dotenv.config();
 
@@ -13,12 +16,21 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(express.json());
-app.use(cors());
+app.use(express.json()); // Body parser
+app.use(cookieParser()); // Parse cookies
+app.use(cors({ origin: 'http://localhost:3000', credentials: true })); // Allow CORS
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit requests per IP
+    message: 'Too many requests, please try again later.',
+  })
+);
 
 const PORT = process.env.PORT || 5000;
 
-// Define routes
+// Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/users', userRoutes);
 

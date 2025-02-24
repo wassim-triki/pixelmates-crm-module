@@ -1,5 +1,6 @@
 const { default: mongoose } = require('mongoose');
 const bcrypt = require('bcryptjs');
+const Role = require('./Role');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -11,14 +12,15 @@ const UserSchema = new mongoose.Schema(
     address: { type: String, required: false },
     birthday: { type: Date, required: false },
     password: { type: String, required: true }, // Hashed password
-    role: { type: mongoose.Schema.Types.ObjectId, ref: "Role" }, // Reference to Role
+    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' }, // Reference to Role
+    refreshToken: { type: String }, // Refresh token for JWT
     restaurantId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Restaurant",
+      ref: 'Restaurant',
       required: false,
     }, // Only for Admins/Employees
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 // Hash password before saving
