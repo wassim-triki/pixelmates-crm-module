@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user.routes.js');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes.js');
+const errorHandler = require('./middlewares/errorHandler.js');
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use('/api/users', userRoutes);
 app.get('/', (req, res) => {
   res.send('Pixelmates CRM Backend is running...');
 });
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);

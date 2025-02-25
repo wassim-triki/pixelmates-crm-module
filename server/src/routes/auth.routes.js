@@ -8,17 +8,25 @@ const {
   resetPassword,
 } = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth.middleware');
+const validateRequest = require('../middlewares/validateRequest');
+const {
+  loginSchema,
+  signupSchema,
+  resetPasswordSchema,
+} = require('../validators/user.validator');
 
 const router = express.Router();
 
 // Public routes
-router.post('/signup', signup); // User registration
-router.post('/login', login); // User login
-router.post('/refresh', refreshToken); // Refresh access token
-router.post('/logout', protect, logout); // Logout
-router.post('/request-password-reset', requestPasswordReset); // Request password reset
-router.post('/reset-password', resetPassword); // Reset password
-
-
+router.post('/signup', validateRequest(signupSchema), signup);
+router.post('/login', validateRequest(loginSchema), login);
+router.post(
+  '/reset-password',
+  validateRequest(resetPasswordSchema),
+  resetPassword
+);
+router.post('/refresh', refreshToken);
+router.post('/request-password-reset', requestPasswordReset);
+router.post('/logout', protect, logout);
 
 module.exports = router;
