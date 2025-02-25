@@ -97,6 +97,9 @@ function Login(props) {
                     <div className="text-danger fs-12">{errors.password}</div>
                   )}
                 </div>
+                <Link className="text-primary" to="/forgot-password">
+                  Forgot your passowrd?
+                </Link>
                 <div className="form-row d-flex justify-content-between mt-4 mb-2">
                   <div className="form-group mb-3">
                     <div className="custom-control custom-checkbox ms-1 ">
