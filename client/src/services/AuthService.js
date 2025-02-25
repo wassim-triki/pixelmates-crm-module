@@ -6,17 +6,9 @@ import {
 } from '../store/actions/AuthActions';
 import { jwtDecode } from 'jwt-decode';
 
-export function signUp(email, password) {
+export function signUp(formData) {
   //axios call
-  const postData = {
-    email,
-    password,
-    returnSecureToken: true,
-  };
-  return axios.post(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD3RPAp3nuETDn9OQimqn_YF6zdzqWITII`,
-    postData
-  );
+  return axios.post(`/auth/signup`, formData);
 }
 
 export function login(email, password) {

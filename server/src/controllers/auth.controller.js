@@ -19,18 +19,19 @@ const generateRefreshToken = (user) => {
 };
 
 // User Registration
-exports.register = async (req, res) => {
+// TODO: add validation middleware so can use req.body directly
+exports.signup = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, role } = req.body;
+    const { firstName, lastName, email, password, phone, role } = req.body;
 
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: 'User already exists' });
 
-    user = new User({ firstName, lastName, email, password, role });
+    user = new User({ firstName, lastName, email, phone, password, role });
 
-    await user.save();
+    // await user.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'User registered successfully', user });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }

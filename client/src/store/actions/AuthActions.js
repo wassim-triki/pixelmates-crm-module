@@ -19,21 +19,18 @@ import {
   LOGOUT_ACTION,
 } from './ActionTypes';
 
-export function signupAction(email, password, navigate) {
+export function signupAction(formData, navigate) {
   return (dispatch) => {
-    signUp(email, password)
+    signUp(formData)
       .then((response) => {
-        saveTokenInLocalStorage(response.data);
-        runLogoutTimer(
-          dispatch,
-          response.data.expiresIn * 1000
-          //history,
-        );
-        dispatch(confirmedSignupAction(response.data));
-        navigate('/dashboard');
+        console.log(response);
+        // saveTokenInLocalStorage(response.data);
+        // dispatch(confirmedSignupAction(response.data));
+        // navigate('/dashboard');
         //history.push('/dashboard');
       })
       .catch((error) => {
+        console.log(error);
         const errorMessage = formatError(error.response.data);
         dispatch(signupFailedAction(errorMessage));
       });
