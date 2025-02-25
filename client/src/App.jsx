@@ -17,8 +17,9 @@ import { isAuthenticated } from './store/selectors/AuthSelectors';
 
 import './assets/css/style.css';
 
-const SignUp = lazy(() => import('./jsx/pages/Registration'));
+// const SignUp = lazy(() => import('./jsx/pages/Registration'));
 const ClientSignUp = lazy(() => import('./jsx/pages/ClientRegister'));
+const RestaurantSignUp = lazy(() => import('./jsx/pages/RestaurantRegister'));
 const ForgotPassword = lazy(() => import('./jsx/pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./jsx/pages/ResetPassword'));
 const Login = lazy(() => {
@@ -49,8 +50,9 @@ function App(props) {
   let routeblog = (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/page-register" element={<SignUp />} />
+      {/* <Route path="/page-register" element={<SignUp />} /> */}
       <Route path="/client/register" element={<ClientSignUp />} />
+      <Route path="/restaurant/register" element={<RestaurantSignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
     </Routes>
