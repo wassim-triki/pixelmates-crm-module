@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+
+
 
 // Generate Access Token
 const generateAccessToken = (user) => {
@@ -10,6 +13,14 @@ const generateAccessToken = (user) => {
     { expiresIn: process.env.JWT_ACCESS_EXPIRATION }
   );
 };
+// Configuration de l'envoi d'email
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // Generate Refresh Token
 const generateRefreshToken = (user) => {
@@ -90,4 +101,58 @@ exports.refreshToken = async (req, res) => {
 exports.logout = async (req, res) => {
   res.clearCookie('refreshToken');
   res.json({ message: 'Logged out' });
+};
+
+// Demander la réinitialisation du mot de passe
+exports.requestPasswordReset= async (req, res) => {
+  try {
+    const { email } = req.body;
+    console.log(`Received password reset request for email: ${email}`);
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log(`User not found for email: ${email}`);
+      return res.status(404).json({ message: 'User not found' });
+    }
+   const token = jwt.sign({ userId: user._id }, process.env.JWT_RESET_PASSWORD_SECRET, { expiresIn: '1h' });
+
+    // const mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: user.email,
+    //   subject: 'Password Reset Request',
+    //   text: `You requested a password reset. Please use the following token to reset your password: ${token}`,
+    // };
+
+    // await transporter.sendMail(mailOptions);
+
+    // res.status(200).json({ message: 'Password reset email sent' });
+ // Génération du lien de réinitialisation
+ const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+
+ // Retourner le lien au lieu du token brut
+ res.status(200).json({ message: 'Password reset link generated', resetLink });  } catch (error) {
+    console.error(`Error processing password reset request: ${error.message}`);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Vérification et décodage du token
+    const decoded = jwt.verify(token, process.env.JWT_RESET_PASSWORD_SECRET);
+
+    // Trouver l'utilisateur correspondant
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.password = newPassword
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Invalid or expired token' });
+  }
 };
