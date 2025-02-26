@@ -54,7 +54,7 @@ function App(props) {
       <Route
         element={
           <>
-            <nav className="px-4 py-2 bg-white  shadow-sm flex ml-auto justify-center mb-5">
+            <nav className="px-4 py-2 bg-white  shadow-sm d-flex  justify-content-end">
               <Link className="text-primary" to="/restaurant/register">
                 For restaurants
               </Link>
