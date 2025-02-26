@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -16,6 +16,11 @@ function Login(props) {
   const [password, setPassword] = useState('superadmin');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
 
   function onLogin(e) {
     e.preventDefault();

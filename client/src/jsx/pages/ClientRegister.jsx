@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
 import logo from '../../assets/images/logo-full-dark.png';
@@ -16,7 +16,11 @@ function Register(props) {
     password: '',
     confirmPassword: '',
   });
-
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState({
     password: false,

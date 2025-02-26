@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { forgotPasswordAction } from '../../store/actions/AuthActions';
+import {
+  forgotPasswordAction,
+  loadingToggleAction,
+} from '../../store/actions/AuthActions';
+import Spinner from './WidgetBasic/Spinner';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -12,7 +16,13 @@ const ForgotPassword = () => {
     (state) => state.auth
   );
 
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
   const onSubmit = (e) => {
+    dispatch(loadingToggleAction(true));
     e.preventDefault();
     let errorObj = { email: '' };
     let hasError = false;
@@ -33,6 +43,8 @@ const ForgotPassword = () => {
 
   return (
     <div className="login-form-bx">
+      {/** ✅ Show Preloader when showLoading is true */}
+
       <div className="container-fluid">
         <div className="row">
           <div className="col-lg-6 col-md-7 box-skew d-flex">
@@ -79,7 +91,7 @@ const ForgotPassword = () => {
                     className="btn btn-primary btn-block"
                     disabled={showLoading}
                   >
-                    {showLoading ? 'Processing...' : 'Submit'}
+                    {showLoading ? <Spinner /> : 'Submit'}
                   </button>
                 </div>
               </form>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
 import logo from '../../assets/images/logo-full-dark.png';
@@ -25,6 +25,11 @@ function Register(props) {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
 
   function onSignUp(e) {
     e.preventDefault();

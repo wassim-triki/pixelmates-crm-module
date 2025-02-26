@@ -7,6 +7,7 @@ import {
   LOGOUT_ACTION,
   FORGOT_PASSWORD_FAILURE,
   FORGOT_PASSWORD_SUCCESS,
+  CLEAR_MESSAGES,
 } from '../actions/ActionTypes';
 
 const initialState = {
@@ -35,6 +36,7 @@ export function AuthReducer(state = initialState, action) {
       showLoading: false,
     };
   }
+
   if (action.type === LOGIN_CONFIRMED_ACTION) {
     return {
       ...state,
@@ -89,6 +91,13 @@ export function AuthReducer(state = initialState, action) {
     return {
       ...state,
       showLoading: action.payload,
+    };
+  }
+  if (action.type === CLEAR_MESSAGES) {
+    return {
+      ...state,
+      errorMessage: '',
+      successMessage: '',
     };
   }
   return state;
