@@ -66,7 +66,7 @@ function Register(props) {
     if (error) return;
 
     const { confirmPassword, ...postData } = formData;
-    postData.role = 'Client';
+    postData.role = 'Admin';
 
     dispatch(loadingToggleAction(true));
     dispatch(signupAction(postData, navigate));

@@ -66,6 +66,7 @@ export function AuthReducer(state = initialState, action) {
     action.type === SIGNUP_FAILED_ACTION ||
     action.type === LOGIN_FAILED_ACTION
   ) {
+    console.log('action.payload', action.payload);
     return {
       ...state,
       errorMessage: action.payload,

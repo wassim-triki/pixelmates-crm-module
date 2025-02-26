@@ -23,16 +23,15 @@ export function signupAction(formData, navigate) {
   return (dispatch) => {
     signUp(formData)
       .then((response) => {
-        console.log(response);
         // saveTokenInLocalStorage(response.data);
         // dispatch(confirmedSignupAction(response.data));
-        // navigate('/dashboard');
+        navigate('/login');
         //history.push('/dashboard');
       })
       .catch((error) => {
-        console.log(error);
         const errorMessage = formatError(error.response.data);
-        dispatch(signupFailedAction(errorMessage));
+        // console.log(error.response.data);
+        dispatch(signupFailedAction(error.response.data.message));
       });
   };
 }
@@ -52,7 +51,14 @@ export function logoutAction(navigate) {
         navigate('/login');
       })
       .catch((error) => {
-        formatError(error.response.data);
+        // formatError(error.response.data);
+        // const errorMessage = formatError(error.response.data);
+        // console.log(error.response.data.message);
+        // dispatch(
+        //   loginFailedAction(
+        //     error.response.data.message || 'Something went wrong'
+        //   )
+        // );
       });
   };
 }
