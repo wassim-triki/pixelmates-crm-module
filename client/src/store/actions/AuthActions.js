@@ -8,6 +8,8 @@ import {
   saveTokenInLocalStorage,
   signUp,
   logout,
+  forgotPassword,
+  refreshToken,
 } from '../../services/AuthService';
 
 import {
@@ -17,21 +19,79 @@ import {
   LOGIN_FAILED_ACTION,
   LOADING_TOGGLE_ACTION,
   LOGOUT_ACTION,
+  FORGOT_PASSWORD_SUCCESS,
+  FORGOT_PASSWORD_REQUEST,
+  FORGOT_PASSWORD_FAILURE,
 } from './ActionTypes';
 
 export function signupAction(formData, navigate) {
   return (dispatch) => {
     signUp(formData)
       .then((response) => {
-        // saveTokenInLocalStorage(response.data);
-        // dispatch(confirmedSignupAction(response.data));
-        navigate('/login');
-        //history.push('/dashboard');
+        const { message, accessToken } = response.data;
+        saveTokenInLocalStorage(accessToken);
+        const decodedUser = jwtDecode(accessToken);
+        const {
+          userId,
+          role: { _id, name, permissions },
+          iat,
+          exp,
+        } = decodedUser;
+
+        dispatch({
+          type: LOGIN_CONFIRMED_ACTION,
+          payload: {
+            userId,
+            role: { _id, name, permissions },
+            iat,
+            exp,
+            message,
+          },
+        });
+        navigate('/dashboard');
       })
       .catch((error) => {
-        const errorMessage = formatError(error.response.data);
-        // console.log(error.response.data);
-        dispatch(signupFailedAction(error.response.data.message));
+        // const errorMessage = formatError(error.response.data);
+        dispatch({
+          type: LOGIN_FAILED_ACTION,
+          payload: error.response.data.message,
+        });
+      });
+  };
+}
+
+export function loginAction(email, password, navigate) {
+  return (dispatch) => {
+    login(email, password)
+      .then((response) => {
+        const { message, accessToken } = response.data;
+        saveTokenInLocalStorage(accessToken);
+        const decodedUser = jwtDecode(accessToken);
+        const {
+          userId,
+          role: { _id, name, permissions },
+          iat,
+          exp,
+        } = decodedUser;
+
+        dispatch({
+          type: LOGIN_CONFIRMED_ACTION,
+          payload: {
+            userId,
+            role: { _id, name, permissions },
+            iat,
+            exp,
+            message,
+          },
+        });
+        navigate('/dashboard');
+      })
+      .catch((error) => {
+        // const errorMessage = formatError(error.response.data);
+        dispatch({
+          type: LOGIN_FAILED_ACTION,
+          payload: error.response.data.message,
+        });
       });
   };
 }
@@ -63,33 +123,26 @@ export function logoutAction(navigate) {
   };
 }
 
-export function loginAction(email, password, navigate) {
+export function forgotPasswordAction(email) {
   return (dispatch) => {
-    login(email, password)
-      .then((response) => {
-        saveTokenInLocalStorage(response.data.accessToken);
-        const decodedUser = jwtDecode(response.data.accessToken);
-        const {
-          userId,
-          role: { _id, name, permissions },
-          iat,
-          exp,
-        } = decodedUser;
+    dispatch({ type: FORGOT_PASSWORD_REQUEST });
 
-        dispatch(
-          loginConfirmedAction({
-            userId,
-            role: { _id, name, permissions },
-            iat,
-            exp,
-          })
-        );
-        navigate('/dashboard');
+    forgotPassword(email)
+      .then((response) => {
+        console.log(response.data.resetLink);
+        dispatch({
+          type: FORGOT_PASSWORD_SUCCESS,
+          payload: response.data,
+        });
       })
       .catch((error) => {
-        const errorMessage = formatError(error.response.data);
-
-        dispatch(loginFailedAction(errorMessage || 'Something went wrong'));
+        console.log(error);
+        const errorMessage =
+          error.response?.data?.message || 'An error occurred';
+        dispatch({
+          type: FORGOT_PASSWORD_FAILURE,
+          payload: errorMessage,
+        });
       });
   };
 }
@@ -97,13 +150,6 @@ export function loginAction(email, password, navigate) {
 export function loginFailedAction(data) {
   return {
     type: LOGIN_FAILED_ACTION,
-    payload: data,
-  };
-}
-
-export function loginConfirmedAction(data) {
-  return {
-    type: LOGIN_CONFIRMED_ACTION,
     payload: data,
   };
 }
@@ -128,3 +174,36 @@ export function loadingToggleAction(status) {
     payload: status,
   };
 }
+
+export const refreshTokenAction = (navigate) => {
+  return async (dispatch) => {
+    refreshToken(navigate)
+      .then((response) => {
+        const { message, accessToken } = response.data;
+        saveTokenInLocalStorage(accessToken);
+        const decodedUser = jwtDecode(accessToken);
+        const {
+          userId,
+          role: { _id, name, permissions },
+          iat,
+          exp,
+        } = decodedUser;
+
+        dispatch({
+          type: LOGIN_CONFIRMED_ACTION,
+          payload: {
+            userId,
+            role: { _id, name, permissions },
+            iat,
+            exp,
+            message,
+          },
+        });
+        navigate('/dashboard');
+      })
+      .catch((error) => {
+        const errorMessage = formatError(error.response.data);
+        dispatch(loginFailedAction(errorMessage || 'Something went wrong'));
+      });
+  };
+};

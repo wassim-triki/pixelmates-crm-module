@@ -5,6 +5,8 @@ import {
   LOGIN_FAILED_ACTION,
   LOADING_TOGGLE_ACTION,
   LOGOUT_ACTION,
+  FORGOT_PASSWORD_FAILURE,
+  FORGOT_PASSWORD_SUCCESS,
 } from '../actions/ActionTypes';
 
 const initialState = {
@@ -29,7 +31,7 @@ export function AuthReducer(state = initialState, action) {
       ...state,
       auth: action.payload,
       errorMessage: '',
-      successMessage: 'Signup Successfully Completed',
+      successMessage: action.payload.message,
       showLoading: false,
     };
   }
@@ -38,7 +40,15 @@ export function AuthReducer(state = initialState, action) {
       ...state,
       auth: action.payload,
       errorMessage: '',
-      successMessage: 'Login Successfully Completed',
+      successMessage: action.payload.message,
+      showLoading: false,
+    };
+  }
+  if (action.type === FORGOT_PASSWORD_SUCCESS) {
+    return {
+      ...state,
+      errorMessage: '',
+      successMessage: action.payload.message,
       showLoading: false,
     };
   }
@@ -64,9 +74,9 @@ export function AuthReducer(state = initialState, action) {
 
   if (
     action.type === SIGNUP_FAILED_ACTION ||
-    action.type === LOGIN_FAILED_ACTION
+    action.type === LOGIN_FAILED_ACTION ||
+    action.type === FORGOT_PASSWORD_FAILURE
   ) {
-    console.log('action.payload', action.payload);
     return {
       ...state,
       errorMessage: action.payload,

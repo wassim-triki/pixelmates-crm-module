@@ -94,7 +94,7 @@ function Register(props) {
                     </div>
                     <h4 className="text-center mb-4">Sign Up Your Account</h4>
                     {props.errorMessage && (
-                      <div className="text-black p-1 my-2">
+                      <div className="alert alert-danger" role="alert">
                         {props.errorMessage}
                       </div>
                     )}

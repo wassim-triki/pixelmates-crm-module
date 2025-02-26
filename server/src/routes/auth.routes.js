@@ -4,8 +4,8 @@ const {
   login,
   refreshToken,
   logout,
-  requestPasswordReset,
   resetPassword,
+  forgotPassword,
 } = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth.middleware');
 const validateRequest = require('../middlewares/validate-request.middleware');
@@ -13,8 +13,7 @@ const {
   loginSchema,
   signupSchema,
   resetPasswordSchema,
-  req,
-  requestPasswordResetSchema,
+  forgotPasswordSchema,
 } = require('../validators/auth.validator');
 
 const router = express.Router();
@@ -29,9 +28,9 @@ router.post(
 );
 router.post('/refresh', refreshToken);
 router.post(
-  '/request-password-reset',
-  validateRequest(requestPasswordResetSchema),
-  requestPasswordReset
+  '/forgot-password',
+  validateRequest(forgotPasswordSchema),
+  forgotPassword
 );
 router.post('/logout', protect, logout);
 

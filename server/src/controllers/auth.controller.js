@@ -3,47 +3,55 @@ const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
 const Role = require('../models/Role');
 
-// Generate Refresh Token
-const generateRefreshToken = (user) => {
-  return jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: process.env.JWT_REFRESH_EXPIRATION,
-  });
-};
-// Generate Access Token
-const generateAccessToken = (user) => {
-  return jwt.sign(
-    { userId: user._id, role: user.role },
-    process.env.JWT_ACCESS_SECRET,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRATION }
-  );
-};
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  generateResetToken,
+} = require('../utils/token');
+const sendEmail = require('../utils/sendEmail');
 
 // User Registration
 exports.signup = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, password, phone, role } = req.body;
 
+  // Check if user already exists
   let userExists = await User.findOne({ email });
   if (userExists) {
     return res.status(400).json({ message: 'User already exists' });
   }
+
+  // Find the role
   let roleDoc = await Role.findOne({ name: role });
   if (!roleDoc) {
     return res.status(400).json({ message: 'Invalid role' });
   }
 
-  const userData = {
+  // Create the new user
+  const newUser = await User.create({
     firstName,
     lastName,
     email,
     password,
     phone,
-    role: roleDoc._id, // Store role reference
-  };
-  const newUser = await User.create(userData);
+    role: roleDoc._id,
+  });
 
-  res
-    .status(201)
-    .json({ message: 'User registered successfully', user: newUser });
+  // Generate tokens
+  const accessToken = generateAccessToken(newUser);
+  const refreshToken = generateRefreshToken(newUser);
+
+  // Save refresh token in the database
+  newUser.refreshToken = refreshToken;
+  await newUser.save();
+
+  // Set refresh token in cookies
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+
+  // Return success message along with tokens
+  res.status(201).json({
+    message: 'User registered successfully',
+    accessToken, // Auto-login the user
+  });
 });
 
 // User Login
@@ -62,25 +70,40 @@ exports.login = asyncHandler(async (req, res) => {
   await user.save();
 
   res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-  res.json({ accessToken });
+  res.json({ message: 'Login successful', accessToken });
 });
 
 // Password Reset Request
-exports.requestPasswordReset = asyncHandler(async (req, res) => {
+exports.forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
+
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  const token = jwt.sign(
-    { userId: user._id },
-    process.env.JWT_RESET_PASSWORD_SECRET,
-    { expiresIn: '1h' }
-  );
-  const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+  // Generate reset token and hash it
+  const { resetToken, hashedToken } = await generateResetToken();
 
-  res.status(200).json({ message: 'Password reset link generated', resetLink });
+  // Set token and expiry in user document
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiry
+  await user.save();
+
+  // Reset link with frontend URL
+  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+  // Send Email using a decoupled function
+  await sendEmail({
+    to: user.email,
+    subject: 'Password Reset Request',
+    template: 'forgot-password',
+    data: { resetLink, name: user.firstName },
+  });
+
+  res.status(200).json({
+    message: 'Password reset link sent, Check your inbox.',
+  });
 });
 
 // Reset Password
