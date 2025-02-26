@@ -10,6 +10,7 @@ import {
   logout,
   forgotPassword,
   refreshToken,
+  resetPassword,
 } from '../../services/AuthService';
 
 import {
@@ -22,6 +23,8 @@ import {
   FORGOT_PASSWORD_SUCCESS,
   FORGOT_PASSWORD_REQUEST,
   FORGOT_PASSWORD_FAILURE,
+  RESET_PASSWORD_SUCCESS,
+  RESET_PASSWORD_FAILURE,
 } from './ActionTypes';
 
 export function signupAction(formData, navigate) {
@@ -48,7 +51,9 @@ export function signupAction(formData, navigate) {
             message,
           },
         });
-        navigate('/dashboard');
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
       })
       .catch((error) => {
         // const errorMessage = formatError(error.response.data);
@@ -84,7 +89,9 @@ export function loginAction(email, password, navigate) {
             message,
           },
         });
-        navigate('/dashboard');
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
       })
       .catch((error) => {
         // const errorMessage = formatError(error.response.data);
@@ -111,6 +118,7 @@ export function logoutAction(navigate) {
         navigate('/login');
       })
       .catch((error) => {
+        console.log(error);
         // formatError(error.response.data);
         // const errorMessage = formatError(error.response.data);
         // console.log(error.response.data.message);
@@ -144,6 +152,29 @@ export function forgotPasswordAction(email) {
           payload: errorMessage,
         });
       });
+  };
+}
+export function resetPasswordAction({ token, newPassword, email }, navigate) {
+  return async (dispatch) => {
+    dispatch({ type: LOADING_TOGGLE_ACTION, payload: true });
+
+    try {
+      const response = await resetPassword({ token, newPassword, email });
+
+      dispatch({
+        type: RESET_PASSWORD_SUCCESS,
+        payload: response.data.message,
+      });
+
+      navigate('/login');
+    } catch (error) {
+      dispatch({
+        type: RESET_PASSWORD_FAILURE,
+        payload: error.response?.data?.message || 'Something went wrong',
+      });
+    } finally {
+      dispatch({ type: LOADING_TOGGLE_ACTION, payload: false });
+    }
   };
 }
 

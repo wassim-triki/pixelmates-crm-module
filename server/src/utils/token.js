@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { promisify } = require('util');
-const randomBytes = promisify(require('crypto').randomBytes);
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const generateRefreshToken = (user) => {
   return jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, {
@@ -16,7 +15,7 @@ const generateAccessToken = (user) => {
 };
 
 async function generateResetToken() {
-  const resetToken = (await randomBytes(32)).toString('hex');
+  const resetToken = crypto.randomBytes(32).toString('hex');
   const hashedToken = await bcrypt.hash(resetToken, 10);
 
   return { resetToken, hashedToken };

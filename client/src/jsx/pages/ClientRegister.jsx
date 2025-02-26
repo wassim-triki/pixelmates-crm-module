@@ -16,11 +16,7 @@ function Register(props) {
     password: '',
     confirmPassword: '',
   });
-  useEffect(() => {
-    dispatch({
-      type: 'CLEAR_MESSAGES',
-    });
-  }, [dispatch]);
+
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState({
     password: false,
@@ -29,7 +25,11 @@ function Register(props) {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
   function onSignUp(e) {
     e.preventDefault();
     let errorObj = {};

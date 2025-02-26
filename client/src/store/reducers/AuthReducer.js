@@ -8,6 +8,8 @@ import {
   FORGOT_PASSWORD_FAILURE,
   FORGOT_PASSWORD_SUCCESS,
   CLEAR_MESSAGES,
+  RESET_PASSWORD_SUCCESS,
+  RESET_PASSWORD_FAILURE,
 } from '../actions/ActionTypes';
 
 const initialState = {
@@ -27,78 +29,84 @@ const initialState = {
 };
 
 export function AuthReducer(state = initialState, action) {
-  if (action.type === SIGNUP_CONFIRMED_ACTION) {
-    return {
-      ...state,
-      auth: action.payload,
-      errorMessage: '',
-      successMessage: action.payload.message,
-      showLoading: false,
-    };
-  }
+  switch (action.type) {
+    case SIGNUP_CONFIRMED_ACTION:
+      return {
+        ...state,
+        auth: action.payload,
+        errorMessage: '',
+        successMessage: action.payload.message,
+        showLoading: false,
+      };
 
-  if (action.type === LOGIN_CONFIRMED_ACTION) {
-    return {
-      ...state,
-      auth: action.payload,
-      errorMessage: '',
-      successMessage: action.payload.message,
-      showLoading: false,
-    };
-  }
-  if (action.type === FORGOT_PASSWORD_SUCCESS) {
-    return {
-      ...state,
-      errorMessage: '',
-      successMessage: action.payload.message,
-      showLoading: false,
-    };
-  }
+    case LOGIN_CONFIRMED_ACTION:
+      return {
+        ...state,
+        auth: action.payload,
+        errorMessage: '',
+        successMessage: action.payload.message,
+        showLoading: false,
+      };
 
-  if (action.type === LOGOUT_ACTION) {
-    return {
-      ...state,
-      auth: {
-        userId: '',
-        role: {
-          _id: '',
-          name: '',
-          permissions: [],
+    case FORGOT_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        errorMessage: '',
+        successMessage: action.payload.message,
+        showLoading: false,
+      };
+
+    case RESET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        successMessage: action.payload,
+        errorMessage: '',
+        showLoading: false,
+      };
+
+    case LOGOUT_ACTION:
+      return {
+        ...state,
+        auth: {
+          userId: '',
+          role: {
+            _id: '',
+            name: '',
+            permissions: [],
+          },
+          iat: null,
+          exp: null,
         },
-        iat: null,
-        exp: null,
-      },
-      errorMessage: '',
-      successMessage: '',
-      showLoading: false,
-    };
-  }
+        errorMessage: '',
+        successMessage: '',
+        showLoading: false,
+      };
 
-  if (
-    action.type === SIGNUP_FAILED_ACTION ||
-    action.type === LOGIN_FAILED_ACTION ||
-    action.type === FORGOT_PASSWORD_FAILURE
-  ) {
-    return {
-      ...state,
-      errorMessage: action.payload,
-      successMessage: '',
-      showLoading: false,
-    };
-  }
+    case SIGNUP_FAILED_ACTION:
+    case LOGIN_FAILED_ACTION:
+    case FORGOT_PASSWORD_FAILURE:
+    case RESET_PASSWORD_FAILURE:
+      return {
+        ...state,
+        errorMessage: action.payload,
+        successMessage: '',
+        showLoading: false,
+      };
 
-  if (action.type === LOADING_TOGGLE_ACTION) {
-    return {
-      ...state,
-      showLoading: action.payload,
-    };
+    case LOADING_TOGGLE_ACTION:
+      return {
+        ...state,
+        showLoading: action.payload,
+      };
+
+    case CLEAR_MESSAGES:
+      return {
+        ...state,
+        errorMessage: '',
+        successMessage: '',
+      };
+
+    default:
+      return state;
   }
-  if (action.type === CLEAR_MESSAGES) {
-    return {
-      ...state,
-      errorMessage: '',
-      successMessage: '',
-    };
-  }
-  return state;
 }

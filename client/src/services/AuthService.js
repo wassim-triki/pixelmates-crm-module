@@ -15,6 +15,9 @@ export function login(email, password) {
 export function forgotPassword(email) {
   return axios.post(`/auth/forgot-password`, { email });
 }
+export function resetPassword({ token, email, newPassword }) {
+  return axios.post('/auth/reset-password', { token, email, newPassword });
+}
 
 export function logout() {
   return axios.post(`/auth/logout`);

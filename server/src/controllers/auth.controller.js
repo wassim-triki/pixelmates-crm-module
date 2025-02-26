@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
 const Role = require('../models/Role');
-
+const bcrypt = require('bcryptjs');
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -85,15 +85,15 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   // Generate reset token and hash it
   const { resetToken, hashedToken } = await generateResetToken();
 
-  // Set token and expiry in user document
+  // Store hashed token and expiry in the database
   user.resetPasswordToken = hashedToken;
-  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiry
+  user.resetPasswordExpire = Date.now() + 3600000; // 1 hour expiry
   await user.save();
 
   // Reset link with frontend URL
-  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}&email=${email}`;
 
-  // Send Email using a decoupled function
+  // Send Reset Email
   await sendEmail({
     to: user.email,
     subject: 'Password Reset Request',
@@ -102,21 +102,74 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   });
 
   res.status(200).json({
-    message: 'Password reset link sent, Check your inbox.',
+    message: 'Password reset link sent. Check your inbox.',
+    resetLink,
   });
 });
 
 // Reset Password
-exports.resetPassword = asyncHandler(async (req, res) => {
-  const { token, newPassword } = req.body;
-  const decoded = jwt.verify(token, process.env.JWT_RESET_PASSWORD_SECRET);
+exports.forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
 
-  const user = await User.findById(decoded.userId);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
 
+  // Generate reset token and hash it
+  const { resetToken, hashedToken } = await generateResetToken();
+
+  // Store hashed token and expiry in the database
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpire = Date.now() + 3600000; // 1 hour expiry
+  await user.save();
+
+  // Reset link with frontend URL
+  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}&email=${email}`;
+
+  // Send Reset Email
+  await sendEmail({
+    to: user.email,
+    subject: 'Password Reset Request',
+    template: 'forgot-password',
+    data: { resetLink, name: user.firstName },
+  });
+
+  res
+    .status(200)
+    .json({
+      message: 'Password reset link sent. Check your inbox.',
+      resetLink,
+    });
+});
+
+// Reset Password - Update New Password
+exports.resetPassword = asyncHandler(async (req, res) => {
+  const { token, email, newPassword } = req.body;
+
+  // Find user by email and ensure token is still valid
+  const user = await User.findOne({
+    email,
+    resetPasswordExpire: { $gt: Date.now() }, // Token must still be valid
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid or expired reset token' });
+  }
+
+  // Compare received token with stored hashed token
+  const isMatch = await bcrypt.compare(token, user.resetPasswordToken);
+  if (!isMatch) {
+    return res.status(400).json({ message: 'Invalid reset token' });
+  }
+
+  // Update password
   user.password = newPassword;
+
+  // Clear reset token fields
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
   await user.save();
 
   res.status(200).json({ message: 'Password reset successfully' });
