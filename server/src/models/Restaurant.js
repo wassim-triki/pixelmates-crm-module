@@ -48,13 +48,21 @@ const RestaurantSchema = new mongoose.Schema(
       default: "#FFFFFF",
       match: [/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color code"],
     },
-    logo: {
-      type: String,
-      validate: {
-        validator: (v) => validator.isURL(v, { protocols: ["http", "https"] }),
-        message: "Invalid logo URL",
-      },
+   // models/Restaurant.js
+logo: {
+  type: String,
+  validate: {
+    validator: function(v) {
+      // Allow empty strings or valid URLs
+      return v === '' || validator.isURL(v, { 
+        protocols: ["http", "https"],
+        require_protocol: true // Ensures protocol is present
+      });
     },
+    message: "Invalid logo URL - must be empty or valid URL"
+  },
+  default: '' // Default to empty string
+},
     promotion: {
       type: String,
       maxlength: 500,

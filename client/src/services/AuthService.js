@@ -115,3 +115,16 @@ export function isLogin() {
     return false;
   }
 }
+export const getCurrentUser = async () => {
+  const token = localStorage.getItem('accessToken');
+  
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  return axios.get(`/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+};

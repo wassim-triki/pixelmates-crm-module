@@ -124,3 +124,40 @@ exports.logout = asyncHandler(async (req, res) => {
   res.clearCookie('refreshToken');
   res.json({ message: 'Logged out' });
 });
+// Get Authenticated User Data
+exports.getMe = asyncHandler(async (req, res) => {
+  // Get user from request object (set by auth middleware)
+  const user = await User.findById(req.user.userId)
+    .populate({
+      path: 'role',
+      select: 'name permissions'
+    })
+    .populate({
+      path: 'restaurantId',
+      select: 'name address' // Customize fields as needed
+    })
+    .select('-password -refreshToken'); // Exclude sensitive fields
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Format response
+  const userData = {
+    id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    phone: user.phone,
+    address: user.address,
+    birthday: user.birthday,
+    image: user.image,
+    role: {
+      name: user.role.name,
+      permissions: user.role.permissions
+    },
+    restaurant: user.restaurantId || null
+  };
+
+  res.status(200).json(userData);
+});

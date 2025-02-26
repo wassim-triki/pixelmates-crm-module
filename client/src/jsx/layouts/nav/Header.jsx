@@ -1,15 +1,17 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 /// Scroll
 import { Dropdown } from "react-bootstrap";
 import Logout from './Logout';
-
+import { getCurrentUser } from "../../../services/AuthService"; // Import your auth service
 /// Image
 import profile from "../../../assets/images/profile/17.jpg";
 import avatar from "../../../assets/images/avatar/1.jpg";
 
 const Header = ({ onNote }) => {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   var path = window.location.pathname.split("/");
   var name = path[path.length - 1].split("-");
   var filterName = name.length >= 3 ? name.filter((n, i) => i > 0) : name;
@@ -36,6 +38,21 @@ const Header = ({ onNote }) => {
     : filterName.includes("editor")
     ? filterName.filter((f) => f !== "editor")
     : filterName;
+    
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await getCurrentUser();
+        setUserData(response.data);
+      } catch (err) {
+        setError("Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserProfile();
+  }, []);
   return (
     <div className="header">
       <div className="header-content">
@@ -364,16 +381,34 @@ const Header = ({ onNote }) => {
               <Dropdown className="nav-item dropdown header-profile" as="li">
                 <Dropdown.Toggle
                   as="a"
-                  to="#"
                   variant=""
-                  className="nav-link  i-false p-0c-pointer pointr"
+                  className="nav-link i-false p-0c-pointer pointr"
                 >
-                  <img src={profile} width={20} alt="profile" />
-                  <div className="header-info">
-                    <span className="text-black">
-                      <strong>Brian Lee</strong>
-                    </span>
-                    <p className="fs-12 mb-0">Admin</p>
+                  <img 
+                    src={userData?.image || profile} 
+                    width={30}
+                    height={30}
+                    alt="Profile"
+                    className="rounded-circle"
+                    style={{ objectFit: 'cover' }}
+                  />
+                  
+                  <div className="header-info ms-2">
+                    {loading ? (
+                      <div className="skeleton-line" style={{ width: '120px' }} />
+                    ) : error ? (
+                      <span className="text-danger small">Profile Error</span>
+                    ) : (
+                      <>
+                        <span className="d-block text-dark fw-bold">
+                          {userData?.firstName} {userData?.lastName}
+                        </span>
+                        <small className="text-muted">
+                          {userData?.role?.name}
+                          {userData?.restaurant && ` • ${userData.restaurant.name}`}
+                        </small>
+                      </>
+                    )}
                   </div>
                 </Dropdown.Toggle>
                 <Dropdown.Menu align="end" className="mt-2">

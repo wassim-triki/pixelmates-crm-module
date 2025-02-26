@@ -6,6 +6,7 @@ const {
   logout,
   requestPasswordReset,
   resetPassword,
+  getMe
 } = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth.middleware');
 const validateRequest = require('../middlewares/validateRequest');
@@ -28,5 +29,6 @@ router.post(
 router.post('/refresh', refreshToken);
 router.post('/request-password-reset', requestPasswordReset);
 router.post('/logout', protect, logout);
-
+// auth.routes.js
+router.get('/me', protect, getMe);
 module.exports = router;
