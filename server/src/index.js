@@ -7,7 +7,7 @@ const userRoutes = require('./routes/user.routes.js');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes.js');
-const errorHandler = require('./middlewares/errorHandler.js');
+const errorHandler = require('./middlewares/error-handler.middleware.js');
 
 dotenv.config();
 
