@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Dropdown } from 'react-bootstrap'; // Assuming you are using React-Bootstrap
+import { Dropdown, Modal, Button, Form } from 'react-bootstrap'; // Import Modal, Button, and Form
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -8,6 +8,9 @@ const UserList = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 5; // You can adjust this to show more or fewer items per page
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     // Fetch users from the backend API
@@ -36,12 +39,26 @@ const UserList = () => {
       setError('Error deleting user');
     }
   };
-  
 
-  const updateUser = (user) => {
-    // Handle the user update functionality
-    // This is a placeholder, replace with actual update logic
-    alert(`Update user: ${user.name}`);
+  const handleShowModal = (user) => {
+    setSelectedUser(user);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedUser(null);
+    setShowModal(false);
+  };
+
+  const handleUpdateUser = async () => {
+    try {
+      await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, selectedUser);
+      setUsers((prevUsers) => prevUsers.map((user) => (user._id === selectedUser._id ? selectedUser : user)));
+      handleCloseModal();
+    } catch (err) {
+      console.error('Error updating user:', err);
+      setError('Error updating user');
+    }
   };
 
   if (loading) return <p>Loading...</p>;
@@ -98,8 +115,8 @@ const UserList = () => {
             </thead>
             <tbody>
               {paginatedUsers.map((user) => (
-                <tr key={user.id} className="alert alert-dismissible border-0 even" role="row">
-                  <td className="sorting_1">{user.id}</td>
+                <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
+                  <td className="sorting_1">{user._id}</td>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>
@@ -144,18 +161,18 @@ const UserList = () => {
                       <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
                         <Dropdown.Item
                           className="dropdown-item"
-                          onClick={() => updateUser(user)}
+                          onClick={() => handleShowModal(user)}
                         >
                           <i className="las la-pen text-warning me-3 scale5" />
                           Update User
                         </Dropdown.Item>
                         <Dropdown.Item
-              className="dropdown-item"
-              onClick={() => deleteUser(user._id)} // Use user._id if the id field is _id in the database
-            >
-              <i className="las la-trash text-danger me-3 scale5" />
-              Delete User
-            </Dropdown.Item>
+                          className="dropdown-item"
+                          onClick={() => deleteUser(user._id)} // Use user._id if the id field is _id in the database
+                        >
+                          <i className="las la-trash text-danger me-3 scale5" />
+                          Delete User
+                        </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
                   </td>
@@ -198,6 +215,51 @@ const UserList = () => {
           </div>
         </div>
       </div>
+
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit User</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <Form>
+              <Form.Group controlId="formFirstName">
+                <Form.Label>First Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.firstName}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formLastName">
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.lastName}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formEmail">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={selectedUser.email}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+                />
+              </Form.Group>
+              {/* Add more fields as needed */}
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleUpdateUser}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
