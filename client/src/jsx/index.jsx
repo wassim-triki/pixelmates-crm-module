@@ -110,6 +110,13 @@ import Todo from './pages/Todo';
 //Scroll To Top
 import ScrollToTop from './layouts/ScrollToTop';
 
+
+
+//i have added
+import Clients from './components/Dashboard/Clients';
+  
+
+
 const Markup = () => {
   const routes = {
     admin: [{ url: 'admin/dashboard', component: <Home /> }],
@@ -119,6 +126,8 @@ const Markup = () => {
     /// Dashboard
     { url: '', component: <Home /> },
     { url: 'dashboard', component: <Home /> },
+    { url: 'clients', component: <Clients /> },
+    
     { url: 'orders', component: <Orders /> },
     { url: 'Order-id', component: <OrderId /> },
     { url: 'general-customers', component: <GeneralCustomers /> },

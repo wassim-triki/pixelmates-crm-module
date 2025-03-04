@@ -8,7 +8,11 @@ export const MenuList = [
             {
                 title: 'Dashboard',
                 to: 'dashboard',					
-            },                      
+            },     
+            {
+            title: 'Clients',
+                        to: 'clients',
+                }    ,               
             {
                 title: 'Orders',
                 to: 'orders',
