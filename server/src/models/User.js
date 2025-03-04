@@ -14,6 +14,8 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true }, // Hashed password
     role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' }, // Reference to Role
     refreshToken: { type: String }, // Refresh token for JWT
+    resetPasswordToken: { type: String }, // Token for resetting password
+    resetPasswordExpire: { type: Date }, // Expiration date for reset password token
     restaurantId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Restaurant',
@@ -25,7 +27,8 @@ const UserSchema = new mongoose.Schema(
 
 // Hash password before saving
 UserSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {  // Hash only if password is modified
+  if (this.isModified('password')) {
+    // Hash only if password is modified
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }

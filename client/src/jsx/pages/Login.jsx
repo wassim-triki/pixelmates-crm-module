@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -16,6 +16,11 @@ function Login(props) {
   const [password, setPassword] = useState('superadmin');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
 
   function onLogin(e) {
     e.preventDefault();
@@ -47,13 +52,16 @@ function Login(props) {
                 <h3 className="mb-1 font-w600">Welcome to Sego</h3>
                 <p className="">Sign in by entering information below</p>
               </div>
+              {/* ✅ Display error message from Redux */}
               {props.errorMessage && (
-                <div className="bg-red-300 text-red-900 border border-red-900 p-1 my-2">
+                <div className="alert alert-danger" role="alert">
                   {props.errorMessage}
                 </div>
               )}
+
+              {/* ✅ Display success message if any */}
               {props.successMessage && (
-                <div className="bg-green-300 text-green-900 border border-green-900 p-1 my-2">
+                <div className="alert alert-success" role="alert">
                   {props.successMessage}
                 </div>
               )}

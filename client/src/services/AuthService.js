@@ -1,10 +1,8 @@
 import axios from './AxiosInstance';
 import swal from 'sweetalert';
-import {
-  loginConfirmedAction,
-  logoutAction,
-} from '../store/actions/AuthActions';
+import { logoutAction, refreshTokenAction } from '../store/actions/AuthActions';
 import { jwtDecode } from 'jwt-decode';
+import { LOGIN_CONFIRMED_ACTION } from '../store/actions/ActionTypes';
 
 export function signUp(formData) {
   //axios call
@@ -12,11 +10,13 @@ export function signUp(formData) {
 }
 
 export function login(email, password) {
-  const postData = {
-    email,
-    password,
-  };
-  return axios.post(`/auth/login`, postData);
+  return axios.post(`/auth/login`, { email, password });
+}
+export function forgotPassword(email) {
+  return axios.post(`/auth/forgot-password`, { email });
+}
+export function resetPassword({ token, email, newPassword }) {
+  return axios.post('/auth/reset-password', { token, email, newPassword });
 }
 
 export function logout() {
@@ -62,29 +62,8 @@ export function runLogoutTimer(dispatch, timer, navigate) {
   }, timer);
 }
 
-export const refreshTokenAction = (navigate) => {
-  return async (dispatch) => {
-    try {
-      const response = await axios.post(
-        '/auth/refresh',
-        {},
-        { withCredentials: true }
-      );
-
-      const newAccessToken = response.data.accessToken;
-      localStorage.setItem('accessToken', newAccessToken);
-
-      const decodedUser = jwtDecode(newAccessToken);
-      const { userId, role, iat, exp } = decodedUser;
-
-      dispatch(loginConfirmedAction({ userId, role, iat, exp }));
-    } catch (error) {
-      if (error.response && error.response.status === 403) {
-        // Stop retrying and force logout
-        dispatch(logoutAction(navigate));
-      }
-    }
-  };
+export const refreshToken = () => {
+  return axios.post('/auth/refresh');
 };
 
 export function checkAutoLogin(dispatch, navigate) {
@@ -100,7 +79,10 @@ export function checkAutoLogin(dispatch, navigate) {
 
   if (decodedToken.exp > currentTime) {
     // If the token is still valid, restore user session
-    dispatch(loginConfirmedAction(decodedToken));
+    dispatch({
+      type: LOGIN_CONFIRMED_ACTION,
+      payload: decodedToken,
+    });
   } else {
     // If the token has expired, refresh it
     dispatch(refreshTokenAction(navigate));

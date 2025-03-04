@@ -1,4 +1,4 @@
-const validateRequest = (schema) => (req, res, next) => {
+const validateSchema = (schema) => (req, res, next) => {
   try {
     req.body = schema.parse(req.body); // Mutates request body with validated data
     next();
@@ -7,4 +7,4 @@ const validateRequest = (schema) => (req, res, next) => {
   }
 };
 
-module.exports = validateRequest;
+module.exports = validateSchema;

@@ -4,30 +4,36 @@ const {
   login,
   refreshToken,
   logout,
-  requestPasswordReset,
   resetPassword,
-  getMe
+  getMe,
+  forgotPassword,
 } = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth.middleware');
-const validateRequest = require('../middlewares/validateRequest');
+const validateSchema = require('../middlewares/validate-schema.middleware');
 const {
   loginSchema,
   signupSchema,
   resetPasswordSchema,
-} = require('../validators/user.validator');
+  forgotPasswordSchema,
+} = require('../validators/auth.validator');
 
 const router = express.Router();
 
 // Public routes
-router.post('/signup', validateRequest(signupSchema), signup);
-router.post('/login', validateRequest(loginSchema), login);
+router.post('/signup', validateSchema(signupSchema), signup);
+router.post('/login', validateSchema(loginSchema), login);
 router.post(
   '/reset-password',
-  validateRequest(resetPasswordSchema),
+  validateSchema(resetPasswordSchema),
   resetPassword
 );
+router.post(
+  '/forgot-password',
+  validateSchema(forgotPasswordSchema),
+  forgotPassword
+);
 router.post('/refresh', refreshToken);
-router.post('/request-password-reset', requestPasswordReset);
+
 router.post('/logout', protect, logout);
 // auth.routes.js
 router.get('/me', protect, getMe);

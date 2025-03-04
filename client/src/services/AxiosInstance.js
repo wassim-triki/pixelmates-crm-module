@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { store } from '../store/store';
-import { refreshTokenAction } from './AuthService';
-import { logoutAction } from '../store/actions/AuthActions';
+import { logoutAction, refreshTokenAction } from '../store/actions/AuthActions';
 
 const axiosInstance = axios.create({
   baseURL: `http://localhost:5000/api`,

@@ -1,43 +1,118 @@
-import React from 'react';
-//import { Link } from "react-router-dom";
-//TODO: validate and dipsatch
-const ForgotPassword = ({ history }) => {
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import {
+  forgotPasswordAction,
+  loadingToggleAction,
+} from '../../store/actions/AuthActions';
+import Spinner from './WidgetBasic/Spinner';
+
+const ForgotPassword = () => {
+  const [email, setEmail] = useState('');
+  const [errors, setErrors] = useState({ email: '' });
+
+  const dispatch = useDispatch();
+  const { errorMessage, successMessage, showLoading } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
   const onSubmit = (e) => {
+    dispatch(loadingToggleAction(true));
     e.preventDefault();
+    let errorObj = { email: '' };
+    let hasError = false;
+
+    if (!email.trim()) {
+      errorObj.email = 'Email is required';
+      hasError = true;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errorObj.email = 'Invalid email format';
+      hasError = true;
+    }
+
+    setErrors(errorObj);
+    if (hasError) return;
+
+    dispatch(forgotPasswordAction(email));
   };
+
   return (
-    <div className="authincation h-100 p-meddle">
-      <div className="container h-100">
-        {' '}
-        <div className="row justify-content-center h-100 align-items-center">
-          <div className="col-md-6">
+    <div className="login-form-bx">
+      {/** ✅ Show Preloader when showLoading is true */}
+
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-lg-6 col-md-7 box-skew d-flex">
             <div className="authincation-content">
-              <div className="row no-gutters">
-                <div className="col-xl-12">
-                  <div className="auth-form">
-                    <h4 className="text-center mb-4">Forgot Password</h4>
-                    <form onSubmit={(e) => onSubmit(e)}>
-                      <div className="form-group">
-                        <label>
-                          <strong>Email</strong>
-                        </label>
-                        <input
-                          type="email"
-                          className="form-control"
-                          defaultValue="hello@example.com"
-                        />
-                      </div>
-                      <div className="text-center">
-                        <input
-                          type="submit"
-                          value="SUBMIT"
-                          className="btn btn-primary btn-block"
-                        />
-                      </div>
-                    </form>
-                  </div>
-                </div>
+              <div className="mb-4">
+                <h3 className="mb-1 font-w600">Forgot Password</h3>
+                <p className="">Enter your email to reset your password</p>
               </div>
+
+              {/* Display error message from Redux */}
+              {errorMessage && (
+                <div className="alert alert-danger" role="alert">
+                  {errorMessage}
+                </div>
+              )}
+
+              {/* Display success message if any */}
+              {successMessage && (
+                <div className="alert alert-info" role="alert">
+                  {successMessage}
+                </div>
+              )}
+
+              <form onSubmit={onSubmit}>
+                <div className="form-group mb-3">
+                  <label className="mb-2 form-label">
+                    Email <span className="required">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={showLoading}
+                  />
+                  {errors.email && (
+                    <div className="text-danger fs-12">{errors.email}</div>
+                  )}
+                </div>
+
+                <div className="text-center">
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-block"
+                    disabled={showLoading}
+                  >
+                    {showLoading ? <Spinner /> : 'Submit'}
+                  </button>
+                </div>
+              </form>
+
+              <div className="new-account mt-2">
+                <p className="mb-0">
+                  Remembered your password?{' '}
+                  <Link className="text-primary" to="/login">
+                    Sign In
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-lg-6 col-md-5 d-flex box-skew1">
+            <div className="inner-content align-self-center">
+              <h2 className="m-b10">Reset Your Password</h2>
+              <p className="m-b40">
+                Enter your email and we will send a link to reset your password.
+              </p>
             </div>
           </div>
         </div>

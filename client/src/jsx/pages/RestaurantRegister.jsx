@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
 import logo from '../../assets/images/logo-full-dark.png';
@@ -25,6 +25,11 @@ function Register(props) {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
 
   function onSignUp(e) {
     e.preventDefault();
@@ -66,7 +71,7 @@ function Register(props) {
     if (error) return;
 
     const { confirmPassword, ...postData } = formData;
-    postData.role = 'Client';
+    postData.role = 'Admin';
 
     dispatch(loadingToggleAction(true));
     dispatch(signupAction(postData, navigate));
@@ -81,8 +86,8 @@ function Register(props) {
   }
 
   return (
-    <div className="authincation h-100 p-meddle">
-      <div className="container h-100">
+    <div className="authincation">
+      <div className="container">
         <div className="row justify-content-center h-100 align-items-center">
           <div className="col-md-8 col-lg-6">
             <div className="authincation-content">

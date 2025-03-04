@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
 import logo from '../../assets/images/logo-full-dark.png';
@@ -25,7 +25,11 @@ function Register(props) {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  useEffect(() => {
+    dispatch({
+      type: 'CLEAR_MESSAGES',
+    });
+  }, [dispatch]);
   function onSignUp(e) {
     e.preventDefault();
     let errorObj = {};
@@ -81,8 +85,8 @@ function Register(props) {
   }
 
   return (
-    <div className="authincation h-100 p-meddle">
-      <div className="container h-100">
+    <div className="authincation">
+      <div className="container ">
         <div className="row justify-content-center h-100 align-items-center">
           <div className="col-md-8 col-lg-6">
             <div className="authincation-content">
@@ -94,7 +98,7 @@ function Register(props) {
                     </div>
                     <h4 className="text-center mb-4">Sign Up Your Account</h4>
                     {props.errorMessage && (
-                      <div className="text-black p-1 my-2">
+                      <div className="alert alert-danger" role="alert">
                         {props.errorMessage}
                       </div>
                     )}
