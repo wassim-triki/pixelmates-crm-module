@@ -1,5 +1,5 @@
 const User = require('../models/User.js');
-
+/*
 // Get all users
 const getAllUsers = async (req, res) => {
   try {
@@ -20,6 +20,38 @@ const getUserById = async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
+  }
+};*/
+
+const Role = require('../models/Role');
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().populate('role', 'name'); // Populate role with its name
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).populate('role', 'name'); // Populate role with its name
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+const getAllRoles = async (req, res) => {
+  try {
+    const roles = await Role.find();
+    res.status(200).json(roles);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -69,4 +101,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  getAllRoles,
 };

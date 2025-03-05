@@ -4,6 +4,7 @@ import { Dropdown, Modal, Button, Form } from 'react-bootstrap'; // Import Modal
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]); // Add state for roles
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -28,7 +29,18 @@ const UserList = () => {
       }
     };
 
+    // Fetch roles from the backend API
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/roles');
+        setRoles(response.data);
+      } catch (err) {
+        setError('Error fetching roles');
+      }
+    };
+
     fetchUsers();
+    fetchRoles();
   }, []);
 
   const deleteUser = async (id) => {
@@ -56,7 +68,8 @@ const UserList = () => {
   const handleUpdateUser = async () => {
     try {
       await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, selectedUser);
-      setUsers((prevUsers) => prevUsers.map((user) => (user._id === selectedUser._id ? selectedUser : user)));
+      const response = await axios.get('http://localhost:5000/api/users');
+      setUsers(response.data);
       handleCloseModal();
     } catch (err) {
       console.error('Error updating user:', err);
@@ -146,7 +159,7 @@ const UserList = () => {
                   <td className="sorting_1">{user._id}</td>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.role}</td>
+                  <td>{user.role.name}</td> {/* Display role name */}
                   <td>
                     <span className={user.status === 'Active' ? 'text-success' : 'text-danger'}>
                       {user.status}
@@ -301,10 +314,16 @@ const UserList = () => {
               <Form.Group controlId="formRole">
                 <Form.Label>Role</Form.Label>
                 <Form.Control
-                  type="text"
-                  value={selectedUser.role}
+                  as="select"
+                  value={selectedUser.role._id} // Use role ID for selection
                   onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value })}
-                />
+                >
+                  {roles.map((role) => (
+                    <option key={role._id} value={role._id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </Form.Control>
               </Form.Group>
               <Form.Group controlId="formStatus">
                 <Form.Label>Status</Form.Label>

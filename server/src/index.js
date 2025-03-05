@@ -9,6 +9,9 @@ const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes.js');
 const errorHandler = require('./middlewares/error-handler.middleware.js');
 
+const roleRoutes = require('./routes/role.routes.js'); // Add this line
+
+
 dotenv.config();
 
 // Connect to MongoDB
@@ -34,6 +37,7 @@ const PORT = process.env.PORT || 5000;
 app.use('/api/auth', authRoutes);
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/roles', roleRoutes );
 
 // Default route
 app.get('/', (req, res) => {
