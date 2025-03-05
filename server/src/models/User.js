@@ -19,6 +19,7 @@ const UserSchema = new mongoose.Schema(
     restaurantId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Restaurant',
+      
       required: false,
     }, // Only for Admins/Employees
   },

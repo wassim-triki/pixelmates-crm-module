@@ -12,6 +12,9 @@ const UserList = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const [showNewUserModal, setShowNewUserModal] = useState(false);
+  const [newUser, setNewUser] = useState({ email: '', password: '' });
+
   useEffect(() => {
     // Fetch users from the backend API
     const fetchUsers = async () => {
@@ -61,6 +64,27 @@ const UserList = () => {
     }
   };
 
+  const handleShowNewUserModal = () => {
+    setShowNewUserModal(true);
+  };
+
+  const handleCloseNewUserModal = () => {
+    setNewUser({ email: '', password: '' });
+    setShowNewUserModal(false);
+  };
+
+  const handleCreateUser = async () => {
+    try {
+      await axios.post('http://localhost:5000/api/users', newUser);
+      const response = await axios.get('http://localhost:5000/api/users');
+      setUsers(response.data);
+      handleCloseNewUserModal();
+    } catch (err) {
+      console.error('Error creating user:', err);
+      setError('Error creating user');
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
@@ -87,6 +111,9 @@ const UserList = () => {
             <Dropdown.Item className="dropdown-item">Inactive Users</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
+        <Button variant="primary" onClick={handleShowNewUserModal}>
+          Create New User
+        </Button>
       </div>
 
       <h1>User List</h1>
@@ -247,7 +274,49 @@ const UserList = () => {
                   onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
                 />
               </Form.Group>
-              {/* Add more fields as needed */}
+              <Form.Group controlId="formPhone">
+                <Form.Label>Phone</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.phone}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formAddress">
+                <Form.Label>Address</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.address}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, address: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formBirthday">
+                <Form.Label>Birthday</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={selectedUser.birthday ? selectedUser.birthday.split('T')[0] : ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, birthday: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formRole">
+                <Form.Label>Role</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.role}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formStatus">
+                <Form.Label>Status</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={selectedUser.status}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </Form.Control>
+              </Form.Group>
             </Form>
           )}
         </Modal.Body>
@@ -257,6 +326,40 @@ const UserList = () => {
           </Button>
           <Button variant="primary" onClick={handleUpdateUser}>
             Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showNewUserModal} onHide={handleCloseNewUserModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create New User</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formNewUserEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group controlId="formNewUserPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseNewUserModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleCreateUser}>
+            Create User
           </Button>
         </Modal.Footer>
       </Modal>
