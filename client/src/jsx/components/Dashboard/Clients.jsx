@@ -46,6 +46,11 @@ const UserList = () => {
   }, []);
 
   const deleteUser = async (id) => {
+    const isConfirmed = window.confirm('Are you sure you want to delete this user?');
+    if (!isConfirmed) {
+      return;
+    }
+  
     try {
       console.log(`Deleting user with id: ${id}`);
       await axios.delete(`http://localhost:5000/api/users/${id}`);
@@ -132,10 +137,10 @@ const UserList = () => {
   return (
     <>
       <div className="d-sm-flex mb-lg-4 mb-2">
-        <Button variant="success" onClick={handleShowNewUserModal} className="me-auto">
+       <Button variant="success" onClick={handleShowNewUserModal} className="me-auto">
           Create New User
         </Button>
-        <Dropdown className="dropdown mb-2 ms-3">
+        <Dropdown className="dropdown mb-2 ms-auto me-3">
           <Dropdown.Toggle className="btn btn-primary btn-rounded light" aria-expanded="false">
             <i className="las la-bolt scale5 me-2" />
             All Users
@@ -146,6 +151,8 @@ const UserList = () => {
             <Dropdown.Item className="dropdown-item">Inactive Users</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
+        
+        
       </div>
 
       <h1>User List</h1>
@@ -176,79 +183,74 @@ const UserList = () => {
                       {user.status}
                     </span>
                   </td>
+                  
                   <td>
-                    <Dropdown className="dropdown">
-                      <Dropdown.Toggle
-                        variant=""
-                        className="i-false"
-                        to="#"
-                        as="div"
-                        aria-expanded="false"
-                      >
-                        <svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M11 12C11 12.5523 11.4477 13 12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12Z"
-                            stroke="#3E4954"
-                            strokeWidth={2}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M18 12C18 12.5523 18.4477 13 19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12Z"
-                            stroke="#3E4954"
-                            strokeWidth={2}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M4 12C4 12.5523 4.44772 13 5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12Z"
-                            stroke="#3E4954"
-                            strokeWidth={2}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </Dropdown.Toggle>
-                      
-                      <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
-                           
-                          
-                     <Dropdown.Item
-                          className="dropdown-item"
-                          onClick={() => handleChangeStatus(user, 'Active')}
-                        >
-                          <i className="las la-check text-success me-3 scale5" />
-                          Set Active
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          className="dropdown-item"
-                          onClick={() => handleChangeStatus(user, 'Inactive')}
-                        >
-                          <i className="las la-times text-warning me-3 scale5" />
-                          Set Inactive
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          className="dropdown-item"
-                          onClick={() => handleChangeStatus(user, 'Banned')}
-                        >
-                          <i className="las la-ban text-danger me-3 scale5" />
-                          Set Banned
-                        </Dropdown.Item>
-                          </Dropdown.Menu>
+  <div className="flex items-center justify-between w-full space-x-4"> {/* Ensure all items align properly */}
+    
+    {/* Three Dots Dropdown */}
+    <div className="flex items-center"> {/* Wrap dropdown in a flex container */}
+      <Dropdown className="dropdown">
+        <Dropdown.Toggle
+          variant=""
+          className="i-false flex items-center"
+          to="#"
+          as="div"
+          aria-expanded="false"
+        >
+          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 12C11 12.5523 11.4477 13 12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 12.4477 11 12Z"
+              stroke="#3E4954"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M18 12C18 12.5523 18.4477 13 19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 12.4477 18 12Z"
+              stroke="#3E4954"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M4 12C4 12.5523 4.44772 13 5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 12.4477 4 12Z"
+              stroke="#3E4954"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </Dropdown.Toggle>
 
-                    </Dropdown>
+        <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
+          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, 'Active')}>
+            <i className="las la-check text-success me-3 scale5" />
+            Set Active
+          </Dropdown.Item>
+          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, 'Inactive')}>
+            <i className="las la-times text-warning me-3 scale5" />
+            Set Inactive
+          </Dropdown.Item>
+          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, 'Banned')}>
+            <i className="las la-ban text-danger me-3 scale5" />
+            Set Banned
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+    </div>
 
+    {/* Action Icons */}
+    <div className="flex items-center space-x-4"> {/* Flexbox to align icons properly */}
+      <i className="las la-eye text-info scale5 cursor-pointer" onClick={() => handleShowModal(user)} />
+      <i className="las la-pen text-warning scale5 cursor-pointer" onClick={() => handleShowModal(user)} />
+      <i className="las la-trash text-danger scale5 cursor-pointer" onClick={() => deleteUser(user._id)} />
+    </div>
 
-                    <Dropdown.Item className="dropdown-item">
-                    <div className="flex space-x-2">  {/* Tailwind Flexbox for horizontal layout */}
-                      <i className="las la-eye text-info scale5" onClick={() => handleShowModal(user)} />
-                      <i className="las la-pen text-warning scale5" onClick={() => handleShowModal(user)} />
-                      <i className="las la-trash text-danger scale5" onClick={() => deleteUser(user._id)} />
-                    </div>                   
-                  </Dropdown.Item>
+  </div>
+</td>
 
 
-                  </td>
+
                 </tr>
               ))}
             </tbody>
@@ -258,7 +260,7 @@ const UserList = () => {
               Showing {currentPage * itemsPerPage + 1} to{' '}
               {Math.min((currentPage + 1) * itemsPerPage, users.length)} of {users.length} entries
             </div>
-            <div className="d</div>ataTables_paginate paging_simple_numbers">
+            <div className="dataTables_paginate paging_simple_numbers">
               <button
                 className="paginate_button previous"
                 onClick={() => currentPage > 0 && handlePageClick(currentPage - 1)}
