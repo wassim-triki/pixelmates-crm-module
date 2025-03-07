@@ -67,6 +67,7 @@ const createUser = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };*/
+// Create a new user
 const createUser = async (req, res) => {
   try {
     const { email, password, role } = req.body;

@@ -132,7 +132,10 @@ const UserList = () => {
   return (
     <>
       <div className="d-sm-flex mb-lg-4 mb-2">
-        <Dropdown className="dropdown mb-2 ms-auto me-3">
+        <Button variant="success" onClick={handleShowNewUserModal} className="me-auto">
+          Create New User
+        </Button>
+        <Dropdown className="dropdown mb-2 ms-3">
           <Dropdown.Toggle className="btn btn-primary btn-rounded light" aria-expanded="false">
             <i className="las la-bolt scale5 me-2" />
             All Users
@@ -143,9 +146,6 @@ const UserList = () => {
             <Dropdown.Item className="dropdown-item">Inactive Users</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        <Button variant="primary" onClick={handleShowNewUserModal}>
-          Create New User
-        </Button>
       </div>
 
       <h1>User List</h1>
@@ -209,23 +209,45 @@ const UserList = () => {
                           />
                         </svg>
                       </Dropdown.Toggle>
+                      
                       <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
-                        <Dropdown.Item
+                           
+                          
+                     <Dropdown.Item
                           className="dropdown-item"
-                          onClick={() => handleShowModal(user)}
+                          onClick={() => handleChangeStatus(user, 'Active')}
                         >
-                          <i className="las la-pen text-warning me-3 scale5" />
-                          Update User
+                          <i className="las la-check text-success me-3 scale5" />
+                          Set Active
                         </Dropdown.Item>
                         <Dropdown.Item
                           className="dropdown-item"
-                          onClick={() => deleteUser(user._id)} // Use user._id if the id field is _id in the database
+                          onClick={() => handleChangeStatus(user, 'Inactive')}
                         >
-                          <i className="las la-trash text-danger me-3 scale5" />
-                          Delete User
+                          <i className="las la-times text-warning me-3 scale5" />
+                          Set Inactive
                         </Dropdown.Item>
-                      </Dropdown.Menu>
+                        <Dropdown.Item
+                          className="dropdown-item"
+                          onClick={() => handleChangeStatus(user, 'Banned')}
+                        >
+                          <i className="las la-ban text-danger me-3 scale5" />
+                          Set Banned
+                        </Dropdown.Item>
+                          </Dropdown.Menu>
+
                     </Dropdown>
+
+
+                    <Dropdown.Item className="dropdown-item">
+                    <div className="flex space-x-2">  {/* Tailwind Flexbox for horizontal layout */}
+                      <i className="las la-eye text-info scale5" onClick={() => handleShowModal(user)} />
+                      <i className="las la-pen text-warning scale5" onClick={() => handleShowModal(user)} />
+                      <i className="las la-trash text-danger scale5" onClick={() => deleteUser(user._id)} />
+                    </div>                   
+                  </Dropdown.Item>
+
+
                   </td>
                 </tr>
               ))}
@@ -236,7 +258,7 @@ const UserList = () => {
               Showing {currentPage * itemsPerPage + 1} to{' '}
               {Math.min((currentPage + 1) * itemsPerPage, users.length)} of {users.length} entries
             </div>
-            <div className="dataTables_paginate paging_simple_numbers">
+            <div className="d</div>ataTables_paginate paging_simple_numbers">
               <button
                 className="paginate_button previous"
                 onClick={() => currentPage > 0 && handlePageClick(currentPage - 1)}
@@ -361,9 +383,10 @@ const UserList = () => {
       </Modal>
 
       <Modal show={showNewUserModal} onHide={handleCloseNewUserModal}>
-        <Modal.Header closeButton>
+      <Modal.Header closeButton>
           <Modal.Title>Create New User</Modal.Title>
         </Modal.Header>
+        
         <Modal.Body>
           <Form>
             <Form.Group controlId="formNewUserEmail">
