@@ -1,4 +1,6 @@
 const User = require('../models/User.js');
+const bcrypt = require('bcryptjs');
+
 /*
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -54,7 +56,7 @@ const getAllRoles = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+/*
 // Create a new user
 const createUser = async (req, res) => {
   try {
@@ -62,6 +64,34 @@ const createUser = async (req, res) => {
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};*/
+const createUser = async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create a new user
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      role,
+    });
+
+    const savedUser = await newUser.save();
+    res.status(201).json(savedUser);
+  } catch (error) {
+    console.error('Error creating user:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };

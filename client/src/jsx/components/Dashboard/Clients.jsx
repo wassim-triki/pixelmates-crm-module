@@ -14,7 +14,9 @@ const UserList = () => {
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [showNewUserModal, setShowNewUserModal] = useState(false);
-  const [newUser, setNewUser] = useState({ email: '', password: '' });
+  const [newUser, setNewUser] = useState({ email: '', password: '', role: '' });
+
+  const [sortConfig, setSortConfig] = useState({ key: 'email', direction: 'ascending' });
 
   useEffect(() => {
     // Fetch users from the backend API
@@ -82,15 +84,15 @@ const UserList = () => {
   };
 
   const handleCloseNewUserModal = () => {
-    setNewUser({ email: '', password: '' });
+    setNewUser({ email: '', password: '', role: '' });
     setShowNewUserModal(false);
   };
 
   const handleCreateUser = async () => {
     try {
-      await axios.post('http://localhost:5000/api/users', newUser);
-      const response = await axios.get('http://localhost:5000/api/users');
-      setUsers(response.data);
+      const response = await axios.post('http://localhost:5000/api/users', newUser);
+      const usersResponse = await axios.get('http://localhost:5000/api/users');
+      setUsers(usersResponse.data);
       handleCloseNewUserModal();
     } catch (err) {
       console.error('Error creating user:', err);
@@ -98,17 +100,34 @@ const UserList = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  const sortedUsers = [...users].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === 'ascending' ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === 'ascending' ? 1 : -1;
+    }
+    return 0;
+  });
 
-  // Paginate the users
-  const paginatedUsers = users.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+  const paginatedUsers = sortedUsers.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
   const handlePageClick = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
   const totalPages = Math.ceil(users.length / itemsPerPage);
+
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <>
@@ -135,19 +154,13 @@ const UserList = () => {
           <table className="table table-bordered table-striped dataTable no-footer" role="grid">
             <thead>
               <tr>
-                <th className="sorting_asc" style={{ width: 74 }}>
-                  User ID
-                </th>
-                <th className="sorting" style={{ width: 174 }}>
-                  Name
-                </th>
-                <th className="sorting" style={{ width: 133 }}>
+                <th className="sorting" style={{ width: 133 }} onClick={() => requestSort('email')}>
                   Email
                 </th>
-                <th className="sorting" style={{ width: 193 }}>
+                <th className="sorting" style={{ width: 193 }} onClick={() => requestSort('role.name')}>
                   Role
                 </th>
-                <th className="sorting" style={{ width: 67 }}>
+                <th className="sorting" style={{ width: 67 }} onClick={() => requestSort('status')}>
                   Status
                 </th>
                 <th className="sorting" style={{ width: 108 }} />
@@ -156,8 +169,6 @@ const UserList = () => {
             <tbody>
               {paginatedUsers.map((user) => (
                 <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
-                  <td className="sorting_1">{user._id}</td>
-                  <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.role.name}</td> {/* Display role name */}
                   <td>
@@ -370,6 +381,20 @@ const UserList = () => {
                 value={newUser.password}
                 onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
               />
+            </Form.Group>
+            <Form.Group controlId="formNewUserRole">
+              <Form.Label>Role</Form.Label>
+              <Form.Control
+                as="select"
+                value={newUser.role}
+                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+              >
+                {roles.map((role) => (
+                  <option key={role._id} value={role._id}>
+                    {role.name}
+                  </option>
+                ))}
+              </Form.Control>
             </Form.Group>
           </Form>
         </Modal.Body>
