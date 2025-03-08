@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 /// images
-import logo from "../../../assets/images/logo.png";
-import logoText from "../../../assets/images/logo-text.png";
+import logo from '../../../assets/images/logo-officiel-menufy.png';
 
 export function  NavMenuToggle(){
 	setTimeout(()=>{	
@@ -21,9 +20,7 @@ const NavHader = () => {
    return (
       <div className="nav-header">
          <Link to="/" className="brand-logo">
-            <img className="logo-abbr" src={logo} alt="" />
-            <img className="logo-compact" src={logoText} alt="" />
-            <img className="brand-title" src={logoText} alt="" />
+            <img className="logo-abbr" src={logo} alt="Logo MenuFy" />
          </Link>
 
          <div className="nav-control" 

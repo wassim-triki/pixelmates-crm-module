@@ -137,12 +137,13 @@ const UserList = () => {
   return (
     <>
       <div className="d-sm-flex mb-lg-4 mb-2">
-       <Button variant="success" onClick={handleShowNewUserModal} className="me-auto">
-          Create New User
+        <Button variant="success" onClick={handleShowNewUserModal} className="me-auto">
+          <i className="fas fa-plus"></i> Add New User
         </Button>
+
         <Dropdown className="dropdown mb-2 ms-auto me-3">
           <Dropdown.Toggle className="btn btn-primary btn-rounded light" aria-expanded="false">
-            <i className="las la-bolt scale5 me-2" />
+            <i className="las la-bolt scale5 me-3" />
             All Users
             <i className="las la-angle-down ms-3" />
           </Dropdown.Toggle>
@@ -155,7 +156,7 @@ const UserList = () => {
         
       </div>
 
-      <h1>User List</h1>
+      <h1>Users List</h1>
       <div className="table-responsive rounded card-table">
         <div className="dataTables_wrapper no-footer">
           <table className="table table-bordered table-striped dataTable no-footer" role="grid">
@@ -170,90 +171,71 @@ const UserList = () => {
                 <th className="sorting" style={{ width: 67 }} onClick={() => requestSort('status')}>
                   Status
                 </th>
-                <th className="sorting" style={{ width: 108 }} />
+                <th className class="text-center" style={{ width: 108 }} > Actions</th>
               </tr>
             </thead>
             <tbody>
-              {paginatedUsers.map((user) => (
-                <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
-                  <td>{user.email}</td>
-                  <td>{user.role.name}</td> {/* Display role name */}
-                  <td>
-                    <span className={user.status === 'Active' ? 'text-success' : 'text-danger'}>
-                      {user.status}
-                    </span>
-                  </td>
-                  
-                  <td>
-  <div className="flex items-center justify-between w-full space-x-4"> {/* Ensure all items align properly */}
-    
-    {/* Three Dots Dropdown */}
-    <div className="flex items-center"> {/* Wrap dropdown in a flex container */}
-      <Dropdown className="dropdown">
-        <Dropdown.Toggle
-          variant=""
-          className="i-false flex items-center"
-          to="#"
-          as="div"
-          aria-expanded="false"
-        >
-          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M11 12C11 12.5523 11.4477 13 12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 12.4477 11 12Z"
-              stroke="#3E4954"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M18 12C18 12.5523 18.4477 13 19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 12.4477 18 12Z"
-              stroke="#3E4954"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M4 12C4 12.5523 4.44772 13 5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 12.4477 4 12Z"
-              stroke="#3E4954"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Dropdown.Toggle>
+  {paginatedUsers.map((user) => (
+    <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
+      <td>{user.email}</td>
+      <td>{user.role.name}</td> {/* Affichage du rôle */}
 
-        <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
-          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, 'Active')}>
-            <i className="las la-check text-success me-3 scale5" />
-            Set Active
-          </Dropdown.Item>
-          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, 'Inactive')}>
-            <i className="las la-times text-warning me-3 scale5" />
-            Set Inactive
-          </Dropdown.Item>
-          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, 'Banned')}>
-            <i className="las la-ban text-danger me-3 scale5" />
-            Set Banned
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-    </div>
+      <td>
+        <span className={user.status === "Active" ? "text-success" : "text-danger"}>
+          {user.status}
+        </span>
+      </td>
 
-    {/* Action Icons */}
-    <div className="flex items-center space-x-4"> {/* Flexbox to align icons properly */}
-      <i className="las la-eye text-info scale5 cursor-pointer" onClick={() => handleShowModal(user)} />
-      <i className="las la-pen text-warning scale5 cursor-pointer" onClick={() => handleShowModal(user)} />
-      <i className="las la-trash text-danger scale5 cursor-pointer" onClick={() => deleteUser(user._id)} />
-    </div>
+      <td>
+        <div className="d-flex align-items-center justify-content-end">
+          {/* Bouton View (Bleu) */}
+          <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowModal(user)}>
+            <i className="fas fa-eye"></i>
+          </button>
 
-  </div>
-</td>
+          {/* Bouton Edit (Jaune / Orange) */}
+          <button className="btn btn-sm me-2" style={{ backgroundColor: "#ffc107", color: "black" }} onClick={() => handleShowModal(user)}>
+            <i className="fas fa-edit"></i>
+          </button>
 
+          {/* Bouton Delete (Rouge) */}
+          <button className="btn btn-sm me-2" style={{ backgroundColor: "#dc3545", color: "white" }} onClick={() => deleteUser(user._id)}>
+            <i className="fas fa-trash"></i>
+          </button>
 
+          {/* Dropdown pour changer le statut */}
+          <Dropdown className="dropdown">
+            <Dropdown.Toggle
+              variant=""
+              className="btn btn-sm border-0"
+              to="#"
+              as="div"
+              aria-expanded="false"
+            >
+              <i className="fas fa-ellipsis-v"></i> {/* Icône pour le menu déroulant */}
+            </Dropdown.Toggle>
 
-                </tr>
-              ))}
-            </tbody>
+            <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
+                <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Active")}>
+                  <i className="las la-check text-success me-3 scale5" />
+                  Set Active
+                </Dropdown.Item>
+                <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Inactive")}>
+                  <i className="las la-times text-warning me-3 scale5" />
+                  Set Inactive
+                </Dropdown.Item>
+                <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Banned")}>
+                  <i className="las la-ban text-danger me-3 scale5" />
+                  Set Banned
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
           <div className="d-sm-flex text-center justify-content-between align-items-center mt-3">
             <div className="dataTables_info" role="status" aria-live="polite">

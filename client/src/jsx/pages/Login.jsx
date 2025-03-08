@@ -6,8 +6,7 @@ import {
   loginAction,
 } from '../../store/actions/AuthActions';
 
-import logo from '../../assets/images/logo.png';
-import logotext from '../../assets/images/logo-text.png';
+import logo from '../../assets/images/logo-officiel-menufy.png';
 
 function Login(props) {
   const [email, setEmail] = useState('superadmin@themenufy.com');
@@ -48,9 +47,9 @@ function Login(props) {
         <div className="row">
           <div className="col-lg-6 col-md-7 box-skew d-flex">
             <div className="authincation-content">
-              <div className="mb-4">
-                <h3 className="mb-1 font-w600">Welcome to Sego</h3>
-                <p className="">Sign in by entering information below</p>
+            <div className="mb-4 text-center">
+                <h1 className="mb-1 font-w800">Sign In</h1>
+                <p>Enter your email and password to access your account.</p>
               </div>
               {/* ✅ Display error message from Redux */}
               {props.errorMessage && (
@@ -105,9 +104,15 @@ function Login(props) {
                     <div className="text-danger fs-12">{errors.password}</div>
                   )}
                 </div>
+                <div className="new-account mt-2">
+                <p className="mb-0">
+                   Forgot your password?{' '}
                 <Link className="text-primary" to="/forgot-password">
-                  Forgot your passowrd?
+                   Reset it here
                 </Link>
+                </p>
+                </div>
+
                 <div className="form-row d-flex justify-content-between mt-4 mb-2">
                   <div className="form-group mb-3">
                     <div className="custom-control custom-checkbox ms-1 ">
@@ -144,14 +149,18 @@ function Login(props) {
           </div>
           <div className="col-lg-6 col-md-5 d-flex box-skew1">
             <div className="inner-content align-self-center">
-              <Link to="/dashboard" className="login-logo">
-                <img src={logo} alt="" className="logo-icon me-2" />
-                <img src={logotext} alt="" className="logo-text ms-1" />
-              </Link>
-              <h2 className="m-b10 ">Login To You Now</h2>
-              <p className="m-b40">
-                User Experience & Interface Design Strategy SaaS Solutions
-              </p>
+              <div
+                className="rounded-circle bg-white shadow-1-strong d-flex align-items-center justify-content-center mb-4 mx-auto"
+                style={{ width: '150px', height: '150px' }}
+              >
+                <img
+                  src={logo}
+                  alt="Logo"
+                  style={{ height: '21px', objectFit: 'contain' }}
+                  loading="lazy"
+                />
+              </div>
+
               <ul className="social-icons mt-4">
                 <li>
                   <Link to={'#'}>

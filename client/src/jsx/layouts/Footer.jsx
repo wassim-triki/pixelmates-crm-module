@@ -6,11 +6,7 @@ const Footer = () => {
     <div className="footer">
       <div className="copyright">
         <p>
-          Copyright © Designed &amp; Developed by{" "}
-          <a href="http://dexignzone.com/" target="_blank"  rel="noreferrer">
-            DexignZone
-          </a>{" "}
-          {year}
+        © 2025 The MenuFy. All rights reserved.
         </p>
       </div>
     </div>
