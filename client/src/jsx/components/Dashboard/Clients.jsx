@@ -12,7 +12,8 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
   const [currentPage, setCurrentPage] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
   const itemsPerPage = 5;
-  const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showNewUserModal, setShowNewUserModal] = useState(false);
   const [newUser, setNewUser] = useState({ email: '', password: '', role: '' });
@@ -88,9 +89,22 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
 
   const handleShowModal = (user) => {
     setSelectedUser(user);
-    setShowModal(true);
+    setShowViewModal(true);  // Affiche uniquement le modal de visualisation
   };
-
+  
+  const handleEditModal = (user) => {
+    setSelectedUser(user);
+    setShowEditModal(true);  // Affiche uniquement le modal d'édition
+  };
+  
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+  };
+  
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+  };
+  
   const handleCloseModal = () => {
     setSelectedUser(null);
     setShowModal(false);
@@ -268,7 +282,7 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
                       <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowModal(user)}>
                         <i className="fas fa-eye"></i>
                       </button>
-                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#ffc107", color: "black" }} onClick={() => handleShowModal(user)}>
+                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#ffc107", color: "black" }} onClick={() => handleEditModal(user)}>
                         <i className="fas fa-edit"></i>
                       </button>
                       <button className="btn btn-sm me-2" style={{ backgroundColor: "#dc3545", color: "white" }} onClick={() => deleteUser(user._id)}>
@@ -340,103 +354,104 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
         </div>
       </div>
 
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit User</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedUser && (
-            <Form>
-              <Form.Group controlId="formFirstName">
-                <Form.Label>First Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedUser.firstName || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formLastName">
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedUser.lastName || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  value={selectedUser.email}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formPhone">
-                <Form.Label>Phone</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedUser.phone || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formAddress">
-                <Form.Label>Address</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedUser.address || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, address: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formBirthday">
-                <Form.Label>Birthday</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={selectedUser.birthday ? selectedUser.birthday.split('T')[0] : ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, birthday: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formRole">
-                <Form.Label>Role</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={selectedUser.role?._id || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, role: { _id: e.target.value } })}
-                >
-                  {roles.map((role) => (
-                    <option key={role._id} value={role._id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-              <Form.Group controlId="formStatus">
-                <Form.Label>Status</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={selectedUser.status || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Banned">Banned</option>
-                </Form.Control>
-              </Form.Group>
-            </Form>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleUpdateUser}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Modal show={showEditModal} onHide={handleCloseEditModal}>
+  <Modal.Header closeButton>
+    <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>Edit User</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedUser && (
+      <Form>
+        <Form.Group controlId="formFirstName">
+          <Form.Label>First Name</Form.Label>
+          <Form.Control
+            type="text"
+            value={selectedUser.firstName || ''}
+            onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })}
+          />
+        </Form.Group>
+        <Form.Group controlId="formLastName">
+          <Form.Label>Last Name</Form.Label>
+          <Form.Control
+            type="text"
+            value={selectedUser.lastName || ''}
+            onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
+          />
+        </Form.Group>
+        <Form.Group controlId="formEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            value={selectedUser.email}
+            onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+          />
+        </Form.Group>
+        <Form.Group controlId="formPhone">
+          <Form.Label>Phone</Form.Label>
+          <Form.Control
+            type="text"
+            value={selectedUser.phone || ''}
+            onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
+          />
+        </Form.Group>
+        <Form.Group controlId="formAddress">
+          <Form.Label>Address</Form.Label>
+          <Form.Control
+            type="text"
+            value={selectedUser.address || ''}
+            onChange={(e) => setSelectedUser({ ...selectedUser, address: e.target.value })}
+          />
+        </Form.Group>
+        <Form.Group controlId="formBirthday">
+          <Form.Label>Birthday</Form.Label>
+          <Form.Control
+            type="date"
+            value={selectedUser.birthday ? selectedUser.birthday.split('T')[0] : ''}
+            onChange={(e) => setSelectedUser({ ...selectedUser, birthday: e.target.value })}
+          />
+        </Form.Group>
+        <Form.Group controlId="formRole">
+          <Form.Label>Role</Form.Label>
+          <Form.Control
+            as="select"
+            value={selectedUser.role?._id || ''}
+            onChange={(e) => setSelectedUser({ ...selectedUser, role: { _id: e.target.value } })}
+          >
+            {roles.map((role) => (
+              <option key={role._id} value={role._id}>
+                {role.name}
+              </option>
+            ))}
+          </Form.Control>
+        </Form.Group>
+        <Form.Group controlId="formStatus">
+          <Form.Label>Status</Form.Label>
+          <Form.Control
+            as="select"
+            value={selectedUser.status || ''}
+            onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
+          >
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Banned">Banned</option>
+          </Form.Control>
+        </Form.Group>
+      </Form>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleCloseEditModal}>
+      Close
+    </Button>
+    <Button variant="primary" onClick={handleUpdateUser}>
+      Save Changes
+    </Button>
+  </Modal.Footer>
+</Modal>
+
 
       <Modal show={showNewUserModal} onHide={handleCloseNewUserModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Create New User</Modal.Title>
+          <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>Add New User</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -482,7 +497,36 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal show={showViewModal} onHide={handleCloseViewModal} centered>
+  <Modal.Header closeButton>
+  <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>
+  Details User
+</Modal.Title>  
+</Modal.Header>
+  <Modal.Body>
+    {selectedUser && (
+      <div>
+        <p><strong>First Name:</strong> {selectedUser.firstName}</p>
+        <p><strong>Last Name:</strong> {selectedUser.lastName}</p>
+        <p><strong>Phone:</strong> {selectedUser.phone}</p>
+        <p><strong>Address:</strong> {selectedUser.address}</p>
+        <p><strong>Email:</strong> {selectedUser.email}</p>
+        <p><strong>Role:</strong> {selectedUser.role?.name}</p>
+        <p><strong>Status:</strong> {selectedUser.status}</p>
+      </div>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleCloseViewModal}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
     </>
+    
   );
 };
 
