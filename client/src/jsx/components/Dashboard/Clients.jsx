@@ -121,8 +121,12 @@ const UserList = () => {
     
     // Filter users based on the search term
     const filteredUsers = users.filter(user =>
+      user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) // Safely check for 'name' field
+      user.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     
     // Update the users state with filtered results and reset pagination
