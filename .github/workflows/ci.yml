@@ -30,6 +30,11 @@ jobs:
           cd server
           npm ci  # Utilisation de npm ci pour des installations plus rapides et reproductibles
 
+      - name: Run seed (Backend)
+        run: |
+          cd server
+          npm run seed
+
       - name: Run tests (Backend)
         run: |
           cd server
