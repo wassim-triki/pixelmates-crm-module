@@ -89,7 +89,7 @@ const UserList = () => {
         </Dropdown>
       </div>
 
-      <h1>User List</h1>
+      <h1>Users' List</h1>
       <div className="table-responsive rounded card-table">
         <div className="dataTables_wrapper no-footer">
           <table className="table table-bordered table-striped dataTable no-footer" role="grid">
