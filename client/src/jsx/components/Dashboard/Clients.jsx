@@ -511,6 +511,7 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
         <p><strong>Last Name:</strong> {selectedUser.lastName}</p>
         <p><strong>Phone:</strong> {selectedUser.phone}</p>
         <p><strong>Address:</strong> {selectedUser.address}</p>
+        <p><strong>Birthday:</strong> {selectedUser.birthday ? new Date(selectedUser.birthday).toISOString().split('T')[0] : "N/A"}</p>
         <p><strong>Email:</strong> {selectedUser.email}</p>
         <p><strong>Role:</strong> {selectedUser.role?.name}</p>
         <p><strong>Status:</strong> {selectedUser.status}</p>
