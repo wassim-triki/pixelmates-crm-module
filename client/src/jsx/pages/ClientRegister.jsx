@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
-import logo from '../../assets/images/logo-full-dark.png';
+import logo from '../../assets/images/logo-officiel-menufy.png';
 import {
   loadingToggleAction,
   signupAction,
@@ -93,10 +93,10 @@ function Register(props) {
               <div className="row no-gutters">
                 <div className="col-xl-12">
                   <div className="auth-form">
-                    <div className="text-center mb-3">
-                      <img src={logo} alt="" />
-                    </div>
+                   <div className="mb-4 text-center">
+                   <h1 className="mb-1 font-w800">Sign Up</h1><br></br>
                     <h4 className="text-center mb-4">Sign Up Your Account</h4>
+                    </div>
                     {props.errorMessage && (
                       <div className="alert alert-danger" role="alert">
                         {props.errorMessage}
