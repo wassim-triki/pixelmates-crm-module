@@ -1,11 +1,11 @@
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const Role = require('./Role');
 
 const UserSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    firstName: { type: String, required: false },
+    lastName: { type: String, required: false },
     email: { type: String, unique: true, required: true },
     image: { type: String, required: false }, // URL to image
     phone: { type: String, required: false },
@@ -21,6 +21,11 @@ const UserSchema = new mongoose.Schema(
       ref: 'Restaurant',
       required: false,
     }, // Only for Admins/Employees
+    status: { 
+      type: String, 
+      enum: ['Active', 'Banned', 'Blocked'], 
+      default: 'Active' // Default value is 'active'
+    }
   },
   { timestamps: true }
 );
