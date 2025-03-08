@@ -106,7 +106,7 @@ function Login(props) {
                 </div>
                 <div className="new-account mt-2">
                 <p className="mb-0">
-                   Forgot your password?{' '}
+                   Forgot password?{' '}
                 <Link className="text-primary" to="/forgot-password">
                    Reset it here
                 </Link>

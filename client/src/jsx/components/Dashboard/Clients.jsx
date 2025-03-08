@@ -162,19 +162,19 @@ const UserList = () => {
         
       </div>
 
-      <h1>Users List</h1>
+      <h1 className="text-center" style={{ fontWeight: "bold" }}>Users List</h1><br></br>
       <div className="table-responsive rounded card-table">
         <div className="dataTables_wrapper no-footer">
           <table className="table table-bordered table-striped dataTable no-footer" role="grid">
             <thead>
               <tr>
-                <th className="sorting" style={{ width: 133 }} onClick={() => requestSort('email')}>
+                <th className="sorting text-center" style={{ width: 133 }} onClick={() => requestSort('email')}>
                   Email
                 </th>
-                <th className="sorting" style={{ width: 193 }} onClick={() => requestSort('role.name')}>
+                <th className="sorting text-center" style={{ width: 193 }} onClick={() => requestSort('role.name')}>
                   Role
                 </th>
-                <th className="sorting" style={{ width: 67 }} onClick={() => requestSort('status')}>
+                <th className="sorting text-center" style={{ width: 67 }} onClick={() => requestSort('status')}>
                   Status
                 </th>
                 <th className class="text-center" style={{ width: 108 }} > Actions</th>
