@@ -351,6 +351,7 @@ const UserList = () => {
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
+                  <option value="Inactive">Banned</option>
                 </Form.Control>
               </Form.Group>
             </Form>
