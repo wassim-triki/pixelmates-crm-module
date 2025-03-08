@@ -3,7 +3,7 @@ import PageTitle from "../../../../layouts/PageTitle";
 
 // images
 import qrcode from "../../../../../assets/images/qr.png";
-import logo from "../../../../../assets/images/logo.png";
+import logo from "../../../../../assets/images/favicon.png";
 import logoText from "../../../../../assets/images/logo-text.png";
 
 
