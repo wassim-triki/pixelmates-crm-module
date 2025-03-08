@@ -4,6 +4,7 @@ import { Dropdown, Modal, Button, Form } from 'react-bootstrap'; // Import Modal
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // État pour la recherche
   const [roles, setRoles] = useState([]); // Add state for roles
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,6 +112,26 @@ const UserList = () => {
     }
   };
 
+  const handleSearch = () => {
+    if (searchTerm.trim() === "") {
+      // If the search term is empty, reset users to the original list
+      fetchUsers();
+      return;
+    }
+    
+    // Filter users based on the search term
+    const filteredUsers = users.filter(user =>
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) // Safely check for 'name' field
+    );
+    
+    // Update the users state with filtered results and reset pagination
+    setUsers(filteredUsers);
+    setCurrentPage(0); // Reset pagination to the first page
+  };
+  
+  
+
   const sortedUsers = [...users].sort((a, b) => {
     if (a[sortConfig.key] < b[sortConfig.key]) {
       return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -147,6 +168,29 @@ const UserList = () => {
           <i className="fas fa-plus"></i> Add New User
         </Button>
 
+        <div className="d-flex align-items-center" style={{ maxWidth: "600px", margin: "0 auto" }}>
+  <div className="position-relative">
+    <input
+      type="text"
+      className="form-control ps-5" // Adding padding to the left for the icon space
+      placeholder="Search..."
+      value={searchTerm}
+      onChange={(e) => {
+        setSearchTerm(e.target.value);
+        handleSearch(); // Trigger search as user types
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          handleSearch(); // Trigger search when pressing Enter
+        }
+      }}
+    />
+    <i className="fas fa-search position-absolute" style={{ top: '50%', left: '10px', transform: 'translateY(-50%)' }}></i> {/* Align search icon */}
+  </div>
+</div>
+
+
+        
         <Dropdown className="dropdown mb-2 ms-auto me-3">
           <Dropdown.Toggle className="btn btn-primary btn-rounded light" aria-expanded="false">
             <i className="las la-bolt scale5 me-3" />
