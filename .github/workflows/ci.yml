@@ -23,15 +23,20 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: server/package-lock.json
 
       - name: Install dependencies (Backend)
         run: |
-          cd backend
+          cd server
           npm ci  # Utilisation de npm ci pour des installations plus rapides et reproductibles
 
-  front-office:
-    name: Front-Office Build
+      - name: Run tests (Backend)
+        run: |
+          cd server
+          npm test
+
+  client:
+    name: Client Build
     runs-on: ubuntu-latest
 
     steps:
@@ -43,39 +48,19 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
-          cache-dependency-path: frontend/front-office/package-lock.json
+          cache-dependency-path: client/package-lock.json
 
-      - name: Install dependencies (Front-Office)
+      - name: Install dependencies (Client)
         run: |
-          cd frontend/front-office
+          cd client
           npm ci  # Utilisation de npm ci
 
-      - name: Build Project (Front-Office)
+      - name: Build Project (Client)
         run: |
-          cd frontend/front-office
+          cd client
           npm run build || echo "Build failed, check logs"
 
-  back-office:
-    name: Back-Office Build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
-          cache-dependency-path: frontend/back-office/package-lock.json
-
-      - name: Install dependencies (Back-Office)
+      - name: Run tests (Client)
         run: |
-          cd frontend/back-office
-          npm ci  # Utilisation de npm ci
-
-      - name: Build Project (Back-Office)
-        run: |
-          cd frontend/back-office
-          npm run build || echo "Build failed, check logs"
+          cd client
+          npm test

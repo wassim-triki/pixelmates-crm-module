@@ -448,7 +448,7 @@ const Header = ({ onNote }) => {
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx={12} cy={7} r={4} />
                     </svg>
-                    <span className="ms-2">Profile </span>
+                    <span className="ms-2">My Profile </span>
                   </Link>
                   <Link to="/email-inbox" className="dropdown-item ai-icon">
                     <svg
