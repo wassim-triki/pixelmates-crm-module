@@ -73,6 +73,11 @@ const UserList = () => {
   };
 
   const handleUpdateUser = async () => {
+    const isConfirmed = window.confirm('Are you sure you want to edit this user?');
+    if (!isConfirmed) {
+      return;
+    }
+  
     try {
       await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, selectedUser);
       const response = await axios.get('http://localhost:5000/api/users');
@@ -83,6 +88,7 @@ const UserList = () => {
       setError('Error updating user');
     }
   };
+  
 
   const handleShowNewUserModal = () => {
     setShowNewUserModal(true);
