@@ -50,7 +50,12 @@ export const MenuList = [
             {
                 title: 'Profile',
                 to: 'app-profile'
-            },           
+            },      
+            {
+                title:'Update Profile',
+                to:'update-profile'  
+            },
+              
             {
                 title: 'Post Details',
                 to: 'post-details'

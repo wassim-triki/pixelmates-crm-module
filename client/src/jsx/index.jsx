@@ -112,6 +112,7 @@ import ScrollToTop from './layouts/ScrollToTop';
 // I have added
 import Clients from './components/Dashboard/Clients';
 import Unauthorized from './pages/Unauthorized'; // Added Unauthorized import
+import UpdateProfile from './components/AppsMenu/AppProfile/UpdateProfile';
 
 const Markup = () => {
   const routes = {
@@ -142,6 +143,8 @@ const Markup = () => {
 
     /// Apps
     { url: 'app-profile', component: <AppProfile /> },
+    { url: 'update-profile', component: <UpdateProfile /> },
+    
     { url: 'post-details', component: <PostDetails /> },
     { url: 'email-compose', component: <Compose /> },
     { url: 'email-inbox', component: <Inbox /> },
