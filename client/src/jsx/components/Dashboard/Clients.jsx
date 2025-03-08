@@ -1,65 +1,88 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Dropdown, Modal, Button, Form } from 'react-bootstrap'; // Import Modal, Button, and Form
-
-const UserList = () => {
+import { Dropdown, Modal, Button, Form } from 'react-bootstrap';
+import { Navigate } from 'react-router-dom';
+import { getCurrentUser } from "../../../services/AuthService.js";const UserList = () => {
   const [users, setUsers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // État pour la recherche
-  const [roles, setRoles] = useState([]); // Add state for roles
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 5; // You can adjust this to show more or fewer items per page
-
+  const [currentUser, setCurrentUser] = useState(null);
+  const itemsPerPage = 5;
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-
   const [showNewUserModal, setShowNewUserModal] = useState(false);
   const [newUser, setNewUser] = useState({ email: '', password: '', role: '' });
-
   const [sortConfig, setSortConfig] = useState({ key: 'email', direction: 'ascending' });
-
   useEffect(() => {
-    // Fetch users from the backend API
-    const fetchUsers = async () => {
+    const checkAuth = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/users');
-        setUsers(response.data);
+        const response = await getCurrentUser(); // Returns Axios promise
+        const user = response.data; // Extract user data
+        console.log('Current User:', user); // Debug output
+        setCurrentUser(user);
+        if (user && user.role?.name === 'SuperAdmin') {
+          fetchData();
+        }
       } catch (err) {
-        setError('Error fetching users');
+        console.error('Authentication check failed:', err.message);
+        setCurrentUser(null);
       } finally {
-        setLoading(false);
+        setAuthLoading(false);
       }
     };
-
-    // Fetch roles from the backend API
-    const fetchRoles = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/roles');
-        setRoles(response.data);
-      } catch (err) {
-        setError('Error fetching roles');
-      }
-    };
-
-    fetchUsers();
-    fetchRoles();
+    checkAuth();
   }, []);
 
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('No authentication token found');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const [usersResponse, rolesResponse] = await Promise.all([
+        axios.get('http://localhost:5000/api/users', config),
+        axios.get('http://localhost:5000/api/roles', config)
+      ]);
+      setUsers(usersResponse.data);
+      setRoles(rolesResponse.data);
+    } catch (err) {
+      setError('Error fetching data: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };  
   const deleteUser = async (id) => {
     const isConfirmed = window.confirm('Are you sure you want to delete this user?');
-    if (!isConfirmed) {
-      return;
-    }
-  
+    if (!isConfirmed) return;
+
     try {
-      console.log(`Deleting user with id: ${id}`);
-      await axios.delete(`http://localhost:5000/api/users/${id}`);
-      console.log(`User with id: ${id} deleted successfully`);
-      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id)); // Use user._id if the id field is _id in the database
+      const token = AuthService.getToken();
+      await axios.delete(`http://localhost:5000/api/users/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
     } catch (err) {
       console.error('Error deleting user:', err);
       setError('Error deleting user');
+    }
+  };
+
+  const handleChangeStatus = async (user, newStatus) => {
+    try {
+      const token = AuthService.getToken();
+      const updatedUser = { ...user, status: newStatus };
+      await axios.put(`http://localhost:5000/api/users/${user._id}`, updatedUser, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUsers(prevUsers => 
+        prevUsers.map(u => u._id === user._id ? { ...u, status: newStatus } : u)
+      );
+    } catch (err) {
+      setError('Error updating user status');
+      console.error(err);
     }
   };
 
@@ -75,13 +98,16 @@ const UserList = () => {
 
   const handleUpdateUser = async () => {
     const isConfirmed = window.confirm('Are you sure you want to edit this user?');
-    if (!isConfirmed) {
-      return;
-    }
-  
+    if (!isConfirmed) return;
+
     try {
-      await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, selectedUser);
-      const response = await axios.get('http://localhost:5000/api/users');
+      const token = AuthService.getToken();
+      await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, selectedUser, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const response = await axios.get('http://localhost:5000/api/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setUsers(response.data);
       handleCloseModal();
     } catch (err) {
@@ -89,7 +115,6 @@ const UserList = () => {
       setError('Error updating user');
     }
   };
-  
 
   const handleShowNewUserModal = () => {
     setShowNewUserModal(true);
@@ -102,8 +127,13 @@ const UserList = () => {
 
   const handleCreateUser = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users', newUser);
-      const usersResponse = await axios.get('http://localhost:5000/api/users');
+      const token = AuthService.getToken();
+      await axios.post('http://localhost:5000/api/users', newUser, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const usersResponse = await axios.get('http://localhost:5000/api/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setUsers(usersResponse.data);
       handleCloseNewUserModal();
     } catch (err) {
@@ -114,12 +144,10 @@ const UserList = () => {
 
   const handleSearch = () => {
     if (searchTerm.trim() === "") {
-      // If the search term is empty, reset users to the original list
-      fetchUsers();
+      fetchData();
       return;
     }
     
-    // Filter users based on the search term
     const filteredUsers = users.filter(user =>
       user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -129,12 +157,9 @@ const UserList = () => {
       user.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     
-    // Update the users state with filtered results and reset pagination
     setUsers(filteredUsers);
-    setCurrentPage(0); // Reset pagination to the first page
+    setCurrentPage(0);
   };
-  
-  
 
   const sortedUsers = [...users].sort((a, b) => {
     if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -162,6 +187,10 @@ const UserList = () => {
     setSortConfig({ key, direction });
   };
 
+  if (authLoading) return <p>Loading authentication...</p>;
+  if (!currentUser || currentUser.role?.name !== 'SuperAdmin') {
+    return <Navigate to="/unauthorized" replace />;
+  }
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
@@ -173,28 +202,26 @@ const UserList = () => {
         </Button>
 
         <div className="d-flex align-items-center" style={{ maxWidth: "600px", margin: "0 auto" }}>
-  <div className="position-relative">
-    <input
-      type="text"
-      className="form-control ps-5" // Adding padding to the left for the icon space
-      placeholder="Search..."
-      value={searchTerm}
-      onChange={(e) => {
-        setSearchTerm(e.target.value);
-        handleSearch(); // Trigger search as user types
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          handleSearch(); // Trigger search when pressing Enter
-        }
-      }}
-    />
-    <i className="fas fa-search position-absolute" style={{ top: '50%', left: '10px', transform: 'translateY(-50%)' }}></i> {/* Align search icon */}
-  </div>
-</div>
+          <div className="position-relative">
+            <input
+              type="text"
+              className="form-control ps-5"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                handleSearch();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
+            />
+            <i className="fas fa-search position-absolute" style={{ top: '50%', left: '10px', transform: 'translateY(-50%)' }}></i>
+          </div>
+        </div>
 
-
-        
         <Dropdown className="dropdown mb-2 ms-auto me-3">
           <Dropdown.Toggle className="btn btn-primary btn-rounded light" aria-expanded="false">
             <i className="las la-bolt scale5 me-3" />
@@ -206,8 +233,6 @@ const UserList = () => {
             <Dropdown.Item className="dropdown-item">Inactive Users</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        
-        
       </div>
 
       <h1 className="text-center" style={{ fontWeight: "bold" }}>Users List</h1><br></br>
@@ -225,71 +250,59 @@ const UserList = () => {
                 <th className="sorting text-center" style={{ width: 67 }} onClick={() => requestSort('status')}>
                   Status
                 </th>
-                <th className class="text-center" style={{ width: 108 }} > Actions</th>
+                <th className="text-center" style={{ width: 108 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-  {paginatedUsers.map((user) => (
-    <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
-      <td>{user.email}</td>
-      <td>{user.role.name}</td> {/* Affichage du rôle */}
-
-      <td>
-        <span className={user.status === "Active" ? "text-success" : "text-danger"}>
-          {user.status}
-        </span>
-      </td>
-
-      <td>
-        <div className="d-flex align-items-center justify-content-end">
-          {/* Bouton View (Bleu) */}
-          <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowModal(user)}>
-            <i className="fas fa-eye"></i>
-          </button>
-
-          {/* Bouton Edit (Jaune / Orange) */}
-          <button className="btn btn-sm me-2" style={{ backgroundColor: "#ffc107", color: "black" }} onClick={() => handleShowModal(user)}>
-            <i className="fas fa-edit"></i>
-          </button>
-
-          {/* Bouton Delete (Rouge) */}
-          <button className="btn btn-sm me-2" style={{ backgroundColor: "#dc3545", color: "white" }} onClick={() => deleteUser(user._id)}>
-            <i className="fas fa-trash"></i>
-          </button>
-
-          {/* Dropdown pour changer le statut */}
-          <Dropdown className="dropdown">
-            <Dropdown.Toggle
-              variant=""
-              className="btn btn-sm border-0"
-              to="#"
-              as="div"
-              aria-expanded="false"
-            >
-              <i className="fas fa-ellipsis-v"></i> {/* Icône pour le menu déroulant */}
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
-                <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Active")}>
-                  <i className="las la-check text-success me-3 scale5" />
-                  Set Active
-                </Dropdown.Item>
-                <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Inactive")}>
-                  <i className="las la-times text-warning me-3 scale5" />
-                  Set Inactive
-                </Dropdown.Item>
-                <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Banned")}>
-                  <i className="las la-ban text-danger me-3 scale5" />
-                  Set Banned
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-        </div>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
+              {paginatedUsers.map((user) => (
+                <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
+                  <td>{user.email}</td>
+                  <td>{user.role.name}</td>
+                  <td>
+                    <span className={user.status === "Active" ? "text-success" : "text-danger"}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="d-flex align-items-center justify-content-end">
+                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowModal(user)}>
+                        <i className="fas fa-eye"></i>
+                      </button>
+                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#ffc107", color: "black" }} onClick={() => handleShowModal(user)}>
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#dc3545", color: "white" }} onClick={() => deleteUser(user._id)}>
+                        <i className="fas fa-trash"></i>
+                      </button>
+                      <Dropdown className="dropdown">
+                        <Dropdown.Toggle
+                          variant=""
+                          className="btn btn-sm border-0"
+                          as="div"
+                          aria-expanded="false"
+                        >
+                          <i className="fas fa-ellipsis-v"></i>
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
+                          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Active")}>
+                            <i className="las la-check text-success me-3 scale5" />
+                            Set Active
+                          </Dropdown.Item>
+                          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Inactive")}>
+                            <i className="las la-times text-warning me-3 scale5" />
+                            Set Inactive
+                          </Dropdown.Item>
+                          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Banned")}>
+                            <i className="las la-ban text-danger me-3 scale5" />
+                            Set Banned
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
           <div className="d-sm-flex text-center justify-content-between align-items-center mt-3">
             <div className="dataTables_info" role="status" aria-live="polite">
@@ -338,7 +351,7 @@ const UserList = () => {
                 <Form.Label>First Name</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedUser.firstName}
+                  value={selectedUser.firstName || ''}
                   onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })}
                 />
               </Form.Group>
@@ -346,7 +359,7 @@ const UserList = () => {
                 <Form.Label>Last Name</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedUser.lastName}
+                  value={selectedUser.lastName || ''}
                   onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
                 />
               </Form.Group>
@@ -362,7 +375,7 @@ const UserList = () => {
                 <Form.Label>Phone</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedUser.phone}
+                  value={selectedUser.phone || ''}
                   onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
                 />
               </Form.Group>
@@ -370,7 +383,7 @@ const UserList = () => {
                 <Form.Label>Address</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedUser.address}
+                  value={selectedUser.address || ''}
                   onChange={(e) => setSelectedUser({ ...selectedUser, address: e.target.value })}
                 />
               </Form.Group>
@@ -386,8 +399,8 @@ const UserList = () => {
                 <Form.Label>Role</Form.Label>
                 <Form.Control
                   as="select"
-                  value={selectedUser.role._id} // Use role ID for selection
-                  onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value })}
+                  value={selectedUser.role?._id || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, role: { _id: e.target.value } })}
                 >
                   {roles.map((role) => (
                     <option key={role._id} value={role._id}>
@@ -400,12 +413,12 @@ const UserList = () => {
                 <Form.Label>Status</Form.Label>
                 <Form.Control
                   as="select"
-                  value={selectedUser.status}
+                  value={selectedUser.status || ''}
                   onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
-                  <option value="Inactive">Banned</option>
+                  <option value="Banned">Banned</option>
                 </Form.Control>
               </Form.Group>
             </Form>
@@ -422,10 +435,9 @@ const UserList = () => {
       </Modal>
 
       <Modal show={showNewUserModal} onHide={handleCloseNewUserModal}>
-      <Modal.Header closeButton>
+        <Modal.Header closeButton>
           <Modal.Title>Create New User</Modal.Title>
         </Modal.Header>
-        
         <Modal.Body>
           <Form>
             <Form.Group controlId="formNewUserEmail">
@@ -451,6 +463,7 @@ const UserList = () => {
                 value={newUser.role}
                 onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
               >
+                <option value="">Select Role</option>
                 {roles.map((role) => (
                   <option key={role._id} value={role._id}>
                     {role.name}

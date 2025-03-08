@@ -16,7 +16,6 @@ import {
 import { checkAutoLogin } from './services/AuthService';
 import { isAuthenticated } from './store/selectors/AuthSelectors';
 /// Style
-
 import './assets/css/style.css';
 
 // const SignUp = lazy(() => import('./jsx/pages/Registration'));
@@ -24,6 +23,7 @@ const ClientSignUp = lazy(() => import('./jsx/pages/ClientRegister'));
 const RestaurantSignUp = lazy(() => import('./jsx/pages/RestaurantRegister'));
 const ForgotPassword = lazy(() => import('./jsx/pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./jsx/pages/ResetPassword'));
+const Unauthorized = lazy(() => import('./jsx/pages/Unauthorized')); // Added Unauthorized import
 const Login = lazy(() => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(import('./jsx/pages/Login')), 500);
@@ -54,7 +54,7 @@ function App(props) {
       <Route
         element={
           <>
-            <nav className="px-4 py-2 bg-white  shadow-sm d-flex  justify-content-end">
+            <nav className="px-4 py-2 bg-white shadow-sm d-flex justify-content-end">
               <Link className="text-primary" to="/restaurant/register">
                 For restaurants
               </Link>
@@ -68,6 +68,7 @@ function App(props) {
         <Route path="/restaurant/register" element={<RestaurantSignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/unauthorized" element={<Unauthorized />} /> {/* Added Unauthorized route */}
       </Route>
     </Routes>
   );
@@ -116,5 +117,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-//export default connect((mapStateToProps)(App));
 export default withRouter(connect(mapStateToProps)(App));

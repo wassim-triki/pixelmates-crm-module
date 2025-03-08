@@ -89,7 +89,6 @@ import SortingTable from './components/table/SortingTable/SortingTable';
 import FilteringTable from './components/table/FilteringTable/FilteringTable';
 
 /// Form
-
 import Element from './components/Forms/Element/Element';
 import Wizard from './components/Forms/Wizard/Wizard';
 import CkEditor from './components/Forms/CkEditor/CkEditor';
@@ -110,12 +109,9 @@ import Todo from './pages/Todo';
 //Scroll To Top
 import ScrollToTop from './layouts/ScrollToTop';
 
-
-
-//i have added
+// I have added
 import Clients from './components/Dashboard/Clients';
-  
-
+import Unauthorized from './pages/Unauthorized'; // Added Unauthorized import
 
 const Markup = () => {
   const routes = {
@@ -127,7 +123,6 @@ const Markup = () => {
     { url: '', component: <Home /> },
     { url: 'dashboard', component: <Home /> },
     { url: 'clients', component: <Clients /> },
-    
     { url: 'orders', component: <Orders /> },
     { url: 'Order-id', component: <OrderId /> },
     { url: 'general-customers', component: <GeneralCustomers /> },
@@ -211,7 +206,6 @@ const Markup = () => {
     { url: 'table-filtering', component: <FilteringTable /> },
     { url: 'table-sorting', component: <SortingTable /> },
     /// pages
-
     { url: 'todo', component: <Todo /> },
   ];
 
@@ -224,6 +218,7 @@ const Markup = () => {
         <Route path="page-error-404" element={<Error404 />} />
         <Route path="page-error-500" element={<Error500 />} />
         <Route path="page-error-503" element={<Error503 />} />
+        <Route path="unauthorized" element={<Unauthorized />} /> {/* Added Unauthorized route */}
         <Route element={<MainLayout />}>
           {allroutes.map((data, i) => (
             <Route
@@ -247,6 +242,7 @@ const Markup = () => {
     </>
   );
 };
+
 function MainLayout() {
   // const { menuToggle } = useContext(ThemeContext);
   return (
