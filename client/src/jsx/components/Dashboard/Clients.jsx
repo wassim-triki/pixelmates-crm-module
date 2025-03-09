@@ -233,7 +233,11 @@ const UserList = () => {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                handleSearch();
+                if (e.target.value.trim() === "") {
+                  fetchData();
+                } else {
+                  handleSearch();
+                }
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -418,6 +422,26 @@ const UserList = () => {
                   onChange={(e) => setSelectedUser({ ...selectedUser, birthday: e.target.value })}
                 />
               </Form.Group>
+
+              <Form.Group controlId="formPassword">
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={selectedUser.password || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, password: e.target.value })}  
+                />
+              </Form.Group>
+              
+             
+              <Form.Group controlId="formImage">
+                <Form.Label>Image</Form.Label>
+                <Form.Control
+                  type="file"
+                  value={selectedUser.image || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, image: e.target.value })}
+                />
+              </Form.Group>
+
               <Form.Group controlId="formRole">
                 <Form.Label>Role</Form.Label>
                 <Form.Control
