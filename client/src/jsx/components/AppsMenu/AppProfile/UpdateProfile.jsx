@@ -30,6 +30,9 @@ const reducer = (state, action) => {
     }
 }
 
+
+
+
 const Update_Profile = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [user, setUser] = useState(null);
@@ -129,7 +132,7 @@ const Update_Profile = () => {
                             </div>
                             <div className="profile-info">
                                 <div className="profile-photo">
-                                    <img src={profile} className="img-fluid rounded-circle" alt="profile" />
+                                    <img src={user?.image} className="img-fluid rounded-circle" alt="profile" />
                                 </div>
                                 <div className="profile-details">
                                     <div className="profile-name px-3 pt-2">
