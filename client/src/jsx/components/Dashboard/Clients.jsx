@@ -256,8 +256,9 @@ const UserList = () => {
             <i className="las la-angle-down ms-3" />
           </Dropdown.Toggle>
           <Dropdown.Menu className="dropdown-menu dropdown-menu-center">
-            <Dropdown.Item className="dropdown-item">Active Users</Dropdown.Item>
-            <Dropdown.Item className="dropdown-item">Inactive Users</Dropdown.Item>
+            <Dropdown.Item className="dropdown-item" onClick={() => requestSort('status')}>Active Users</Dropdown.Item>
+            <Dropdown.Item className="dropdown-item" onClick={() => requestSort('status')}>Inactive Users</Dropdown.Item>
+            <Dropdown.Item className="dropdown-item" onClick={() => requestSort('status')}>Banned Users</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
@@ -286,7 +287,7 @@ const UserList = () => {
                   <td>{user.email}</td>
                   <td>{user.role?.name || 'N/A'}</td>
                   <td>
-                    <span className={user.status === "Active" ? "text-success" : "text-danger"}>
+                    <span className={user.status === "Active" ? "text-success" : user.status === "Inactive" ? "text-warning" : "text-danger"}>
                       {user.status}
                     </span>
                   </td>

@@ -34,7 +34,7 @@ const reducer = (state, action) => {
 
 
 const Update_Profile = () => {
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const [, dispatch] = useReducer(reducer, initialState);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -109,7 +109,7 @@ const Update_Profile = () => {
                 formDataToSend.append('image', imageFile);
             }
 
-            await axios.put(`http://localhost:5000/api/users/${user._id}`, formDataToSend, config);
+            await axios.put(`http://localhost:5000/api/users/${user.id}`, formDataToSend, config);
             alert('Profile updated successfully');
         } catch (err) {
             setError('Error updating profile: ' + err.message);
