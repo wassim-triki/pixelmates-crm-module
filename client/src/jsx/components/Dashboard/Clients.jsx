@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Dropdown, Modal, Button, Form } from 'react-bootstrap';
 import { Navigate } from 'react-router-dom';
-import { getCurrentUser } from "../../../services/AuthService.js";const UserList = () => {
+import { getCurrentUser } from "../../../services/AuthService.js"; // Only getCurrentUser is imported
+import { formatError } from "../../../services/AuthService.js"; // Added import for formatError
+
+const UserList = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roles, setRoles] = useState([]);
@@ -18,6 +21,7 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
   const [showNewUserModal, setShowNewUserModal] = useState(false);
   const [newUser, setNewUser] = useState({ email: '', password: '', role: '' });
   const [sortConfig, setSortConfig] = useState({ key: 'email', direction: 'ascending' });
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -50,64 +54,69 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
       setUsers(usersResponse.data);
       setRoles(rolesResponse.data);
     } catch (err) {
-      setError('Error fetching data: ' + err.message);
+      const errorMessage = err.response?.data?.message || err.message || 'Error fetching data';
+      setError(formatError({ message: errorMessage }) || errorMessage);
     } finally {
       setLoading(false);
     }
   };  
+
   const deleteUser = async (id) => {
     const isConfirmed = window.confirm('Are you sure you want to delete this user?');
     if (!isConfirmed) return;
 
     try {
-      const token = AuthService.getToken();
-      await axios.delete(`http://localhost:5000/api/users/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('No authentication token found');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      await axios.delete(`http://localhost:5000/api/users/${id}`, config);
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
+      setError(null);
     } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Error deleting user';
       console.error('Error deleting user:', err);
-      setError('Error deleting user');
+      setError(formatError({ message: errorMessage }) || errorMessage);
     }
   };
 
   const handleChangeStatus = async (user, newStatus) => {
     try {
-      const token = AuthService.getToken();
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('No authentication token found');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
       const updatedUser = { ...user, status: newStatus };
-      await axios.put(`http://localhost:5000/api/users/${user._id}`, updatedUser, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUsers(prevUsers => 
-        prevUsers.map(u => u._id === user._id ? { ...u, status: newStatus } : u)
+
+      await axios.put(`http://localhost:5000/api/users/${user._id}`, updatedUser, config);
+      setUsers((prevUsers) =>
+        prevUsers.map((u) => (u._id === user._id ? { ...u, status: newStatus } : u))
       );
+      setError(null);
     } catch (err) {
-      setError('Error updating user status');
-      console.error(err);
+      const errorMessage = err.response?.data?.message || err.message || 'Error updating user status';
+      console.error('Error updating user status:', err);
+      setError(formatError({ message: errorMessage }) || errorMessage);
     }
   };
 
   const handleShowModal = (user) => {
     setSelectedUser(user);
-    setShowViewModal(true);  // Affiche uniquement le modal de visualisation
+    setShowViewModal(true);
   };
-  
+
   const handleEditModal = (user) => {
     setSelectedUser(user);
-    setShowEditModal(true);  // Affiche uniquement le modal d'édition
+    setShowEditModal(true);
   };
-  
+
   const handleCloseViewModal = () => {
     setShowViewModal(false);
+    setSelectedUser(null); // Reset selectedUser
   };
-  
+
   const handleCloseEditModal = () => {
     setShowEditModal(false);
-  };
-  
-  const handleCloseModal = () => {
-    setSelectedUser(null);
-    setShowModal(false);
+    setSelectedUser(null); // Reset selectedUser
   };
 
   const handleUpdateUser = async () => {
@@ -115,18 +124,19 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
     if (!isConfirmed) return;
 
     try {
-      const token = AuthService.getToken();
-      await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, selectedUser, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const response = await axios.get('http://localhost:5000/api/users', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('No authentication token found');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, selectedUser, config);
+      const response = await axios.get('http://localhost:5000/api/users', config);
       setUsers(response.data);
-      handleCloseModal();
+      handleCloseEditModal(); // Updated to use handleCloseEditModal
+      setError(null);
     } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Error updating user';
       console.error('Error updating user:', err);
-      setError('Error updating user');
+      setError(formatError({ message: errorMessage }) || errorMessage);
     }
   };
 
@@ -141,18 +151,19 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
 
   const handleCreateUser = async () => {
     try {
-      const token = AuthService.getToken();
-      await axios.post('http://localhost:5000/api/users', newUser, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const usersResponse = await axios.get('http://localhost:5000/api/users', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('No authentication token found');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      await axios.post('http://localhost:5000/api/users', newUser, config);
+      const usersResponse = await axios.get('http://localhost:5000/api/users', config);
       setUsers(usersResponse.data);
       handleCloseNewUserModal();
+      setError(null);
     } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Error creating user';
       console.error('Error creating user:', err);
-      setError('Error creating user');
+      setError(formatError({ message: errorMessage }) || errorMessage);
     }
   };
 
@@ -163,12 +174,12 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
     }
     
     const filteredUsers = users.filter(user =>
-      user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.firstName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (user.lastName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.status?.toLowerCase().includes(searchTerm.toLowerCase())
+      (user.phone?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (user.address?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (user.status?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
     
     setUsers(filteredUsers);
@@ -176,12 +187,10 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
   };
 
   const sortedUsers = [...users].sort((a, b) => {
-    if (a[sortConfig.key] < b[sortConfig.key]) {
-      return sortConfig.direction === 'ascending' ? -1 : 1;
-    }
-    if (a[sortConfig.key] > b[sortConfig.key]) {
-      return sortConfig.direction === 'ascending' ? 1 : -1;
-    }
+    const keyA = sortConfig.key.includes('.') ? sortConfig.key.split('.').reduce((o, i) => o?.[i], a) : a[sortConfig.key];
+    const keyB = sortConfig.key.includes('.') ? sortConfig.key.split('.').reduce((o, i) => o?.[i], b) : b[sortConfig.key];
+    if (keyA < keyB) return sortConfig.direction === 'ascending' ? -1 : 1;
+    if (keyA > keyB) return sortConfig.direction === 'ascending' ? 1 : -1;
     return 0;
   });
 
@@ -271,7 +280,7 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
               {paginatedUsers.map((user) => (
                 <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
                   <td>{user.email}</td>
-                  <td>{user.role.name}</td>
+                  <td>{user.role?.name || 'N/A'}</td>
                   <td>
                     <span className={user.status === "Active" ? "text-success" : "text-danger"}>
                       {user.status}
@@ -355,99 +364,98 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
       </div>
 
       <Modal show={showEditModal} onHide={handleCloseEditModal}>
-  <Modal.Header closeButton>
-    <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>Edit User</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    {selectedUser && (
-      <Form>
-        <Form.Group controlId="formFirstName">
-          <Form.Label>First Name</Form.Label>
-          <Form.Control
-            type="text"
-            value={selectedUser.firstName || ''}
-            onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })}
-          />
-        </Form.Group>
-        <Form.Group controlId="formLastName">
-          <Form.Label>Last Name</Form.Label>
-          <Form.Control
-            type="text"
-            value={selectedUser.lastName || ''}
-            onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
-          />
-        </Form.Group>
-        <Form.Group controlId="formEmail">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            value={selectedUser.email}
-            onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
-          />
-        </Form.Group>
-        <Form.Group controlId="formPhone">
-          <Form.Label>Phone</Form.Label>
-          <Form.Control
-            type="text"
-            value={selectedUser.phone || ''}
-            onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
-          />
-        </Form.Group>
-        <Form.Group controlId="formAddress">
-          <Form.Label>Address</Form.Label>
-          <Form.Control
-            type="text"
-            value={selectedUser.address || ''}
-            onChange={(e) => setSelectedUser({ ...selectedUser, address: e.target.value })}
-          />
-        </Form.Group>
-        <Form.Group controlId="formBirthday">
-          <Form.Label>Birthday</Form.Label>
-          <Form.Control
-            type="date"
-            value={selectedUser.birthday ? selectedUser.birthday.split('T')[0] : ''}
-            onChange={(e) => setSelectedUser({ ...selectedUser, birthday: e.target.value })}
-          />
-        </Form.Group>
-        <Form.Group controlId="formRole">
-          <Form.Label>Role</Form.Label>
-          <Form.Control
-            as="select"
-            value={selectedUser.role?._id || ''}
-            onChange={(e) => setSelectedUser({ ...selectedUser, role: { _id: e.target.value } })}
-          >
-            {roles.map((role) => (
-              <option key={role._id} value={role._id}>
-                {role.name}
-              </option>
-            ))}
-          </Form.Control>
-        </Form.Group>
-        <Form.Group controlId="formStatus">
-          <Form.Label>Status</Form.Label>
-          <Form.Control
-            as="select"
-            value={selectedUser.status || ''}
-            onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Banned">Banned</option>
-          </Form.Control>
-        </Form.Group>
-      </Form>
-    )}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={handleCloseEditModal}>
-      Close
-    </Button>
-    <Button variant="primary" onClick={handleUpdateUser}>
-      Save Changes
-    </Button>
-  </Modal.Footer>
-</Modal>
-
+        <Modal.Header closeButton>
+          <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>Edit User</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <Form>
+              <Form.Group controlId="formFirstName">
+                <Form.Label>First Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.firstName || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formLastName">
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.lastName || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formEmail">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={selectedUser.email}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formPhone">
+                <Form.Label>Phone</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.phone || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formAddress">
+                <Form.Label>Address</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.address || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, address: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formBirthday">
+                <Form.Label>Birthday</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={selectedUser.birthday ? selectedUser.birthday.split('T')[0] : ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, birthday: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId="formRole">
+                <Form.Label>Role</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={selectedUser.role?._id || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, role: { _id: e.target.value } })}
+                >
+                  {roles.map((role) => (
+                    <option key={role._id} value={role._id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group controlId="formStatus">
+                <Form.Label>Status</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={selectedUser.status || ''}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Banned">Banned</option>
+                </Form.Control>
+              </Form.Group>
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseEditModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleUpdateUser}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Modal show={showNewUserModal} onHide={handleCloseNewUserModal}>
         <Modal.Header closeButton>
@@ -499,35 +507,32 @@ import { getCurrentUser } from "../../../services/AuthService.js";const UserList
       </Modal>
 
       <Modal show={showViewModal} onHide={handleCloseViewModal} centered>
-  <Modal.Header closeButton>
-  <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>
-  Details User
-</Modal.Title>  
-</Modal.Header>
-  <Modal.Body>
-    {selectedUser && (
-      <div>
-        <p><strong>First Name:</strong> {selectedUser.firstName}</p>
-        <p><strong>Last Name:</strong> {selectedUser.lastName}</p>
-        <p><strong>Phone:</strong> {selectedUser.phone}</p>
-        <p><strong>Address:</strong> {selectedUser.address}</p>
-        <p><strong>Birthday:</strong> {selectedUser.birthday ? new Date(selectedUser.birthday).toISOString().split('T')[0] : "N/A"}</p>
-        <p><strong>Email:</strong> {selectedUser.email}</p>
-        <p><strong>Role:</strong> {selectedUser.role?.name}</p>
-        <p><strong>Status:</strong> {selectedUser.status}</p>
-      </div>
-    )}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={handleCloseViewModal}>
-      Close
-    </Button>
-  </Modal.Footer>
-</Modal>
-
-
+        <Modal.Header closeButton>
+          <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>
+            User Details
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <div>
+              <p><strong>First Name:</strong> {selectedUser.firstName || 'N/A'}</p>
+              <p><strong>Last Name:</strong> {selectedUser.lastName || 'N/A'}</p>
+              <p><strong>Phone:</strong> {selectedUser.phone || 'N/A'}</p>
+              <p><strong>Address:</strong> {selectedUser.address || 'N/A'}</p>
+              <p><strong>Birthday:</strong> {selectedUser.birthday ? new Date(selectedUser.birthday).toISOString().split('T')[0] : "N/A"}</p>
+              <p><strong>Email:</strong> {selectedUser.email}</p>
+              <p><strong>Role:</strong> {selectedUser.role?.name || 'N/A'}</p>
+              <p><strong>Status:</strong> {selectedUser.status}</p>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseViewModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
-    
   );
 };
 
