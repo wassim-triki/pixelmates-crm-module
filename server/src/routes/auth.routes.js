@@ -22,6 +22,11 @@ const router = express.Router();
 // Public routes
 router.post('/signup', validateSchema(signupSchema), signup);
 router.post('/login', validateSchema(loginSchema), login);
+router.post('/refresh', refreshToken);
+
+router.post('/logout', protect, logout);
+// auth.routes.js
+router.get('/me', protect, getMe);
 router.post(
   '/reset-password',
   validateSchema(resetPasswordSchema),
@@ -32,9 +37,5 @@ router.post(
   validateSchema(forgotPasswordSchema),
   forgotPassword
 );
-router.post('/refresh', refreshToken);
 
-router.post('/logout', protect, logout);
-// auth.routes.js
-router.get('/me', protect, getMe);
 module.exports = router;

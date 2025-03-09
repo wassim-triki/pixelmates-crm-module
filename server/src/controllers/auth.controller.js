@@ -135,12 +135,10 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     data: { resetLink, name: user.firstName },
   });
 
-  res
-    .status(200)
-    .json({
-      message: 'Password reset link sent. Check your inbox.',
-      resetLink,
-    });
+  res.status(200).json({
+    message: 'Password reset link sent. Check your inbox.',
+    resetLink,
+  });
 });
 
 // Reset Password - Update New Password
@@ -178,7 +176,9 @@ exports.resetPassword = asyncHandler(async (req, res) => {
 exports.refreshToken = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) {
-    return res.status(403).json({ message: 'No refresh token' });
+    return res
+      .status(403)
+      .json({ message: 'No refresh token in request cookies' });
   }
 
   const user = await User.findOne({ refreshToken });
@@ -206,11 +206,11 @@ exports.getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.userId)
     .populate({
       path: 'role',
-      select: 'name permissions'
+      select: 'name permissions',
     })
     .populate({
       path: 'restaurantId',
-      select: 'name address' // Customize fields as needed
+      select: 'name address', // Customize fields as needed
     })
     .select('-password -refreshToken'); // Exclude sensitive fields
 
@@ -230,9 +230,9 @@ exports.getMe = asyncHandler(async (req, res) => {
     image: user.image,
     role: {
       name: user.role.name,
-      permissions: user.role.permissions
+      permissions: user.role.permissions,
     },
-    restaurant: user.restaurantId || null
+    restaurant: user.restaurantId || null,
   };
 
   res.status(200).json(userData);
