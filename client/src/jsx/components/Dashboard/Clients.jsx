@@ -437,8 +437,7 @@ const UserList = () => {
                 <Form.Label>Image</Form.Label>
                 <Form.Control
                   type="file"
-                  value={selectedUser.image || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, image: e.target.value })}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, image: e.target.files[0] })}
                 />
               </Form.Group>
 
@@ -538,7 +537,15 @@ const UserList = () => {
         </Modal.Header>
         <Modal.Body>
           {selectedUser && (
-            <div>
+            <div className="text-center">
+              <img 
+                src={selectedUser.image || 'default-profile.png'} 
+                width={100}
+                height={100}
+                alt="Profile"
+                className="rounded-circle mb-3"
+                style={{ objectFit: 'cover' }}
+              />
               <p><strong>First Name:</strong> {selectedUser.firstName || 'N/A'}</p>
               <p><strong>Last Name:</strong> {selectedUser.lastName || 'N/A'}</p>
               <p><strong>Phone:</strong> {selectedUser.phone || 'N/A'}</p>
