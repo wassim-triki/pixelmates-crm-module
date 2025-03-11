@@ -127,9 +127,17 @@ const handleCloseNewRestaurantModal = () => {
       if (!token) throw new Error('No authentication token found');
       const config = { headers: { Authorization: `Bearer ${token}` } };
   
-      console.log('Creating restaurant with data:', newRestaurant); // Log the request data
+      // Format the fields
+      const formattedNewRestaurant = {
+        ...newRestaurant,
+        taxeTPS: newRestaurant.taxeTPS ? `${newRestaurant.taxeTPS}%` : '',
+        taxeTVQ: newRestaurant.taxeTVQ ? `${newRestaurant.taxeTVQ}%` : '',
+        color: newRestaurant.color ? `#${newRestaurant.color}` : ''
+      };
   
-      await axios.post('http://localhost:5000/api/restaurants', newRestaurant, config);
+      console.log('Creating restaurant with data:', formattedNewRestaurant); // Log the request data
+  
+      await axios.post('http://localhost:5000/api/restaurants', formattedNewRestaurant, config);
       const response = await axios.get('http://localhost:5000/api/restaurants', config);
       setRestaurants(response.data.restaurants);
       handleCloseNewRestaurantModal();
@@ -369,24 +377,25 @@ const handleCloseNewRestaurantModal = () => {
                 <Form.Label>Taxe TPS</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedRestaurant.taxeTPS || ''}
-                  onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, taxeTPS: e.target.value })}
+                  value={selectedRestaurant.taxeTPS ? `${selectedRestaurant.taxeTPS}%` : ''}
+                  onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, taxeTPS: e.target.value.replace('%', '') })}
                 />
               </Form.Group>
               <Form.Group controlId="formTaxeTVQ">
                 <Form.Label>Taxe TVQ</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedRestaurant.taxeTVQ || ''}
-                  onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, taxeTVQ: e.target.value })}
+                  value={selectedRestaurant.taxeTVQ ? `${selectedRestaurant.taxeTVQ}%` : ''}
+                  onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, taxeTVQ: e.target.value.replace('%', '') })}
                 />
               </Form.Group>
               <Form.Group controlId="formColor">
                 <Form.Label>Color</Form.Label>
                 <Form.Control
                   type="text"
-                  value={selectedRestaurant.color || ''}
-                  onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, color: e.target.value })}
+                  value={selectedRestaurant.color ? `#${selectedRestaurant.color}` : ''}
+                  maxLength={7}
+                  onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, color: e.target.value.replace('#', '') })}
                 />
               </Form.Group>
               <Form.Group controlId="formLogo">
@@ -469,24 +478,25 @@ const handleCloseNewRestaurantModal = () => {
         <Form.Label>Taxe TPS</Form.Label>
         <Form.Control
           type="text"
-          value={newRestaurant.taxeTPS}
-          onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTPS: e.target.value })}
+          value={newRestaurant.taxeTPS ? `${newRestaurant.taxeTPS}%` : ''}
+          onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTPS: e.target.value.replace('%', '') })}
         />
       </Form.Group>
       <Form.Group controlId="formNewRestaurantTaxeTVQ">
         <Form.Label>Taxe TVQ</Form.Label>
         <Form.Control
           type="text"
-          value={newRestaurant.taxeTVQ}
-          onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTVQ: e.target.value })}
+          value={newRestaurant.taxeTVQ ? `${newRestaurant.taxeTVQ}%` : ''}
+          onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTVQ: e.target.value.replace('%', '') })}
         />
       </Form.Group>
       <Form.Group controlId="formNewRestaurantColor">
         <Form.Label>Color</Form.Label>
         <Form.Control
           type="text"
-          value={newRestaurant.color}
-          onChange={(e) => setNewRestaurant({ ...newRestaurant, color: e.target.value })}
+          value={newRestaurant.color ? `#${newRestaurant.color}` : ''}
+          maxLength={7}
+          onChange={(e) => setNewRestaurant({ ...newRestaurant, color: e.target.value.replace('#', '') })}
         />
       </Form.Group>
       <Form.Group controlId="formNewRestaurantLogo">
@@ -525,9 +535,8 @@ const handleCloseNewRestaurantModal = () => {
     </Button>
   </Modal.Footer>
 </Modal>
-        </>
-        
-    );
+    </>
+  );
         };
 
         export default RestaurantList;

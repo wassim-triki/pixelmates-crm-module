@@ -31,23 +31,22 @@ const RestaurantSchema = new mongoose.Schema(
         "Other",
       ],
       default: "Other",
-      null: true, // Allow null values
-    },
-    taxeTPS: {
-      type: String,
-      match: [/^\d+(\.\d+)?%$/, "TPS format should be like '5%' or '5.5%'"],
-      default: null, // Allow null values
-    },
-    taxeTVQ: {
-      type: String,
-      match: [/^\d+(\.\d+)?%$/, "TVQ format should be like '9.975%'"],
-      default: null, // Allow null values
-    },
-    color: {
-      type: String,
-      default: "#FFFFFF",
-      match: [/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color code"],
-      null: true, // Allow null values
+       // Allow null values
+        },
+        taxeTPS: {
+          type: String,
+          match: [/^\d+(\.\d+)?%$/, "TPS format should be like '5%' or '5.5%'"],
+          default: null, // Allow null values
+        },
+        taxeTVQ: {
+          type: String,
+          match: [/^\d+(\.\d+)?%$/, "TVQ format should be like '9.975%'"],
+           // Allow null values
+            },
+            color: {
+              type: String,
+              match: [/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color code"],
+              default: null, // Allow null values
     },
     logo: {
       type: String,
