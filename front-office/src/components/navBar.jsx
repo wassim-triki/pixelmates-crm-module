@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, User, Menu, X } from 'lucide-react'; // Add the hamburger icon
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+
   const handleLogout = async () => {
     await logout();
     navigate('/login'); // Redirect to login page
@@ -39,22 +40,20 @@ const Navbar = () => {
           <Link to="/" className="text-[#FA8072] font-bold hover:text-black transition">
             Home
           </Link>
+          <Link to="/about" className="text-[#FA8072] font-bold hover:text-black transition">
+            About Us
+          </Link>
+        </div>
+
+        {/* Right Section: Login Button */}
+        <div className="hidden md:flex items-center space-x-6">
           <Link
             to="/login"
             className="text-[#FA8072] font-bold hover:text-black transition"
           >
             Login
           </Link>
-          <Link
-            to="/signup"
-            className="text-[#FA8072] font-bold hover:text-black transition"
-          >
-            Signup
-          </Link>
-        </div>
 
-        {/* Right Section: Search Bar & Profile */}
-        <div className="hidden md:flex items-center space-x-6">
           {/* Search Bar */}
           <div className="relative">
             <input
@@ -111,24 +110,24 @@ const Navbar = () => {
         <div className="md:hidden bg-black/90 text-white flex flex-col items-center py-6 space-y-6">
           <Link
             to="/"
-            className="text-lg text-[#FA8072] font-bold hover:text-black"
+            className="text-lg text-[#FA8072] font-bold hover:text-white"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Home
           </Link>
           <Link
+            to="/about"
+            className="text-lg text-[#FA8072] font-bold hover:text-white"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            About Us
+          </Link>
+          <Link
             to="/login"
-            className="text-lg text-[#FA8072] font-bold hover:text-black"
+            className="text-lg text-[#FA8072] font-bold hover:text-white"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Login
-          </Link>
-          <Link
-            to="/signup"
-            className="text-lg text-[#FA8072] font-bold hover:text-black"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Signup
           </Link>
         </div>
       )}
