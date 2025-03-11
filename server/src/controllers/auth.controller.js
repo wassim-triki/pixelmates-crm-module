@@ -9,6 +9,7 @@ const {
   generateResetToken,
 } = require('../utils/token');
 const sendEmail = require('../utils/sendEmail');
+const { ROLES } = require('../constants/roles');
 
 // User Registration
 exports.signup = asyncHandler(async (req, res) => {
@@ -73,10 +74,9 @@ exports.login = asyncHandler(async (req, res) => {
   res.json({ message: 'Login successful', accessToken });
 });
 
-// Password Reset Request
 exports.forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).populate('role'); // Ensure role is populated
 
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
@@ -90,42 +90,14 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   user.resetPasswordExpire = Date.now() + 3600000; // 1 hour expiry
   await user.save();
 
-  // Reset link with frontend URL
-  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}&email=${email}`;
+  // Determine which URL to use based on role
+  const isClient = user.role?.name?.name === ROLES.CLIENT.name;
+  const baseUrl = isClient
+    ? process.env.FRONTOFFICE_URL
+    : process.env.BACKOFFICE_URL;
 
-  // Send Reset Email
-  await sendEmail({
-    to: user.email,
-    subject: 'Password Reset Request',
-    template: 'forgot-password',
-    data: { resetLink, name: user.firstName },
-  });
-
-  res.status(200).json({
-    message: 'Password reset link sent. Check your inbox.',
-    resetLink,
-  });
-});
-
-// Reset Password
-exports.forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  // Generate reset token and hash it
-  const { resetToken, hashedToken } = await generateResetToken();
-
-  // Store hashed token and expiry in the database
-  user.resetPasswordToken = hashedToken;
-  user.resetPasswordExpire = Date.now() + 3600000; // 1 hour expiry
-  await user.save();
-
-  // Reset link with frontend URL
-  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}&email=${email}`;
+  // Reset link with the appropriate frontend URL
+  const resetLink = `${baseUrl}/reset-password?token=${resetToken}&email=${email}`;
 
   // Send Reset Email
   await sendEmail({
