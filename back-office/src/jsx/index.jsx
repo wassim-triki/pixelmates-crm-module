@@ -113,6 +113,7 @@ import ScrollToTop from './layouts/ScrollToTop';
 import Clients from './components/Dashboard/Clients';
 import Unauthorized from './pages/Unauthorized'; // Added Unauthorized import
 import UpdateProfile from './components/AppsMenu/AppProfile/UpdateProfile';
+import Restaurant from './components/Dashboard/Restaurant';
 
 const Markup = () => {
   const routes = {
@@ -124,6 +125,7 @@ const Markup = () => {
     { url: '', component: <Home /> },
     { url: 'dashboard', component: <Home /> },
     { url: 'clients', component: <Clients /> },
+    { url: 'restaurant', component: <Restaurant /> },
     { url: 'orders', component: <Orders /> },
     { url: 'Order-id', component: <OrderId /> },
     { url: 'general-customers', component: <GeneralCustomers /> },
