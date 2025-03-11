@@ -5,6 +5,8 @@ const Restaurant = require('../models/Restaurant.js');
 // @access  Public
 const createRestaurant = async (req, res) => {
   try {
+    console.log('Request body:', req.body); // Log the request body
+
     const {
       name,
       address,
@@ -30,14 +32,15 @@ const createRestaurant = async (req, res) => {
       taxeTPS,
       taxeTVQ,
       color: color || '#FFFFFF',
-      logo,
-      promotion,
+      logo: logo || '',
+      promotion: promotion || '',
       payCashMethod: payCashMethod || 'not-accepted',
       images: images || [],
     });
 
     res.status(201).json(restaurant);
   } catch (error) {
+    console.error('Error creating restaurant:', error); // Log the error
     res.status(500).json({ message: error.message });
   }
 };

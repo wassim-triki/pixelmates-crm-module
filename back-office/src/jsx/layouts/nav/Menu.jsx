@@ -12,7 +12,12 @@ export const MenuList = [
             {
             title: 'Clients',
                         to: 'clients',
-                }    ,               
+                }    ,       
+                {
+                    title:'restaurant',
+                    to:'restaurant'
+                },
+                       
             {
                 title: 'Orders',
                 to: 'orders',
