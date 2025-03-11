@@ -1,4 +1,6 @@
 const express = require('express');
+const passport = require("passport");
+
 const {
   signup,
   login,
@@ -38,4 +40,25 @@ router.post(
   forgotPassword
 );
 
+// 🔹 Connexion Google
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "http://localhost:5173/login" }),
+  (req, res) => {
+    res.redirect("http://localhost:4000/dashboard"); // Redirection après connexion
+  }
+);
+
+// 🔹 Connexion Facebook
+router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "http://localhost:5173/login" }),
+  (req, res) => {
+    res.redirect("http://localhost:4000/dashboard");
+  }
+);
 module.exports = router;

@@ -10,6 +10,9 @@ const authRoutes = require('./routes/auth.routes.js');
 const errorHandler = require('./middlewares/error-handler.middleware.js');
 
 const roleRoutes = require('./routes/role.routes.js'); // Add this line
+const session = require('express-session');  // 🔹 Sessions pour Passport
+const passport = require('./config/passport.js'); // 🔹 Configuration Passport.js
+
 
 
 dotenv.config();
@@ -22,7 +25,18 @@ const app = express();
 // Middleware
 app.use(express.json()); // Body parser
 app.use(cookieParser()); // Parse cookies
-app.use(cors({ origin: 'http://localhost:5173', credentials: true })); // Allow CORS
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:4000'];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -30,6 +44,19 @@ app.use(
     message: 'Too many requests, please try again later.',
   })
 );
+
+// 🔹 Configurer les sessions (nécessaire pour Passport.js)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "mysecret",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+// 🔹 Initialiser Passport.js
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 const PORT = process.env.PORT || 5000;
 

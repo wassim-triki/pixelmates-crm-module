@@ -47,7 +47,7 @@ function Login(props) {
         <div className="row">
           <div className="col-lg-6 col-md-7 box-skew d-flex">
             <div className="authincation-content">
-            <div className="mb-4 text-center">
+              <div className="mb-4 text-center">
                 <h1 className="mb-1 font-w800">Sign In</h1>
                 <p>Enter your email and password to access your account.</p>
               </div>
@@ -104,40 +104,32 @@ function Login(props) {
                     <div className="text-danger fs-12">{errors.password}</div>
                   )}
                 </div>
-                <div className="new-account mt-2">
-                <p className="mb-0">
-                   Forgot password?{' '}
-                <Link className="text-primary" to="/forgot-password">
-                   Reset it here
-                </Link>
-                </p>
-                </div>
-
-                <div className="form-row d-flex justify-content-between mt-4 mb-2">
-                  <div className="form-group mb-3">
-                    <div className="custom-control custom-checkbox ms-1 ">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        id="basic_checkbox_1"
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="basic_checkbox_1"
-                      >
-                        Remember my preference
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="text-center">
                   <button type="submit" className="btn btn-primary btn-block">
                     Sign In
                   </button>
                 </div>
               </form>
-              <div className="new-account mt-2">
+              <div className="text-center mt-4">
+                <p>Or sign in with:</p>
+                <div className="d-flex justify-content-center">
+                  <a href="http://localhost:5000/api/auth/google" className="btn btn-outline-danger mx-2">
+                    <i className="fab fa-google"></i> Sign In with Google
+                  </a>
+                  <a href="http://localhost:5000/api/auth/facebook" className="btn btn-outline-primary mx-2">
+                    <i className="fab fa-facebook-f"></i> Sign In with Facebook
+                  </a>
+                </div>
+              </div>
+              <div className="new-account mt-2 text-center">
+                <p className="mb-0">
+                  Forgot password?{' '}
+                  <Link className="text-primary" to="/forgot-password">
+                    Reset it here
+                  </Link>
+                </p>
+              </div>
+              <div className="new-account mt-2 text-center">
                 <p className="mb-0">
                   Don't have an account?{' '}
                   <Link className="text-primary" to="/client/register">
@@ -147,6 +139,7 @@ function Login(props) {
               </div>
             </div>
           </div>
+
           <div className="col-lg-6 col-md-5 d-flex box-skew1">
             <div className="inner-content align-self-center">
               <div
@@ -160,24 +153,6 @@ function Login(props) {
                   loading="lazy"
                 />
               </div>
-
-              <ul className="social-icons mt-4">
-                <li>
-                  <Link to={'#'}>
-                    <i className="fab fa-facebook-f"></i>
-                  </Link>
-                </li>
-                <li>
-                  <Link to={'#'}>
-                    <i className="fab fa-twitter"></i>
-                  </Link>
-                </li>
-                <li>
-                  <Link to={'#'}>
-                    <i className="fab fa-linkedin-in"></i>
-                  </Link>
-                </li>
-              </ul>
             </div>
           </div>
         </div>
