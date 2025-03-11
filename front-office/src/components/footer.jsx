@@ -17,6 +17,22 @@ const Footer = () => {
             </div>
             <p>Discover the best restaurants, cafes <br></br>and more.</p>
           </div>
+          {/* Services Section */}
+          <div className="w-full md:w-1/4 mb-4 md:mb-0">
+            <h5 className="text-lg font-semibold mb-4">Services</h5>
+            <ul>
+              <li className="mb-2">
+                <a href="" className="text-white ">
+                  Home
+                </a>
+              </li>
+              <li className="mb-2">
+                <a href="" className="text-white">
+                  About Us
+                </a>
+              </li>
+            </ul>
+          </div>
 
           {/* Contact Section */}
           <div className="w-full md:w-1/4 mb-4 md:mb-0">
@@ -82,20 +98,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Useful Links Section */}
-          <div className="w-full md:w-1/4 mb-4 md:mb-0">
-            <h5 className="text-lg font-semibold mb-4">Available On</h5>
-            <img
-              src="/googleplay.png"
-              alt="Google Play Store"
-              className="w-36 h-14 border border-white rounded-lg cursor-pointer mb-2"
-            />
-            <img
-              src="/appstore.png"
-              alt="Apple Store"
-              className="w-36 h-14 border border-white rounded-lg cursor-pointer"
-            />
-          </div>
+
 
           {/* Social Media Section */}
           <div className="w-full md:w-1/4 text-center">
@@ -124,7 +127,7 @@ const Footer = () => {
       <div className="text-white text-center p-3 mt-4">
         <div
           className="border-t border-white mt-4"
-          style={{ width:"84%", margin: "0 auto",marginTop: "2,5rem", paddingTop: "1rem" }}
+          style={{ width:"84%", margin: "0 auto", marginTop: "2.5rem", paddingTop: "1rem" }}
         >
           © 2025 The MenuFy. All rights reserved.
         </div>
