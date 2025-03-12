@@ -102,7 +102,7 @@ function Register() {
                       name="firstName"
                       formik={formik}
                       placeholder="Enter your first name"
-                      className="border-[#FA8072] focus:ring-[#FA8072]"
+                      className="border-gray-300/30 focus:ring-[#FA8072]"
                     />
                   </div>
                   <div className="w-1/3">
@@ -111,7 +111,7 @@ function Register() {
                       name="lastName"
                       formik={formik}
                       placeholder="Enter your last name"
-                      className="border-[#FA8072] focus:ring-[#FA8072]"
+                      className="border-gray-300/30 focus:ring-[#FA8072]"
                     />
                   </div>
                   <div className="w-1/3">
@@ -121,7 +121,7 @@ function Register() {
                       type="email"
                       formik={formik}
                       placeholder="Enter your email"
-                      className="border-[#FA8072] focus:ring-[#FA8072]"
+                      className="border-gray-300/30 focus:ring-[#FA8072]"
                     />
                   </div>
                 </div>
@@ -133,7 +133,7 @@ function Register() {
                     type="password"
                     formik={formik}
                     placeholder="Create a password"
-                    className="border-[#FA8072] focus:ring-[#FA8072]"
+                    className="border-gray-300/30 focus:ring-[#FA8072]"
                   />
                   <InputField
                     label="Confirm Password"
@@ -141,7 +141,7 @@ function Register() {
                     type="password"
                     formik={formik}
                     placeholder="Confirm your password"
-                    className="border-[#FA8072] focus:ring-[#FA8072]"
+                    className="border-gray-300/30 focus:ring-[#FA8072]"
                   />
 
                   {/* Terms and Conditions */}
@@ -156,22 +156,26 @@ function Register() {
                     />
                     <label htmlFor="terms" className="ml-2 text-sm text-white">
                       I agree to the{' '}
-                      <a href="#" className="text-[#FA8072] hover:text-[#FF6347]">
+                      <a
+                        href="#"
+                        className="text-[#FA8072] hover:text-[#FF6347]"
+                      >
                         Terms and Conditions
                       </a>
                     </label>
                   </div>
-                  {formik.touched.termsAccepted && formik.errors.termsAccepted && (
-                    <p className="text-red-500 text-sm">
-                      {formik.errors.termsAccepted}
-                    </p>
-                  )}
+                  {formik.touched.termsAccepted &&
+                    formik.errors.termsAccepted && (
+                      <p className="text-red-500 text-sm">
+                        {formik.errors.termsAccepted}
+                      </p>
+                    )}
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full bg-[#FA8072] hover:bg-[#FA8072] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full transition-all duration-300  disabled:text-gray-700"
-                  disabled={!formik.isValid || formik.isSubmitting}
+                  className="w-full !bg-[#FA8072] hover:!bg-[#de7e73] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full transition-all duration-300  disabled:text-gray-700 cursor-pointer"
+                  disabled={formik.isSubmitting}
                 >
                   {formik.isSubmitting ? 'Signing up' : 'Sign Up'}
                 </Button>

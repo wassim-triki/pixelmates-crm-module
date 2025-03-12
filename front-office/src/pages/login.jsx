@@ -130,7 +130,7 @@ function Login() {
 
               {/* Submit Button */}
               <Button
-                className="w-full bg-[#FA8072] hover:bg-[#FA8072] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full transition-all duration-300  disabled:text-gray-700"
+                className="w-full !bg-[#FA8072] hover:!bg-[#c47168] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full cursor-pointer transition-all duration-300  disabled:text-gray-700"
                 type="submit"
                 disabled={loading}
               >
