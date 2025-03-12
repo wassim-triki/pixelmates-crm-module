@@ -1,8 +1,8 @@
-const { default: mongoose } = require("mongoose");
-const connectDB = require("../config/database");
-const { ROLES } = require("../constants/roles");
-const Role = require("../models/Role");
-const User = require("../models/User");
+const { default: mongoose } = require('mongoose');
+const connectDB = require('../config/database');
+const { ROLES } = require('../constants/roles');
+const Role = require('../models/Role');
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
 const seedAll = async () => {
@@ -11,13 +11,13 @@ const seedAll = async () => {
     await connectDB();
 
     // 2. Seed Roles
-    console.log("🏗️  Seeding roles...");
+    console.log('🏗️  Seeding roles...');
     for (const role of Object.values(ROLES)) {
       const existingRole = await Role.findOne({ name: role.name });
       if (existingRole) {
         await Role.updateOne(
           { name: role.name },
-          { $set: { permissions: role.permissions } },
+          { $set: { permissions: role.permissions } }
         );
         console.log(`🔄 Updated role: ${role.name}`);
       } else {
@@ -27,15 +27,15 @@ const seedAll = async () => {
     }
 
     // 3. Seed SuperAdmin
-    console.log("\n👨💼 Seeding super admin...");
+    console.log('\n👨💼 Seeding super admin...');
     const superAdminRole = await Role.findOne({ name: 'SuperAdmin' });
-    
+
     if (!superAdminRole) {
       throw new Error('SuperAdmin role not found - seed roles first');
     }
 
-    const existingUser = await User.findOne({ 
-      email:  'superadmin@themenufy.com'
+    const existingUser = await User.findOne({
+      email: 'superadmin@themenufy.com',
     });
 
     if (!existingUser) {
@@ -45,17 +45,16 @@ const seedAll = async () => {
         email: 'superadmin@themenufy.com',
         password: 'superadmin',
         role: superAdminRole._id,
-        restaurantId: null
+        restaurantId: null,
       });
       console.log('✅ SuperAdmin created successfully');
     } else {
       console.log('ℹ️ SuperAdmin already exists');
     }
 
-    console.log("\n🎉 All seeding complete!");
-    
+    console.log('\n🎉 All seeding complete!');
   } catch (error) {
-    console.error("❌ Seeding error:", error);
+    console.error('❌ Seeding error:', error);
     process.exit(1);
   } finally {
     // 4. Close connection once

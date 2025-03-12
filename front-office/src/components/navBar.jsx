@@ -1,55 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, User, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Dropdown } from 'react-bootstrap';
-import { getCurrentUser } from '../services/AuthService';
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  const { logout, user, loading } = useAuth();
+  const profileDropdownRef = useRef(null);
 
+  // Function to close dropdown when clicking outside
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const response = await getCurrentUser();
-        setUserData(response.data);
-      } catch (err) {
-        setError('Failed to load profile');
-        console.error('Error fetching user profile:', err);
-      } finally {
-        setLoading(false);
+    const handleClickOutside = (event) => {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
+        setIsProfileOpen(false);
       }
     };
 
-    fetchUserProfile();
-  }, [user]);
+    if (isProfileOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileOpen]);
 
   const handleLogout = async () => {
     try {
       await logout();
-      setUserData(null);
       setIsProfileOpen(false);
       setIsMobileMenuOpen(false);
       navigate('/login');
     } catch (err) {
       console.error('Logout failed:', err);
     }
-  };
-
-  const handleToggle = () => {
-    console.log('Toggling dropdown, current state:', isProfileOpen);
-    setIsProfileOpen(!isProfileOpen);
   };
 
   return (
@@ -63,6 +54,7 @@ const Navbar = () => {
           />
         </Link>
 
+        {/* Mobile Menu Toggle */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden text-[#FA8072]"
@@ -70,15 +62,23 @@ const Navbar = () => {
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
+        {/* Desktop Navigation Links */}
         <div className="hidden md:flex space-x-8">
-          <Link to="/" className="text-[#FA8072] font-bold hover:text-black transition">
+          <Link
+            to="/"
+            className="text-[#FA8072] font-bold hover:text-black transition"
+          >
             Home
           </Link>
-          <Link to="/about" className="text-[#FA8072] font-bold hover:text-black transition">
+          <Link
+            to="/about"
+            className="text-[#FA8072] font-bold hover:text-black transition"
+          >
             About Us
           </Link>
         </div>
 
+        {/* Right Section (Search + Auth) */}
         <div className="hidden md:flex items-center space-x-6">
           {!user && (
             <Link
@@ -89,6 +89,7 @@ const Navbar = () => {
             </Link>
           )}
 
+          {/* Search Box */}
           <div className="relative">
             <input
               type="text"
@@ -97,75 +98,70 @@ const Navbar = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search className="absolute right-3 top-2 text-gray-500" size={20} />
+            <Search
+              className="absolute right-3 top-2 text-gray-500"
+              size={20}
+            />
           </div>
 
+          {/* Profile Dropdown */}
           {user && (
-            <Dropdown className="nav-item dropdown header-profile">
-              <Dropdown.Toggle
-                as="div"
-                className="p-0 cursor-pointer bg-transparent border-none"
-                onClick={handleToggle}
+            <div ref={profileDropdownRef} className="relative">
+              <button
+                className="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded transition"
+                onClick={() => setIsProfileOpen((prev) => !prev)}
               >
-                <div className="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded transition">
-                  <div className="relative w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full">
-                    <User className="text-gray-700" size={20} />
-                  </div>
-                  <div className="header-info">
-                    {loading ? (
-                      <div
-                        className="skeleton-line animate-pulse"
-                        style={{ width: '120px', height: '16px', background: '#e0e0e0' }}
-                      />
-                    ) : error ? (
-                      <span className="text-red-500 text-sm">Profile Error</span>
-                    ) : (
-                      <>
-                        <span className="block text-dark font-bold">
-                          {userData?.firstName} {userData?.lastName}
-                        </span>
-                        <small className="text-gray-600">
-                        
-                        </small>
-                      </>
-                    )}
-                  </div>
+                <div className="relative w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full">
+                  <User className="text-gray-700" size={20} />
                 </div>
-              </Dropdown.Toggle>
+                <div className="header-info">
+                  {loading ? (
+                    <div
+                      className="skeleton-line animate-pulse"
+                      style={{
+                        width: '120px',
+                        height: '16px',
+                        background: '#e0e0e0',
+                      }}
+                    />
+                  ) : (
+                    <span className="block text-dark font-bold">
+                      {user.firstName} {user.lastName}
+                    </span>
+                  )}
+                </div>
+              </button>
 
-              <Dropdown.Menu
-                show={isProfileOpen}
-                className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg py-2 z-10"
-              >
-                <Dropdown.Item
-                  as={Link}
-                  to="/ProfilePage"
-                  className="block px-4 py-2 text-gray-700 hover:text-[#FA8072]"
-                  onClick={() => setIsProfileOpen(false)}
-                >
-                  Profile
-                </Dropdown.Item>
-                <Dropdown.Item
-                  as={Link}
-                  to="/settings"
-                  className="block px-4 py-2 text-gray-700 hover:text-[#FA8072]"
-                  onClick={() => setIsProfileOpen(false)}
-                >
-                  Settings
-                </Dropdown.Item>
-                <Dropdown.Item
-                  as="button"
-                  onClick={handleLogout}
-                  className="block px-4 py-2 text-gray-700 hover:text-[#FA8072] w-full text-left"
-                >
-                  Logout
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+              {isProfileOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg py-2 z-10">
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072]"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072]"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072] w-full text-left"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
 
+      {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-black/90 text-white flex flex-col items-center py-6 space-y-6">
           <Link
@@ -198,10 +194,10 @@ const Navbar = () => {
               Logout
             </button>
           )}
-          {user && !loading && !error && (
+          {user && !loading && (
             <div className="text-center text-white">
               <span className="block text-[#FA8072] font-bold">
-                {userData?.firstName} {userData?.lastName}
+                {user.firstName} {user.lastName}
               </span>
             </div>
           )}
