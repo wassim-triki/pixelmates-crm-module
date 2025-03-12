@@ -6,6 +6,9 @@ import App from "./App.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <App />
+    <div className="flex flex-col min-h-screen">
+      {/* This wraps everything and ensures footer stays at the bottom */}
+      <App />
+    </div>
   </BrowserRouter>
 );
