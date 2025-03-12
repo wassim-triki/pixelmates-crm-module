@@ -37,6 +37,7 @@ const UserSchema = new mongoose.Schema(
 // Hash password before saving (only for local users)
 UserSchema.pre('save', async function (next) {
   if (this.isModified('password') && this.password) {
+    // ✅ Ensure password exists
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }
@@ -45,8 +46,12 @@ UserSchema.pre('save', async function (next) {
 
 // Compare password
 UserSchema.methods.matchPassword = async function (enteredPassword) {
-  if (!this.password) return false; // Prevents checking password for Google users
-  return await bcrypt.compare(enteredPassword, this.password);
+  if (!this.password) {
+    return false; // Prevents checking password for Google users
+  }
+
+  const isMatch = await bcrypt.compare(enteredPassword, this.password);
+  return isMatch;
 };
 
 module.exports = mongoose.model('User', UserSchema);

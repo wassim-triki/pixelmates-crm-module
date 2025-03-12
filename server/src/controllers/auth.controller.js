@@ -55,20 +55,23 @@ exports.signup = asyncHandler(async (req, res) => {
   // Generate a 6-digit verification code
   const verificationCode = generateVerificationCode();
 
-  // Create new user (not verified yet)
-  const newUser = await User.create({
+  // ✅ Create new user instance (DO NOT USE User.create())
+  const newUser = new User({
     firstName,
     lastName,
     email,
-    password,
+    password, // ✅ This will trigger pre-save middleware to hash it
     phone,
     role: roleDoc._id,
-    isVerified: false, // User is not verified initially
+    isVerified: false,
     verificationCode,
-    verificationCodeExpire: Date.now() + 10 * 60 * 1000, // Code expires in 10 minutes
+    verificationCodeExpire: Date.now() + 10 * 60 * 1000, // Expires in 10 minutes
   });
 
-  // Send Email Verification with the code
+  // ✅ Save user (TRIGGERS `pre('save')`)
+  await newUser.save();
+
+  // Send Email Verification
   await sendEmail({
     to: newUser.email,
     subject: 'Verify Your Email',
@@ -80,6 +83,33 @@ exports.signup = asyncHandler(async (req, res) => {
     message:
       'User registered successfully. Please check your email for the verification code.',
   });
+});
+
+// User Login
+exports.login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email })
+    .select('+password')
+    .populate('role');
+
+  if (!user || !(await user.matchPassword(password))) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  if (!user.isVerified) {
+    return res
+      .status(403)
+      .json({ message: 'Please verify your email before logging in.' });
+  }
+
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+  res.json({ message: 'Login successful', accessToken });
 });
 
 exports.verifyEmail = asyncHandler(async (req, res) => {
@@ -151,31 +181,6 @@ exports.resendVerificationEmail = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json({ message: 'A new verification code has been sent to your email.' });
-});
-
-// User Login
-exports.login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email }).populate('role');
-
-  if (!user || !(await user.matchPassword(password))) {
-    return res.status(401).json({ message: 'Invalid credentials' });
-  }
-
-  if (!user.isVerified) {
-    return res
-      .status(403)
-      .json({ message: 'Please verify your email before logging in.' });
-  }
-
-  const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
-
-  user.refreshToken = refreshToken;
-  await user.save();
-
-  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-  res.json({ message: 'Login successful', accessToken });
 });
 
 exports.forgotPassword = asyncHandler(async (req, res) => {
