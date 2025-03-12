@@ -11,7 +11,11 @@ const {
 const sendEmail = require('../utils/sendEmail');
 const { ROLES } = require('../constants/roles');
 
-// User Registration
+// User Registrationx
+
+const generateVerificationCode = () =>
+  Math.floor(100000 + Math.random() * 900000).toString();
+
 exports.signup = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, password, phone, role } = req.body;
 
@@ -27,7 +31,10 @@ exports.signup = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Invalid role' });
   }
 
-  // Create the new user
+  // Generate a 6-digit verification code
+  const verificationCode = generateVerificationCode();
+
+  // Create new user (not verified yet)
   const newUser = await User.create({
     firstName,
     lastName,
@@ -35,24 +42,94 @@ exports.signup = asyncHandler(async (req, res) => {
     password,
     phone,
     role: roleDoc._id,
+    isVerified: false, // User is not verified initially
+    verificationCode,
+    verificationCodeExpire: Date.now() + 10 * 60 * 1000, // Code expires in 10 minutes
   });
 
-  // Generate tokens
-  const accessToken = generateAccessToken(newUser);
-  const refreshToken = generateRefreshToken(newUser);
+  // Send Email Verification with the code
+  await sendEmail({
+    to: newUser.email,
+    subject: 'Verify Your Email',
+    template: 'verify-email',
+    data: { verificationCode, name: newUser.firstName },
+  });
 
-  // Save refresh token in the database
-  newUser.refreshToken = refreshToken;
-  await newUser.save();
-
-  // Set refresh token in cookies
-  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-
-  // Return success message along with tokens
   res.status(201).json({
-    message: 'User registered successfully',
-    accessToken, // Auto-login the user
+    message:
+      'User registered successfully. Please check your email for the verification code.',
   });
+});
+
+exports.verifyEmail = asyncHandler(async (req, res) => {
+  const { email, code } = req.body;
+
+  // Find user
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found.' });
+  }
+
+  if (user.isVerified) {
+    return res.status(400).json({ message: 'User is already verified.' });
+  }
+
+  // Check if the code matches
+  if (user.verificationCode !== code) {
+    return res.status(400).json({ message: 'Invalid verification code.' });
+  }
+
+  // Check if the code has expired
+  if (user.verificationCodeExpire && user.verificationCodeExpire < Date.now()) {
+    return res.status(400).json({
+      message: 'Verification code has expired. Please request a new one.',
+    });
+  }
+
+  // Mark user as verified and remove the verification code
+  user.isVerified = true;
+  user.verificationCode = undefined;
+  user.verificationCodeExpire = undefined;
+  await user.save();
+
+  res
+    .status(200)
+    .json({ message: 'Email successfully verified. You can now log in.' });
+});
+
+exports.resendVerificationEmail = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found.' });
+  }
+
+  if (user.isVerified) {
+    return res.status(400).json({ message: 'User is already verified.' });
+  }
+
+  // Generate a new 6-digit verification code
+  const verificationCode = generateVerificationCode();
+
+  // Update user with the new code and expiration time
+  user.verificationCode = verificationCode;
+  user.verificationCodeExpire = Date.now() + 10 * 60 * 1000; // Code expires in 10 minutes
+  await user.save();
+
+  // Send the new verification email
+  await sendEmail({
+    to: user.email,
+    subject: 'Your New Verification Code',
+    template: 'verify-email',
+    data: { verificationCode, name: user.firstName },
+  });
+
+  res
+    .status(200)
+    .json({ message: 'A new verification code has been sent to your email.' });
 });
 
 // User Login
@@ -62,6 +139,12 @@ exports.login = asyncHandler(async (req, res) => {
 
   if (!user || !(await user.matchPassword(password))) {
     return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  if (!user.isVerified) {
+    return res
+      .status(403)
+      .json({ message: 'Please verify your email before logging in.' });
   }
 
   const accessToken = generateAccessToken(user);

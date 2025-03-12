@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Your Email</title>
+  </head>
+  <body>
+    <h3>Hello <%= name %>,</h3>
+    <p>Here is your verification code:</p>
+    <h2
+      style="
+        background: #ea7a9a;
+        color: white;
+        padding: 10px;
+        display: inline-block;
+      "
+    >
+      <%= verificationCode %>
+    </h2>
+    <p>This code is valid for 10 minutes.</p>
+    <p>If you did not create an account, you can ignore this email.</p>
+  </body>
+</html>
