@@ -45,6 +45,8 @@ const seedAll = async () => {
         email: 'superadmin@themenufy.com',
         password: 'superadmin',
         role: superAdminRole._id,
+        isVerified: true,
+        status: 'Active',
         restaurantId: null,
       });
       console.log('✅ SuperAdmin created successfully');
