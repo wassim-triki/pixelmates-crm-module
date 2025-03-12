@@ -1,50 +1,51 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const Role = require('./Role');
 
 const UserSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: false },
-    lastName: { type: String, required: false },
+    firstName: { type: String },
+    lastName: { type: String },
     email: { type: String, unique: true, required: true },
-    image: { type: String, required: false }, // URL to image
-    phone: { type: String, required: false },
-    address: { type: String, required: false },
-    birthday: { type: Date, required: false },
-    password: { type: String, required: true }, // Hashed password
-    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' }, // Reference to Role
-    refreshToken: { type: String }, // Refresh token for JWT
-    resetPasswordToken: { type: String }, // Token for resetting password
-    resetPasswordExpire: { type: Date }, // Expiration date for reset password token
-    restaurantId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Restaurant',
-      required: false,
-    }, // Only for Admins/Employees
+    image: { type: String }, // Profile picture URL
+    phone: { type: String },
+    address: { type: String },
+    birthday: { type: Date },
+    password: { type: String, select: false }, // Hide password when querying users
+    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' },
+    refreshToken: { type: String },
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: { type: Date },
+    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant' },
     status: {
       type: String,
       enum: ['Active', 'Banned', 'Blocked'],
-      default: 'Active', // Default value is 'active'
+      default: 'Active',
     },
     isVerified: { type: Boolean, default: false },
-    verificationCode: { type: String }, // 6-digit verification code
-    verificationCodeExpire: { type: Date }, // Expiration time for the code
+    verificationCode: { type: String },
+    verificationCodeExpire: { type: Date },
+    provider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local',
+    },
+    providerId: { type: String }, // Google user ID
   },
   { timestamps: true }
 );
 
-// Hash password before saving
+// Hash password before saving (only for local users)
 UserSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
-    // Hash only if password is modified
+  if (this.isModified('password') && this.password) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }
   next();
 });
 
-// Compare password method
+// Compare password
 UserSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.password) return false; // Prevents checking password for Google users
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

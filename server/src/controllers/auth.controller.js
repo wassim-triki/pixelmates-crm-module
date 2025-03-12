@@ -11,7 +11,27 @@ const {
 const sendEmail = require('../utils/sendEmail');
 const { ROLES } = require('../constants/roles');
 
-// User Registrationx
+exports.loginWithOAuth = asyncHandler(async (req, res) => {
+  const { user, jwtToken, refreshJwt } = req.user;
+
+  res.cookie('refreshToken', refreshJwt, {
+    httpOnly: true,
+    secure: true,
+  });
+
+  res.status(200).json({
+    message: 'Login successful',
+    accessToken: jwtToken,
+    user: {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      provider: user.provider,
+      image: user.image,
+    },
+  });
+});
 
 const generateVerificationCode = () =>
   Math.floor(100000 + Math.random() * 900000).toString();

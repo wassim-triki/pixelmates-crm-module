@@ -1,4 +1,5 @@
 const express = require('express');
+const passport = require('passport');
 const {
   signup,
   login,
@@ -9,6 +10,7 @@ const {
   forgotPassword,
   verifyEmail,
   resendVerificationEmail,
+  loginWithOAuth,
 } = require('../controllers/auth.controller');
 
 const { protect } = require('../middlewares/auth.middleware');
@@ -18,7 +20,7 @@ const {
   signupSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
-  verifyEmailSchema, // New validator for email verification
+  verifyEmailSchema,
 } = require('../validators/auth.validator');
 
 const router = express.Router();
@@ -27,16 +29,14 @@ const router = express.Router();
 router.post('/signup', validateSchema(signupSchema), signup);
 router.post('/login', validateSchema(loginSchema), login);
 router.post('/refresh', refreshToken);
-
-// Email verification routes
-router.post('/verify-email', validateSchema(verifyEmailSchema), verifyEmail); // Use a POST request since we send data
+router.post('/verify-email', validateSchema(verifyEmailSchema), verifyEmail);
 router.post('/resend-verification', resendVerificationEmail);
 
 // Authenticated routes
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
 
-// Password recovery routes
+// Password recovery
 router.post(
   '/reset-password',
   validateSchema(resetPasswordSchema),
@@ -46,6 +46,17 @@ router.post(
   '/forgot-password',
   validateSchema(forgotPasswordSchema),
   forgotPassword
+);
+
+// Google OAuth Routes
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false }),
+  loginWithOAuth
 );
 
 module.exports = router;

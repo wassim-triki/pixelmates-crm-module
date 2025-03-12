@@ -10,18 +10,22 @@ const authRoutes = require('./routes/auth.routes.js');
 const errorHandler = require('./middlewares/error-handler.middleware.js');
 
 const roleRoutes = require('./routes/role.routes.js'); // Add this line
+const passport = require('passport');
 
 dotenv.config();
 
 // Connect to MongoDB
 connectDB();
 
+require('./config/googleAuth');
 const app = express();
 
 // Middleware
 app.use(express.json()); // Body parser
 app.use(cookieParser()); // Parse cookies
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:4000'];
+
+app.use(passport.initialize());
 
 app.use(
   cors({
