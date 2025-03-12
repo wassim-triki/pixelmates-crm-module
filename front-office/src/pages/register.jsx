@@ -79,9 +79,9 @@ function Register() {
           boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
         }}
       />
-      <main className="relative flex-grow flex items-center justify-center sm:justify-end py-10 px-4 sm:px-6 lg:px-20">
-        <div className="w-full max-w-md sm:w-[480px] sm:h-auto p-10 rounded-2xl bg-white/10 backdrop-blur-xl flex flex-col justify-between">
-          <div className="flex flex-col items-center space-y-6">
+      <main className="relative flex-grow flex items-center justify-center sm:justify-end py-5 px-4 sm:px-6 lg:px-20">
+        <div className="w-full max-w-md sm:w-[480px] sm:h-auto p-8 rounded-2xl bg-white/10 backdrop-blur-xl flex flex-col justify-between" style={{ marginTop: '-50px' }}>
+          <div className="flex flex-col items-center space-y-4">
             <h1 className="text-3xl font-bold text-white">Create Account</h1>
 
             {formik.errors.apiError && (
@@ -90,20 +90,28 @@ function Register() {
               </p>
             )}
 
-            <form className="w-full space-y-5" onSubmit={formik.handleSubmit}>
-              <div className="space-y-4">
-                <InputField
-                  label="First Name"
-                  name="firstName"
-                  formik={formik}
-                  placeholder="Enter your first name"
-                />
-                <InputField
-                  label="Last Name"
-                  name="lastName"
-                  formik={formik}
-                  placeholder="Enter your last name"
-                />
+            <form className="w-full space-y-4" onSubmit={formik.handleSubmit}>
+              <div className="space-y-2">
+                {/* First and Last Name in the same row */}
+                <div className="flex space-x-2">
+                  <div className="w-1/2">
+                    <InputField
+                      label="First Name"
+                      name="firstName"
+                      formik={formik}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+                  <div className="w-1/2">
+                    <InputField
+                      label="Last Name"
+                      name="lastName"
+                      formik={formik}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+                </div>
+
                 <InputField
                   label="Email"
                   name="email"
@@ -127,7 +135,7 @@ function Register() {
                 />
 
                 {/* Terms and Conditions */}
-                <div className="flex items-center">
+                <div className="flex items-center space-x-1">
                   <input
                     id="terms"
                     type="checkbox"
@@ -136,7 +144,7 @@ function Register() {
                     checked={formik.values.termsAccepted}
                     onChange={formik.handleChange}
                   />
-                  <label htmlFor="terms" className="ml-2 text-sm text-white">
+                  <label htmlFor="terms" className="text-sm text-white">
                     I agree to the{' '}
                     <a
                       href="#"
@@ -164,7 +172,7 @@ function Register() {
             </form>
           </div>
 
-          <div className="text-center mt-4">
+          <div className="text-center mt-2">
             <span className="text-white"> Already have an account? </span>
             <Link
               to="/login"

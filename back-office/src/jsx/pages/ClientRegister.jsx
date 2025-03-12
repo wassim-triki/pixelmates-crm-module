@@ -25,11 +25,13 @@ function Register(props) {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   useEffect(() => {
     dispatch({
       type: 'CLEAR_MESSAGES',
     });
   }, [dispatch]);
+
   function onSignUp(e) {
     e.preventDefault();
     let errorObj = {};
@@ -85,17 +87,17 @@ function Register(props) {
   }
 
   return (
-    <div className="authincation ">
-      <div className="container ">
+    <div className="authincation">
+      <div className="container">
         <div className="row justify-content-center h-100 align-items-center">
           <div className="col-md-8 col-lg-6">
-            <div className="authincation-content ">
+            <div className="authincation-content">
               <div className="row no-gutters">
                 <div className="col-xl-12">
                   <div className="auth-form">
-                   <div className="mb-4 text-center">
-                   <h1 className="mb-1 font-w800">Sign Up</h1><br></br>
-                    <h4 className="text-center mb-4">Sign Up Your Account</h4>
+                    <div className="mb-4 text-center">
+                      <h1 className="mb-1 font-w800">Sign Up</h1><br />
+                      <h4 className="text-center mb-4">Sign Up Your Account</h4>
                     </div>
                     {props.errorMessage && (
                       <div className="alert alert-danger" role="alert">
@@ -109,73 +111,76 @@ function Register(props) {
                     )}
                     <form onSubmit={onSignUp}>
                       <div className="form-group mb-3">
-                        <label className="form-label">
-                          First Name <span className="required">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleChange}
-                        />
-                        {errors.firstName && (
-                          <div className="text-danger fs-12">
-                            {errors.firstName}
+                        <div className="row">
+                          <div className="col-md-6">
+                            <label className="form-label">
+                              First Name <span className="required">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              name="firstName"
+                              value={formData.firstName}
+                              onChange={handleChange}
+                            />
+                            {errors.firstName && (
+                              <div className="text-danger fs-12">
+                                {errors.firstName}
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      <div className="form-group mb-3">
-                        <label className="form-label">
-                          Last Name <span className="required">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleChange}
-                        />
-                        {errors.lastName && (
-                          <div className="text-danger fs-12">
-                            {errors.lastName}
+                          <div className="col-md-6">
+                            <label className="form-label">
+                              Last Name <span className="required">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              name="lastName"
+                              value={formData.lastName}
+                              onChange={handleChange}
+                            />
+                            {errors.lastName && (
+                              <div className="text-danger fs-12">
+                                {errors.lastName}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
+
                       <div className="form-group mb-3">
                         <label className="form-label">
                           Phone <span className="required">*</span>
                         </label>
                         <input
                           type="text"
-                          className="form-control"
+                          className="form-control form-control-sm"
                           name="phone"
                           value={formData.phone}
                           onChange={handleChange}
                         />
                         {errors.phone && (
-                          <div className="text-danger fs-12">
-                            {errors.phone}
-                          </div>
+                          <div className="text-danger fs-12">{errors.phone}</div>
                         )}
                       </div>
+
                       <div className="form-group mb-3">
                         <label className="form-label">
                           Email <span className="required">*</span>
                         </label>
                         <input
                           type="email"
-                          className="form-control"
+                          className="form-control form-control-sm"
                           name="email"
                           value={formData.email}
                           onChange={handleChange}
                         />
                         {errors.email && (
-                          <div className="text-danger fs-12">
-                            {errors.email}
-                          </div>
+                          <div className="text-danger fs-12">{errors.email}</div>
                         )}
                       </div>
+
                       <div className="form-group mb-3">
                         <label className="form-label">
                           Password <span className="required">*</span>
@@ -183,7 +188,7 @@ function Register(props) {
                         <div className="position-relative">
                           <input
                             type={showPassword.password ? 'text' : 'password'}
-                            className="form-control"
+                            className="form-control form-control-sm"
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
@@ -196,21 +201,18 @@ function Register(props) {
                           </span>
                         </div>
                         {errors.password && (
-                          <div className="text-danger fs-12">
-                            {errors.password}
-                          </div>
+                          <div className="text-danger fs-12">{errors.password}</div>
                         )}
                       </div>
+
                       <div className="form-group mb-3">
                         <label className="form-label">
                           Confirm Password <span className="required">*</span>
                         </label>
                         <div className="position-relative">
                           <input
-                            type={
-                              showPassword.confirmPassword ? 'text' : 'password'
-                            }
-                            className="form-control"
+                            type={showPassword.confirmPassword ? 'text' : 'password'}
+                            className="form-control form-control-sm"
                             name="confirmPassword"
                             value={formData.confirmPassword}
                             onChange={handleChange}
@@ -223,11 +225,10 @@ function Register(props) {
                           </span>
                         </div>
                         {errors.confirmPassword && (
-                          <div className="text-danger fs-12">
-                            {errors.confirmPassword}
-                          </div>
+                          <div className="text-danger fs-12">{errors.confirmPassword}</div>
                         )}
                       </div>
+
                       <div className="text-center mt-4">
                         <button
                           type="submit"
