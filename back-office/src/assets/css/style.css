@@ -30156,6 +30156,8 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
   background-color: rgba(30, 30, 30, 0.6);
 }
 
+
+
 .lg-outer .lg-toogle-thumb,
 .lg-outer .lg-thumb-outer,
 .lg-outer .lg-img-wrap,
@@ -30220,6 +30222,20 @@ html:not([dir=rtl]) .noUi-horizontal .noUi-handle {
 #toast-container .toast-title {
   margin-bottom: 5px;
   font-weight: 600;
+}
+
+.full-height {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-content {
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
 }
 #toast-container .toast-message {
   font-size: 12px;
