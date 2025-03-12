@@ -1,0 +1,13 @@
+export const SIGNUP_CONFIRMED_ACTION = '[signup action] confirmed signup';
+export const SIGNUP_FAILED_ACTION = '[signup action] failed signup';
+export const LOGIN_CONFIRMED_ACTION = '[login action] confirmed login';
+export const LOGIN_FAILED_ACTION = '[login action] failed login';
+export const LOADING_TOGGLE_ACTION = '[Loading action] toggle loading';
+export const LOGOUT_ACTION = '[Logout action] logout action';
+export const FORGOT_PASSWORD_REQUEST = 'FORGOT_PASSWORD_REQUEST';
+export const FORGOT_PASSWORD_SUCCESS = 'FORGOT_PASSWORD_SUCCESS';
+export const FORGOT_PASSWORD_FAILURE = 'FORGOT_PASSWORD_FAILURE';
+export const CLEAR_MESSAGES = 'CLEAR_MESSAGES';
+export const RESET_PASSWORD_REQUEST = 'RESET_PASSWORD_REQUEST';
+export const RESET_PASSWORD_SUCCESS = 'RESET_PASSWORD_SUCCESS';
+export const RESET_PASSWORD_FAILURE = 'RESET_PASSWORD_FAILURE';
