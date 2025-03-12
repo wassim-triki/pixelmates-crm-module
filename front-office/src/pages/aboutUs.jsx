@@ -14,18 +14,18 @@ const AboutUs = () => {
       />
       <div className="relative min-h-screen flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-16">
         <div className="w-full max-w-7xl pt-8">
-          <BlurContainer
+        <BlurContainer
             blur="xl"
-            opacity={50}
+            opacity={30}
             padding={8}
             rounded="2xl"
-            className="w-full mx-auto p-6 bg-white opacity-90"
+            className="w-full mx-auto p-6"
           >
             <div className="flex flex-col space-y-10">
               {/* Header Section */}
               <div className="text-center mb-12">
                 <h1 className="text-3xl md:text-5xl font-bold text-black">About Us</h1>
-                <p className="text-lg md:text-xl mt-4 text-black">
+                <p className="text-lg md:text-xl mt-4 text-white">
                   Welcome to TheMenuFy, your go-to food destination.
                 </p>
               </div>
@@ -33,7 +33,7 @@ const AboutUs = () => {
               {/* Why Choose Us Section */}
               <section className="text-center mb-16">
                 <h2 className="text-3xl font-semibold text-[#FA8072] mb-6">Why Choose Us?</h2>
-                <p className="text-lg text-black text-left">
+                <p className="text-lg text-white text-left">
                   We provide a seamless and delightful culinary experience with a variety of mouthwatering dishes curated for every taste. Our platform connects you to the best local eateries, ensuring you enjoy great meals delivered right to your doorstep.
                 </p>
               </section>
@@ -75,9 +75,9 @@ const AboutUs = () => {
               </section>
 
 {/* Our Vision and Our Values Sections */}
-<section className="flex justify-between  py-12 mb-16 ">
+<section className="flex justify-between py-12 mb-16">
   {/* Our Vision Card */}
-  <div className="w-1/2 p-6 bg-white shadow-xl rounded-lg hover:shadow-2xl transition duration-300">
+  <div className="w-1/2 p-6 bg-white shadow-xl rounded-lg hover:shadow-2xl transition duration-300 mr-8">
     <h2 className="text-3xl font-semibold text-[#FA8072] mb-6 text-center">Our Vision</h2>
     <p className="text-lg text-black text-left">
       At TheMenuFy, our vision is straightforward: to provide our customers with a memorable culinary experience by combining creativity, freshness, and authenticity.
@@ -93,12 +93,10 @@ const AboutUs = () => {
   </div>
 </section>
 
-
-
               {/* Our Partners Section */}
               <section className="text-center mb-16">
   <h2 className="text-3xl font-semibold text-[#FA8072] mb-6">Our Partners</h2>
-  <p className="text-lg text-black mb-6 text-left">
+  <p className="text-lg text-white mb-6 text-left">
     Our partners are at the heart of our success. TheMenuFy collaborates with a selection of local restaurants and cafes, known for their quality and passion. Together, we offer you a unique culinary diversity, tailored to all tastes and preferences.
   </p>
   {/* Partner Cards */}

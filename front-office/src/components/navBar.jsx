@@ -43,9 +43,10 @@ const Navbar = () => {
     }
   };
 
-  return (
-    <nav className="bg-white text-[#FA8072] py-4">
-      <div className="container mx-auto px-4 flex justify-between items-center">
+  return ( 
+  <nav className="bg-transparent backdrop-blur-lg text-[#FA8072] py-4">
+    
+        <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/">
           <img
             src="/Logo-MenuFy.png"
