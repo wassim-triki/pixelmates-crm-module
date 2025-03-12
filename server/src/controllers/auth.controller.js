@@ -200,11 +200,12 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
   await user.save();
 
   // Determine which URL to use based on role
-  const isClient = user.role?.name?.name === ROLES.CLIENT.name;
+  const isClient = user.role?.name === ROLES.CLIENT.name;
   const baseUrl = isClient
     ? process.env.FRONTOFFICE_URL
     : process.env.BACKOFFICE_URL;
 
+  console.log(baseUrl);
   // Reset link with the appropriate frontend URL
   const resetLink = `${baseUrl}/reset-password?token=${resetToken}&email=${email}`;
 
