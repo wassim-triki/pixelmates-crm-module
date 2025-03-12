@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-between">
           {/* Logo Section */}
-          <div className="w-full md:w-1/4 text-center mb-4 md:mb-0">
+          <div className="w-full md:w-1/4 text-center mb-4 md:mb-0 py-4">
             <div className="w-36 h-36 bg-white rounded-full flex items-center justify-center mx-auto shadow-lg mb-4">
               <img
                 src="/Logo-MenuFy.png"
@@ -17,17 +17,18 @@ const Footer = () => {
             </div>
             <p>Discover the best restaurants, cafes <br></br>and more.</p>
           </div>
+
           {/* Services Section */}
-          <div className="w-full md:w-1/4 mb-4 md:mb-0">
-            <h5 className="text-lg font-semibold mb-4">Services</h5>
+          <div className="w-full md:w-1/4 mb-4 md:mb-0 py-4">
+            <h5 className="text-lg font-bold mb-4">Services</h5>
             <ul>
               <li className="mb-2">
-                <a href="" className="text-white ">
-                  Home
+              <a href="/" className="text-white hover:text-black font-semibold">
+              Home
                 </a>
               </li>
               <li className="mb-2">
-                <a href="" className="text-white">
+                <a href="/aboutUs" className="text-white hover:text-black font-semibold">
                   About Us
                 </a>
               </li>
@@ -35,8 +36,8 @@ const Footer = () => {
           </div>
 
           {/* Contact Section */}
-          <div className="w-full md:w-1/4 mb-4 md:mb-0">
-            <h5 className="text-lg font-semibold mb-4">Contact Us</h5>
+          <div className="w-full md:w-1/4 mb-4 md:mb-0 py-4">
+            <h5 className="text-lg font-bold mb-4">Contact Us</h5>
             <ul>
               <li className="mb-2 flex items-center">
                 <svg
@@ -98,12 +99,10 @@ const Footer = () => {
             </ul>
           </div>
 
-
-
           {/* Social Media Section */}
-          <div className="w-full md:w-1/4 text-center">
-            <h5 className="text-lg font-semibold mb-4">Follow Us</h5>
-            <div className="flex justify-center space-x-4">
+          <div className="w-full md:w-1/4 text-center py-4">
+            <h5 className="text-lg font-bold mb-4">Follow Us</h5>
+            <div className="flex justify-center space-x-4 mb-4">
               <a
                 href="https://ww.facebook.com/TheMenuFy"
                 className="text-blue-500 text-2xl"
@@ -111,7 +110,7 @@ const Footer = () => {
                 <img src="/facebook.png" alt="Facebook" className="w-8 h-8" />
               </a>
             </div>
-            <div className="flex justify-center space-x-4 mt-2">
+            <div className="flex justify-center space-x-4">
               <a
                 href="https://www.instagram.com/TheMenuFy"
                 className="text-pink-500 text-2xl"
@@ -127,7 +126,7 @@ const Footer = () => {
       <div className="text-white text-center p-3 mt-4">
         <div
           className="border-t border-white mt-4"
-          style={{ width:"84%", margin: "0 auto", marginTop: "2.5rem", paddingTop: "1rem" }}
+          style={{ width: "84%", margin: "0 auto", marginTop: "2.5rem", paddingTop: "1rem" }}
         >
           © 2025 The MenuFy. All rights reserved.
         </div>
