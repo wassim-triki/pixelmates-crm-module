@@ -62,7 +62,7 @@ function Login() {
 
       {/* Main Content */}
       <main className="relative flex-grow flex items-center justify-center py-6 px-4 sm:px-6 lg:px-20">
-        <div className="w-full max-w-md sm:w-[480px] p-10 rounded-2xl bg-white/20 backdrop-blur-xl flex flex-col justify-between">
+        <div className="w-full max-w-md sm:w-[480px] p-5 rounded-2xl bg-white/20 backdrop-blur-xl flex flex-col justify-between">
           <div className="flex flex-col items-center space-y-6">
             <h1 className="text-3xl font-bold text-white pt-4">Sign in</h1>
 
@@ -90,10 +90,10 @@ function Login() {
 
             {/* Login Form */}
             <form
-              className="w-full max-w-sm space-y-6"
+              className="w-full max-w-sm space-y-4"
               onSubmit={formik.handleSubmit}
             >
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {/* Email Input */}
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">

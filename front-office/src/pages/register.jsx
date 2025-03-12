@@ -79,7 +79,7 @@ function Register() {
 
   return (
     <>
-      <div className="flex flex-col h-screen overflow-hidden">
+      <div className="flex flex-col min-h-screen">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
           style={{
@@ -87,12 +87,13 @@ function Register() {
             boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
           }}
         />
-        <main className="relative flex-grow flex items-center justify-center py-10 px-4 sm:px-6 lg:px-20 overflow-hidden">
-          <div className="w-full sm:w-[700px] lg:w-[800px] p-6 sm:p-10 rounded-2xl bg-white/10 backdrop-blur-xl flex flex-col justify-between min-h-[70vh]">
-            <div className="flex flex-col items-center space-y-6">
-              <h1 className="text-3xl font-bold text-white text-center">
-                Create Account
-              </h1>
+        <main className="relative flex-grow flex items-center justify-center sm:justify-end py-5 px-4 sm:px-6 lg:px-20">
+          <div
+            className="w-full max-w-md sm:w-[480px] sm:h-auto p-4 rounded-2xl bg-white/10 backdrop-blur-xl flex flex-col justify-between "
+            style={{ marginTop: '60px' }}
+          >
+            <div className="flex flex-col items-center space-y-2">
+              <h1 className="text-3xl font-bold text-white">Create Account</h1>
 
               {formik.errors.apiError && (
                 <p className="text-red-500 text-center w-full font-medium">
@@ -160,20 +161,20 @@ function Register() {
                   />
 
                   {/* Terms and Conditions */}
-                  <div className="flex items-center">
+                  <div className="flex items-center space-x-1">
                     <input
                       id="terms"
                       type="checkbox"
                       name="termsAccepted"
-                      className="h-4 w-4 text-[#FA8072] focus:ring-[#FA8072]"
+                      className="h-4 w-4 text-yellow-500 focus:ring-yellow-500"
                       checked={formik.values.termsAccepted}
                       onChange={formik.handleChange}
                     />
-                    <label htmlFor="terms" className="ml-2 text-sm text-white">
+                    <label htmlFor="terms" className="text-sm text-white">
                       I agree to the{' '}
                       <a
                         href="#"
-                        className="text-[#FA8072] hover:text-[#FF6347]"
+                        className="text-yellow-500 hover:text-yellow-400"
                       >
                         Terms and Conditions
                       </a>
@@ -189,19 +190,21 @@ function Register() {
 
                 <Button
                   type="submit"
-                  className="w-full !bg-[#FA8072] hover:!bg-[#de7e73] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full transition-all duration-300  disabled:text-gray-700 cursor-pointer"
-                  disabled={formik.isSubmitting}
+                  className="w-full bg-transparent hover:bg-yellow-500 text-white hover:text-white border-2 disabled:border-yellow-500/50 border-yellow-500 font-semibold py-3 px-6 rounded-full transition-all duration-300 disabled:bg-gray-500 disabled:text-gray-700"
+                  disabled={!formik.isValid || formik.isSubmitting}
                 >
-                  {formik.isSubmitting ? 'Signing up' : 'Sign Up'}
+                  {formik.isSubmitting
+                    ? 'Creating Account...'
+                    : 'Create Account'}
                 </Button>
               </form>
             </div>
 
-            <div className="text-center mt-4">
+            <div className="text-center mt-2">
               <span className="text-white"> Already have an account? </span>
               <Link
                 to="/login"
-                className="text-[#FA8072] hover:text-[#FF6347] font-medium"
+                className="text-yellow-500 hover:text-yellow-400 font-medium"
               >
                 Sign in
               </Link>

@@ -4,7 +4,7 @@ const InputField = ({ label, name, type = 'text', formik, placeholder }) => (
     <input
       type={type}
       name={name}
-      className="w-full p-3 rounded-lg border border-white/30 bg-white/10 backdrop-blur-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/60 transition"
+      className="w-full p-2 rounded-lg border border-white/30 bg-white/10 backdrop-blur-md text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/60 transition"
       placeholder={placeholder}
       value={formik.values[name]}
       onChange={formik.handleChange}
