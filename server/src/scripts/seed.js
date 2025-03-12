@@ -5,12 +5,23 @@ const Role = require('../models/Role');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
+const resetDB = async () => {
+  console.log('\n🗑️  Resetting database...');
+  await mongoose.connection.dropDatabase();
+  console.log('✅ Database reset complete!');
+};
+
 const seedAll = async () => {
   try {
     // 1. Connect to DB once
     await connectDB();
 
-    // 2. Seed Roles
+    // 2. Check if we need to reset
+    if (process.argv.includes('--reset')) {
+      await resetDB();
+    }
+
+    // 3. Seed Roles
     console.log('🏗️  Seeding roles...');
     for (const role of Object.values(ROLES)) {
       const existingRole = await Role.findOne({ name: role.name });
@@ -26,7 +37,7 @@ const seedAll = async () => {
       }
     }
 
-    // 3. Seed SuperAdmin
+    // 4. Seed SuperAdmin
     console.log('\n👨💼 Seeding super admin...');
     const superAdminRole = await Role.findOne({ name: 'SuperAdmin' });
 
@@ -59,7 +70,7 @@ const seedAll = async () => {
     console.error('❌ Seeding error:', error);
     process.exit(1);
   } finally {
-    // 4. Close connection once
+    // 5. Close connection once
     await mongoose.disconnect();
     process.exit(0);
   }
