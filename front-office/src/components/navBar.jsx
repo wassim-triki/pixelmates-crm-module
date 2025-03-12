@@ -111,9 +111,18 @@ const Navbar = () => {
                 className="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded transition"
                 onClick={() => setIsProfileOpen((prev) => !prev)}
               >
-                <div className="relative w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full">
-                  <User className="text-gray-700" size={20} />
+                <div className="relative w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full overflow-hidden">
+                  {user?.image ? (
+                    <img
+                      src={user.image}
+                      alt="User profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="text-gray-700" size={20} />
+                  )}
                 </div>
+
                 <div className="header-info">
                   {loading ? (
                     <div

@@ -18,6 +18,7 @@ import Navbar from './components/navBar';
 import Footer from './components/footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyCode from './pages/VerifyCode';
+import OAuthCallback from './pages/OAuthCallback';
 
 const App = () => {
   const location = useLocation();
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
+        <Route path="/oauth-callback" element={<OAuthCallback />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ResetPasswordEmail />} />
         <Route path="/verify-email" element={<VerifyCode />} />

@@ -11,27 +11,28 @@ const {
 const sendEmail = require('../utils/sendEmail');
 const { ROLES } = require('../constants/roles');
 
-exports.loginWithOAuth = asyncHandler(async (req, res) => {
+exports.loginWithOAuth = async (req, res) => {
   const { user, jwtToken, refreshJwt } = req.user;
 
+  // Assign a default role if missing
+  if (!user.role) {
+    const defaultRole = await Role.findOne({ name: ROLES.CLIENT.name }); // Adjust to your system
+    if (defaultRole) {
+      user.role = defaultRole._id;
+      await user.save();
+    }
+  }
+
+  // Store refresh token in a secure cookie
   res.cookie('refreshToken', refreshJwt, {
     httpOnly: true,
-    secure: true,
+    secure: false,
   });
 
-  res.status(200).json({
-    message: 'Login successful',
-    accessToken: jwtToken,
-    user: {
-      id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      provider: user.provider,
-      image: user.image,
-    },
-  });
-});
+  // Redirect user to frontend with the access token
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  res.redirect(`${frontendUrl}/oauth-callback?accessToken=${jwtToken}`);
+};
 
 const generateVerificationCode = () =>
   Math.floor(100000 + Math.random() * 900000).toString();

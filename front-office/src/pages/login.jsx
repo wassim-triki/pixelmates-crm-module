@@ -3,8 +3,8 @@ import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/button';
-import Footer from '../components/footer';
 import { useAuth } from '../context/AuthContext';
+import { FcGoogle } from 'react-icons/fc'; // Google Icon
 
 const validationSchema = yup.object({
   email: yup
@@ -36,7 +36,7 @@ function Login() {
         await login(values.email, values.password);
       } catch (err) {
         if (err === 'Please verify your email before logging in.') {
-          navigate('/verify-email', { state: { email: values.email } }); // Redirect to verification page
+          navigate('/verify-email', { state: { email: values.email } });
           return;
         }
         setApiError(err);
@@ -45,6 +45,10 @@ function Login() {
       }
     },
   });
+
+  const handleGoogleSignIn = () => {
+    window.location.href = `http://localhost:5000/api/auth/google`;
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -69,6 +73,21 @@ function Login() {
                 {apiError}
               </p>
             )}
+
+            {/* Google Login Button */}
+            <button
+              onClick={handleGoogleSignIn}
+              className="flex items-center justify-center w-full gap-3 border-2 border-gray-300/30 py-3 rounded-full text-white bg-transparent hover:bg-gray-100 hover:text-black transition-all duration-300"
+            >
+              <FcGoogle size={22} />
+              Sign in with Google
+            </button>
+
+            <div className="relative flex items-center w-full">
+              <div className="w-full border-t border-gray-400"></div>
+              <span className="px-3 text-white text-sm">OR</span>
+              <div className="w-full border-t border-gray-400"></div>
+            </div>
 
             {/* Login Form */}
             <form

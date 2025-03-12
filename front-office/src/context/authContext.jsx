@@ -9,19 +9,25 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     const token = localStorage.getItem('accessToken');
+    console.log('Checking localStorage for token:', token); // ✅ Debugging step
+
     if (!token) {
+      console.log('No token found, stopping fetchUser');
       setLoading(false);
       return;
     }
 
     try {
       const response = await axiosInstance.get('/auth/me');
+      console.log('User data fetched successfully:', response.data); // ✅ Debugging step
+
       setUser(response.data);
     } catch (error) {
       console.error('Failed to fetch user:', error);
-      localStorage.removeItem('accessToken');
+      localStorage.removeItem('accessToken'); // ❌ This might be causing the issue
       setUser(null);
     }
+
     setLoading(false);
   };
 
@@ -105,7 +111,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, fetchUser, loading }}>
       {children}
     </AuthContext.Provider>
   );
