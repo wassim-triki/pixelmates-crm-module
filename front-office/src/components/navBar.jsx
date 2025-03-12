@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, User, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { Dropdown } from 'react-bootstrap';
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,7 +43,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white text-[#FA8072] py-4">
+    <nav className="fixed top-0 left-0 right-0 bg-[#262626]/20 text-[#FA8072] py-4 backdrop-blur-md z-10">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/">
           <img
@@ -57,7 +56,7 @@ const Navbar = () => {
         {/* Mobile Menu Toggle */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden text-[#FA8072]"
+          className="md:hidden text-white"
         >
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
@@ -66,13 +65,13 @@ const Navbar = () => {
         <div className="hidden md:flex space-x-8">
           <Link
             to="/"
-            className="text-[#FA8072] font-bold hover:text-black transition"
+            className="text-white font-bold hover:text-[#FA8072] transition"
           >
             Home
           </Link>
           <Link
             to="/about"
-            className="text-[#FA8072] font-bold hover:text-black transition"
+            className="text-white font-bold hover:text-[#FA8072] transition"
           >
             About Us
           </Link>
@@ -83,7 +82,7 @@ const Navbar = () => {
           {!user && (
             <Link
               to="/login"
-              className="text-[#FA8072] font-bold hover:text-black transition"
+              className="text-white font-bold hover:text-[#FA8072] transition"
             >
               Login
             </Link>
@@ -93,7 +92,7 @@ const Navbar = () => {
           <div className="relative">
             <input
               type="text"
-              className="bg-white text-black px-4 py-1 rounded-full w-48 focus:outline-none focus:ring-2 focus:ring-[#FA8072] transition-all"
+              className="bg-transparent text-white px-4 py-1 rounded-full w-48 focus:outline-none focus:ring-2 focus:ring-[#FA8072] transition-all"
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -108,7 +107,7 @@ const Navbar = () => {
           {user && (
             <div ref={profileDropdownRef} className="relative">
               <button
-                className="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded transition"
+                className="flex items-center space-x-2 hover:bg-[#FA8072]/30 p-2 rounded-full transition"
                 onClick={() => setIsProfileOpen((prev) => !prev)}
               >
                 <div className="relative w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full overflow-hidden">
@@ -122,7 +121,6 @@ const Navbar = () => {
                     <User className="text-gray-700" size={20} />
                   )}
                 </div>
-
                 <div className="header-info">
                   {loading ? (
                     <div
@@ -145,21 +143,21 @@ const Navbar = () => {
                 <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg py-2 z-10">
                   <Link
                     to="/profile"
-                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072]"
+                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072] hover:bg-[#FA8072]/10"
                     onClick={() => setIsProfileOpen(false)}
                   >
                     Profile
                   </Link>
                   <Link
                     to="/settings"
-                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072]"
+                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072] hover:bg-[#FA8072]/10"
                     onClick={() => setIsProfileOpen(false)}
                   >
                     Settings
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072] w-full text-left"
+                    className="block px-4 py-2 text-gray-700 hover:text-[#FA8072] hover:bg-[#FA8072]/10 w-full text-left"
                   >
                     Logout
                   </button>
