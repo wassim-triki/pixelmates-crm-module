@@ -22,7 +22,8 @@ const HomePage = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative flex flex-col min-h-screen bg-gray-100">
+      {/* Background section */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -30,7 +31,8 @@ const HomePage = () => {
           boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
         }}
       />
-      <div className="relative min-h-screen flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-16">
+      
+      <div className="relative flex-grow flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-16">
         <div className="w-full max-w-7xl pt-8">
           <BlurContainer
             blur="xl"
@@ -39,13 +41,13 @@ const HomePage = () => {
             rounded="2xl"
             className="w-full mx-auto p-6"
           >
-            <div className="flex flex-col space-y-10">
+            <div className="flex flex-col space-y-20"> {/* Increased spacing to make sections more extended */}
               <div className="flex flex-col md:flex-row items-center justify-between gap-8 px-4">
                 <div className="flex flex-col space-y-6 md:w-1/2 text-center md:text-left">
-                  <h1 className="text-3xl md:text-5xl font-bold text-white">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
                     Welcome to TheMenuFy!
                   </h1>
-                  <p className="text-lg text-white">
+                  <p className="text-lg sm:text-xl text-white">
                     Manage your restaurant menus with ease and style. Customize,
                     update in real-time, and enhance customer experiences.
                   </p>
@@ -58,7 +60,7 @@ const HomePage = () => {
                     </Button>
                   </div>
                 </div>
-                <div className="md:w-1/2 flex justify-center overflow-hidden">
+                <div className="md:w-1/2 flex justify-center overflow-hidden mt-8 md:mt-0">
                   <motion.img
                     key={mainImage}
                     src={mainImage}
@@ -71,7 +73,9 @@ const HomePage = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4">
+              
+              {/* Menu Items Section */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-4">
                 {menuItems.map((item) => (
                   <div
                     key={item.id}
@@ -96,6 +100,24 @@ const HomePage = () => {
               </div>
             </div>
           </BlurContainer>
+        </div>
+      </div>
+      
+      {/* Extended Features Section */}
+      <div className="bg-white py-20 px-4 sm:px-6 lg:px-16">
+        <div className="text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+            Explore more features of TheMenuFy!
+          </h2>
+          <p className="mt-4 text-lg sm:text-xl text-gray-600">
+            Customize your restaurant experience with advanced tools that help you grow your business.
+            Track reservations, improve customer interactions, and boost your kitchen's efficiency.
+          </p>
+          <div className="flex justify-center mt-8">
+            <Button className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-full transition-all">
+              Discover More
+            </Button>
+          </div>
         </div>
       </div>
     </div>
