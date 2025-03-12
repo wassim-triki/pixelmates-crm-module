@@ -70,7 +70,7 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            to="/about"
+            to="/about-us"
             className="text-white font-bold hover:text-[#FA8072] transition"
           >
             About Us

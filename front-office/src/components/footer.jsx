@@ -1,12 +1,12 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const location = useLocation();
 
   // Define the routes where the footer should be hidden
-  const hideFooterRoutes = ["/login", "/signup"];
+  const hideFooterRoutes = ['/login', '/signup'];
 
   // Check if the current route is in the hideFooterRoutes array
   if (hideFooterRoutes.includes(location.pathname)) {
@@ -15,14 +15,14 @@ const Footer = () => {
 
   // Define the background color for each page
   const pageColors = {
-    "/": "#444444",           // Home page color
-    "/aboutUs": "#123456",    // About page color
-    "/contact": "#654321",    // Contact page color
+    '/': '#444444', // Home page color
+    '/aboutUs': '#123456', // About page color
+    '/contact': '#654321', // Contact page color
     // Add more routes and colors as necessary
   };
 
   // Set the footer background color based on the current page's color
-  const footerBgColor = pageColors[location.pathname] || "#444444"; // Default color if route not found
+  const footerBgColor = pageColors[location.pathname] || '#444444'; // Default color if route not found
 
   return (
     <footer
@@ -57,10 +57,10 @@ const Footer = () => {
                   Home
                 </Link>
               </li>
-              <li>
+              <li className="mb-2">
                 <Link
-                  to="/aboutUs"
-                  className="text-sm hover:text-[#ffb6b3] transition-colors duration-300 block"
+                  to="/about-us"
+                  className="text-white hover:text-black font-semibold"
                 >
                   About Us
                 </Link>

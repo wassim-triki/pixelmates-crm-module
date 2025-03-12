@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import Button from '../components/button';
@@ -38,6 +38,7 @@ const validationSchema = yup.object({
 
 function Register() {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -57,7 +58,7 @@ function Register() {
           lastName: values.lastName,
           email: values.email,
           password: values.password,
-          role: 'Client', // Default role for clients
+          role: 'Client',
         });
 
         // Redirect user to verification page
@@ -79,7 +80,7 @@ function Register() {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col relative min-h-screen overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
           style={{
@@ -172,12 +173,13 @@ function Register() {
                     />
                     <label htmlFor="terms" className="text-sm text-white">
                       I agree to the{' '}
-                      <a
-                        href="#"
-                        className="text-yellow-500 hover:text-yellow-400"
+                      <button
+                        type="button"
+                        onClick={() => setIsModalOpen(true)}
+                        className="text-black font-bold underline"
                       >
                         Terms and Conditions
-                      </a>
+                      </button>
                     </label>
                   </div>
                   {formik.touched.termsAccepted &&
@@ -211,6 +213,108 @@ function Register() {
             </div>
           </div>
         </main>
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-auto">
+              <h2 className="text-lg font-bold mb-4">Terms and Conditions</h2>
+              <p className="text-sm mb-4">
+                By creating an account, you acknowledge and agree to the
+                following Terms & Conditions. These Terms govern your use of our
+                website and services, including order processing, payments,
+                delivery, and refunds.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">1. Order Processing</h3>
+              <p className="text-sm mb-4">
+                All orders placed through TheMenuFy are subject to availability
+                and acceptance. Upon order confirmation, a receipt will be sent
+                to the provided email address. We reserve the right to cancel or
+                modify any order due to stock availability or other unforeseen
+                circumstances.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">2. Payment</h3>
+              <p className="text-sm mb-4">
+                Payments must be made through the available payment methods on
+                our website. All payment information provided must be accurate
+                and up-to-date. TheMenuFy reserves the right to refuse any
+                payment that is fraudulent or unauthorized.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">3. Delivery Services</h3>
+              <p className="text-sm mb-4">
+                We offer delivery services within specific regions. Delivery
+                times and fees may vary depending on the location and the
+                selected delivery option. While we strive to meet estimated
+                delivery times, TheMenuFy is not liable for any delays caused by
+                external factors beyond our control.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">4. Refund Policy</h3>
+              <p className="text-sm mb-4">
+                Refunds are available for orders that meet specific criteria,
+                such as incorrect items or damaged goods. Requests for refunds
+                must be made within 14 days of receiving the order. Refunds will
+                be issued to the original payment method, and delivery fees are
+                non-refundable unless otherwise specified.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">
+                5. Security and Privacy
+              </h3>
+              <p className="text-sm mb-4">
+                At TheMenuFy, we are committed to maintaining the security and
+                privacy of your personal information. We use industry-standard
+                encryption to protect your payment data and follow best
+                practices for securing sensitive user information.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">
+                6. Account Responsibility
+              </h3>
+              <p className="text-sm mb-4">
+                By creating an account, you are responsible for maintaining the
+                confidentiality of your account credentials, including your
+                username and password. You agree to notify us immediately of any
+                unauthorized use of your account or any security breach.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">
+                7. Modifications to Terms
+              </h3>
+              <p className="text-sm mb-4">
+                TheMenuFy reserves the right to modify these Terms & Conditions
+                at any time. We will notify users of any significant changes
+                through the website. Continued use of our services after such
+                modifications constitutes your acceptance of the revised Terms.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">
+                8. Limitation of Liability
+              </h3>
+              <p className="text-sm mb-4">
+                TheMenuFy shall not be held liable for any indirect, incidental,
+                special, or consequential damages arising from the use of our
+                website or services. Our liability is limited to the maximum
+                extent permitted by law.
+              </p>
+
+              <h3 className="text-md font-bold mb-2">9. Governing Law</h3>
+              <p className="text-sm mb-4">
+                These Terms & Conditions are governed by the laws of the
+                jurisdiction in which TheMenuFy operates. Any disputes will be
+                resolved in accordance with the applicable laws.
+              </p>
+
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-[#FA8072] text-white px-4 py-2 rounded mt-4 w-full"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}

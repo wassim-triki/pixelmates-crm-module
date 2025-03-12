@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { Sun, Moon, Bell, Globe } from "lucide-react"; // Icônes
-import BlurContainer from "../components/blurContainer"; // Conteneur avec effet blur
-import Button from "../components/button"; // Bouton stylisé
-import Footer from "../components/footer"; // Footer
+import React, { useState } from 'react';
+import { Sun, Moon, Bell, Globe } from 'lucide-react'; // Icônes
+import BlurContainer from '../components/blurContainer'; // Conteneur avec effet blur
+import Button from '../components/button'; // Bouton stylisé
+import Footer from '../components/footer'; // Footer
 
 const Settings = () => {
   // États pour les préférences
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
-  const [language, setLanguage] = useState("English");
+  const [language, setLanguage] = useState('English');
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent relative">
@@ -17,14 +17,14 @@ const Settings = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
         style={{
           backgroundImage: "url('/Profile.jpg')",
-          boxShadow: "inset 0 0 0 2000px rgba(0, 0, 0, 0.3)",
+          boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
         }}
       />
 
       {/* Main Content */}
       <main className="relative flex-grow flex items-center justify-center py-6 px-4 sm:px-6 lg:px-20">
-      <div className="w-full max-w-md sm:w-[480px] p-10 rounded-2xl bg-white/20 backdrop-blur-xl flex flex-col justify-between">
-      {/* Centered Title */}
+        <div className="w-full max-w-md sm:w-[480px] p-10 rounded-2xl bg-white/20 backdrop-blur-xl flex flex-col justify-between">
+          {/* Centered Title */}
           <div className="flex flex-col items-center space-y-6">
             <h1 className="text-3xl font-bold text-white pt-4">Settings</h1>
           </div>
@@ -43,12 +43,12 @@ const Settings = () => {
               <button
                 onClick={() => setDarkMode(!darkMode)}
                 className={`w-12 h-6 flex items-center rounded-full p-1 ${
-                  darkMode ? "bg-[#FA8072]" : "bg-gray-500"
+                  darkMode ? 'bg-[#FA8072]' : 'bg-gray-500'
                 }`}
               >
                 <div
                   className={`w-5 h-5 bg-white rounded-full shadow-md transform ${
-                    darkMode ? "translate-x-6" : "translate-x-0"
+                    darkMode ? 'translate-x-6' : 'translate-x-0'
                   } transition`}
                 />
               </button>
@@ -63,12 +63,12 @@ const Settings = () => {
               <button
                 onClick={() => setNotifications(!notifications)}
                 className={`w-12 h-6 flex items-center rounded-full p-1 ${
-                  notifications ? "bg-[#FA8072]" : "bg-gray-500"
+                  notifications ? 'bg-[#FA8072]' : 'bg-gray-500'
                 }`}
               >
                 <div
                   className={`w-5 h-5 bg-white rounded-full shadow-md transform ${
-                    notifications ? "translate-x-6" : "translate-x-0"
+                    notifications ? 'translate-x-6' : 'translate-x-0'
                   } transition`}
                 />
               </button>
@@ -104,7 +104,6 @@ const Settings = () => {
           </div>
         </div>
       </main>
-
     </div>
   );
 };

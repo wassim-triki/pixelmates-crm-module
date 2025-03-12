@@ -10,10 +10,11 @@ import ProfilePage from './pages/profilePage';
 import EditProfile from './pages/editProfile';
 import Settings from './pages/settingPage';
 import Navbar from './components/navBar';
-import Footer from './components/footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyCode from './pages/VerifyCode';
+import AboutUs from './pages/aboutUs';
 import OAuthCallback from './pages/OAuthCallback';
+import Footer from './components/footer';
 
 const App = () => {
   const location = useLocation();
@@ -45,6 +46,8 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Register />} />
+            <Route path="/oauth-callback" element={<OAuthCallback />} />
+            <Route path="/about-us" element={<AboutUs />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/forgot-password" element={<ResetPasswordEmail />} />
             <Route path="/verify-email" element={<VerifyCode />} />

@@ -51,7 +51,7 @@ function Login() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-transparent relative">
+    <div className="flex flex-col min-h-screen relative bg-transparent relative">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
@@ -109,7 +109,7 @@ function Login() {
                     placeholder="Enter your email"
                   />
                   {formik.errors.email && formik.touched.email && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-[#FA8072] text-sm mt-1 font-semibold">
                       {formik.errors.email}
                     </p>
                   )}
@@ -130,7 +130,7 @@ function Login() {
                     placeholder="Enter your password"
                   />
                   {formik.errors.password && formik.touched.password && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-[#FA8072] text-sm mt-1 font-semibold">
                       {formik.errors.password}
                     </p>
                   )}
@@ -165,7 +165,7 @@ function Login() {
               to="/signup"
               className="text-[#FA8072] hover:text-[#FF6347] font-medium"
             >
-              Signup
+              SignUp
             </Link>
           </div>
         </div>

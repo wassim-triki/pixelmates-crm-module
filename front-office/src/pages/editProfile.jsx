@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { User, Mail, Lock } from "lucide-react";
-import BlurContainer from "../components/blurContainer";
-import Button from "../components/button";
-import Footer from "../components/footer";
+import React, { useState } from 'react';
+import { User, Mail, Lock } from 'lucide-react';
+import BlurContainer from '../components/blurContainer';
+import Button from '../components/button';
+import Footer from '../components/footer';
 
 const EditProfile = () => {
   return (
@@ -11,7 +11,7 @@ const EditProfile = () => {
       <main className="relative flex-grow flex items-center justify-center py-12 px-6 sm:px-8 md:px-12">
         <BlurContainer className="p-8 sm:p-10 rounded-2xl bg-white/20 backdrop-blur-xl text-white shadow-lg">
           <h1 className="text-3xl font-bold text-center mb-6">Edit Profile</h1>
-          {<p className="text-red-500 text-center">{""}</p>}
+          {<p className="text-red-500 text-center">{''}</p>}
           <form onSubmit="" className="space-y-6">
             <div className="space-y-4">
               {/* First Name */}

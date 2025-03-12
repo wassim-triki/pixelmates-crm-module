@@ -4,7 +4,6 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axiosInstance from '../config/axios';
 import Button from '../components/button';
-import Footer from '../components/footer';
 import BlurContainer from '../components/blurContainer';
 import InputField from '../components/InputField';
 
@@ -72,7 +71,7 @@ function ResetPassword() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center">
+    <div className="flex flex-col min-h-screen items-center justify-center overflow-hidden relative">
       {/* ✅ Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
@@ -139,8 +138,6 @@ function ResetPassword() {
         </BlurContainer>
       </main>
 
-      {/* ✅ Footer */}
-      <Footer />
     </div>
   );
 }

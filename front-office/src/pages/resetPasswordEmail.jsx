@@ -45,7 +45,7 @@ function ResetPasswordEmail() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center">
+    <div className="flex flex-col min-h-screen items-center justify-center overflow-hidden relative">
       {/* ✅ Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
@@ -103,7 +103,7 @@ function ResetPasswordEmail() {
 
               {/* ✅ Submit Button (Disabled while submitting) */}
               <Button
-                className="w-full bg-transparent hover:bg-yellow-500 text-white hover:text-white border-2 border-yellow-500 font-semibold py-3 px-6 rounded-full transition-all duration-300"
+                className="w-full bg-[#FA8072] hover:bg-[#FA8072] text-white font-semibold py-3 px-6 rounded-full transition-all duration-300"
                 type="submit"
                 disabled={formik.isSubmitting}
               >
@@ -113,9 +113,6 @@ function ResetPasswordEmail() {
           </div>
         </BlurContainer>
       </main>
-
-      {/* ✅ Footer */}
-      <Footer />
     </div>
   );
 }
