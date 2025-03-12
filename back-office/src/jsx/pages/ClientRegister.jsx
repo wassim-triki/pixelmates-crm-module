@@ -85,11 +85,11 @@ function Register(props) {
   }
 
   return (
-    <div className="authincation">
+    <div className="authincation ">
       <div className="container ">
         <div className="row justify-content-center h-100 align-items-center">
           <div className="col-md-8 col-lg-6">
-            <div className="authincation-content">
+            <div className="authincation-content ">
               <div className="row no-gutters">
                 <div className="col-xl-12">
                   <div className="auth-form">
