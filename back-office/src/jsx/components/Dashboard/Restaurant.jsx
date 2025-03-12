@@ -79,7 +79,14 @@ const RestaurantList = () => {
   };
 
   const handleEditModal = (restaurant) => {
-    setSelectedRestaurant(restaurant);
+    // Remove the '%' sign from taxeTPS and taxeTVQ if present and the '#' sign from color if present
+    const formattedRestaurant = {
+      ...restaurant,
+      taxeTPS: restaurant.taxeTPS ? restaurant.taxeTPS.replace('%', '') : '',
+      taxeTVQ: restaurant.taxeTVQ ? restaurant.taxeTVQ.replace('%', '') : '',
+      color: restaurant.color ? restaurant.color.replace('#', '') : ''
+    };
+    setSelectedRestaurant(formattedRestaurant);
     setShowEditModal(true);
   };
 
@@ -96,13 +103,21 @@ const RestaurantList = () => {
   const handleUpdateRestaurant = async () => {
     const isConfirmed = window.confirm('Are you sure you want to edit this restaurant?');
     if (!isConfirmed) return;
-
+  
     try {
       const token = localStorage.getItem('accessToken');
       if (!token) throw new Error('No authentication token found');
       const config = { headers: { Authorization: `Bearer ${token}` } };
-
-      await axios.put(`http://localhost:5000/api/restaurants/${selectedRestaurant._id}`, selectedRestaurant, config);
+  
+      // Format the fields
+      const updatedRestaurant = {
+        ...selectedRestaurant,
+        taxeTPS: selectedRestaurant.taxeTPS ? `${selectedRestaurant.taxeTPS}%` : '',
+        taxeTVQ: selectedRestaurant.taxeTVQ ? `${selectedRestaurant.taxeTVQ}%` : '',
+        color: selectedRestaurant.color ? `#${selectedRestaurant.color}` : ''
+      };
+  
+      await axios.put(`http://localhost:5000/api/restaurants/${selectedRestaurant._id}`, updatedRestaurant, config);
       const response = await axios.get('http://localhost:5000/api/restaurants', config);
       setRestaurants(response.data.restaurants);
       handleCloseEditModal();
@@ -205,6 +220,20 @@ const handleCloseNewRestaurantModal = () => {
     setSortConfig({ key, direction });
   };
 
+
+  const handleShowRestaurantModal = (restaurant) => {
+    setSelectedRestaurant(restaurant);
+    setShowRestaurantModal(true);
+  };
+
+  const [showRestaurantModal, setShowRestaurantModal] = useState(false);
+
+  const handleCloseRestaurantModal = () => {
+    setShowRestaurantModal(false);
+    setSelectedRestaurant(null);
+  };
+
+
   if (authLoading) return <p>Loading authentication...</p>;
   if (!currentUser || currentUser.role?.name !== 'SuperAdmin') {
     return <Navigate to="/unauthorized" replace />;
@@ -283,7 +312,7 @@ const handleCloseNewRestaurantModal = () => {
                   <td>{restaurant.cuisineType}</td>
                   <td>
                     <div className="d-flex align-items-center justify-content-end">
-                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowModal(restaurant)}>
+                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowRestaurantModalzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz(restaurant)}>
                         <i className="fas fa-eye"></i>
                       </button>
                       <button className="btn btn-sm me-2" style={{ backgroundColor: "#ffc107", color: "black" }} onClick={() => handleEditModal(restaurant)}>
@@ -333,6 +362,44 @@ const handleCloseNewRestaurantModal = () => {
           </div>
         </div>
       </div>
+
+
+      <Modal show={showRestaurantModal} onHide={handleCloseRestaurantModal} centered>
+  <Modal.Header closeButton>
+    <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>
+      Restaurant Details
+    </Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedRestaurant && (
+      <div className="text-center">
+        <img 
+          src={selectedRestaurant.logo || 'default-logo.png'} 
+          width={100}
+          height={100}
+          alt="Logo"
+          className="rounded-circle mb-3"
+          style={{ objectFit: 'cover' }}
+        />
+        <p><strong>Name:</strong> {selectedRestaurant.name || 'N/A'}</p>
+        <p><strong>Address:</strong> {selectedRestaurant.address || 'N/A'}</p>
+        <p><strong>Cuisine Type:</strong> {selectedRestaurant.cuisineType || 'N/A'}</p>
+        <p><strong>Taxe TPS:</strong> {selectedRestaurant.taxeTPS ? `${selectedRestaurant.taxeTPS}%` : 'N/A'}</p>
+        <p><strong>Taxe TVQ:</strong> {selectedRestaurant.taxeTVQ ? `${selectedRestaurant.taxeTVQ}%` : 'N/A'}</p>
+        <p><strong>Color:</strong> {selectedRestaurant.color ? `#${selectedRestaurant.color}` : 'N/A'}</p>
+        <p><strong>Promotion:</strong> {selectedRestaurant.promotion || 'N/A'}</p>
+        <p><strong>Pay Cash Method:</strong> {selectedRestaurant.payCashMethod || 'N/A'}</p>
+      </div>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleCloseRestaurantModal}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
 
       <Modal show={showEditModal} onHide={handleCloseEditModal}>
         <Modal.Header closeButton>
