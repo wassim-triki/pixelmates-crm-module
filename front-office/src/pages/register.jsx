@@ -6,6 +6,7 @@ import Footer from '../components/footer';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../config/axios';
 import InputField from '../components/InputField';
+import { FcGoogle } from 'react-icons/fc'; // Google Icon
 
 // ✅ **Validation Schema using Yup**
 const validationSchema = yup.object({
@@ -70,6 +71,11 @@ function Register() {
     },
   });
 
+  // ✅ **Google Sign-up Handler**
+  const handleGoogleSignUp = () => {
+    window.location.href = `http://localhost:5000/api/auth/google`;
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <div
@@ -80,7 +86,10 @@ function Register() {
         }}
       />
       <main className="relative flex-grow flex items-center justify-center sm:justify-end py-5 px-4 sm:px-6 lg:px-20">
-        <div className="w-full max-w-md sm:w-[480px] sm:h-auto p-8 rounded-2xl bg-white/10 backdrop-blur-xl flex flex-col justify-between" style={{ marginTop: '-50px' }}>
+        <div
+          className="w-full max-w-md sm:w-[480px] sm:h-auto p-8 rounded-2xl bg-white/10 backdrop-blur-xl flex flex-col justify-between"
+          style={{ marginTop: '-50px' }}
+        >
           <div className="flex flex-col items-center space-y-4">
             <h1 className="text-3xl font-bold text-white">Create Account</h1>
 
@@ -89,6 +98,21 @@ function Register() {
                 {formik.errors.apiError}
               </p>
             )}
+
+            {/* Google Signup Button */}
+            <button
+              onClick={handleGoogleSignUp}
+              className="flex items-center justify-center w-full gap-3 border-2 border-gray-300/30 py-3 rounded-full text-white bg-transparent hover:bg-gray-100 hover:text-black transition-all duration-300"
+            >
+              <FcGoogle size={22} />
+              Sign up with Google
+            </button>
+
+            <div className="relative flex items-center w-full">
+              <div className="w-full border-t border-gray-400"></div>
+              <span className="px-3 text-white text-sm">OR</span>
+              <div className="w-full border-t border-gray-400"></div>
+            </div>
 
             <form className="w-full space-y-4" onSubmit={formik.handleSubmit}>
               <div className="space-y-2">
