@@ -94,7 +94,7 @@ function Register() {
             style={{ marginTop: '60px' }}
           >
             <div className="flex flex-col items-center space-y-2">
-              <h1 className="text-3xl font-bold text-white">Create Account</h1>
+              <h1 className="text-3xl font-bold text-white">Sign Up</h1>
 
               {formik.errors.apiError && (
                 <p className="text-red-500 text-center w-full font-medium">
@@ -176,7 +176,7 @@ function Register() {
                       <button
                         type="button"
                         onClick={() => setIsModalOpen(true)}
-                        className="text-black font-bold underline"
+                        className="text-[#FA8072] font-bold underline"
                       >
                         Terms and Conditions
                       </button>
@@ -192,8 +192,7 @@ function Register() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-transparent hover:bg-yellow-500 text-white hover:text-white border-2 disabled:border-yellow-500/50 border-yellow-500 font-semibold py-3 px-6 rounded-full transition-all duration-300 disabled:bg-gray-500 disabled:text-gray-700"
-                  disabled={!formik.isValid || formik.isSubmitting}
+                  className="w-full !bg-[#FA8072] hover:!bg-[#c47168] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full cursor-pointer transition-all duration-300  "
                 >
                   {formik.isSubmitting
                     ? 'Creating Account...'
@@ -206,7 +205,7 @@ function Register() {
               <span className="text-white"> Already have an account? </span>
               <Link
                 to="/login"
-                className="text-yellow-500 hover:text-yellow-400 font-medium"
+                className="text-[#FA8072] cursor-pointer hover:text-[#FA8072]/50 z-[1000] font-medium"
               >
                 Sign in
               </Link>
@@ -318,7 +317,7 @@ function Register() {
       </div>
 
       {/* Footer */}
-      <footer className="absolute bottom-0 left-0 right-0 bg-transparent py-3 text-center border-t border-[#FA8072]/30">
+      <footer className="absolsute bottom-0 left-0 right-0 z-10 bg-[#444444] py-3 text-center border-t border-gray-500/30">
         <p className="text-xs font-light opacity-90 text-white">
           © 2025 TheMenuFy. All rights reserved.
         </p>

@@ -26,7 +26,7 @@ const Footer = () => {
 
   return (
     <footer
-      className="relative bottom-0 left-0 w-full text-[#FA8072] py-3 backdrop-blur-lg shadow-lg"
+      className="relative bottom-0 left-0 w-full text-[#FA8072] py-3 backdrop-blur-lg shadow-lg z-10"
       style={{ backgroundColor: footerBgColor }} // Dynamically set the color
     >
       <div className="container mx-auto px-4">

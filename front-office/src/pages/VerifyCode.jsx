@@ -131,7 +131,8 @@ function VerifyCode() {
           <div className="text-center mt-4">
             <p className="text-white">Didn’t receive the code?</p>
             <button
-                className="w-full !bg-transparent hover:!bg-[#FA8072] text-black hover:text-white border-2 border-black font-semibold py-3 px-6 rounded-full transition-all duration-300"onClick={handleResendCode}
+              className="w-full mt-1  cursor-pointer !bg-transparent !text-[#FA8072]"
+              onClick={handleResendCode}
               disabled={resendLoading || resendDisabled}
             >
               {resendLoading
