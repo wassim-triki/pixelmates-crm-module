@@ -10,7 +10,8 @@
     "format:check": "prettier --check .",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "seed": "node ./src/scripts/seed.js"
+    "seed": "node ./src/scripts/seed.js",
+    "seed:reset": "node ./src/scripts/seed.js --reset"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write"
