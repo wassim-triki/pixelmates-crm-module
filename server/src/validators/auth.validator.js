@@ -15,6 +15,7 @@ const clientSignupSchema = baseSignupSchema.extend({
 const adminSignupSchema = baseSignupSchema.extend({
   role: z.literal('Admin'),
 });
+
 const signupSchema = z.union([clientSignupSchema, adminSignupSchema]);
 
 const loginSchema = z.object({
@@ -32,9 +33,23 @@ const forgotPasswordSchema = z.object({
   email: z.string().email(),
 });
 
+const verifyEmailSchema = z.object({
+  email: z.string().email(),
+  code: z
+    .string()
+    .length(6, 'Verification code must be exactly 6 digits')
+    .regex(/^\d{6}$/, 'Verification code must be numeric'),
+});
+
+const resendVerificationSchema = z.object({
+  email: z.string().email(),
+});
+
 module.exports = {
   signupSchema,
   loginSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
+  verifyEmailSchema, // ✅ New schema for verifying email
+  resendVerificationSchema, // ✅ New schema for resending verification code
 };

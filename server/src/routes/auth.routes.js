@@ -7,7 +7,10 @@ const {
   resetPassword,
   getMe,
   forgotPassword,
+  verifyEmail,
+  resendVerificationEmail,
 } = require('../controllers/auth.controller');
+
 const { protect } = require('../middlewares/auth.middleware');
 const validateSchema = require('../middlewares/validate-schema.middleware');
 const {
@@ -15,6 +18,7 @@ const {
   signupSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
+  verifyEmailSchema, // New validator for email verification
 } = require('../validators/auth.validator');
 
 const router = express.Router();
@@ -24,9 +28,15 @@ router.post('/signup', validateSchema(signupSchema), signup);
 router.post('/login', validateSchema(loginSchema), login);
 router.post('/refresh', refreshToken);
 
+// Email verification routes
+router.post('/verify-email', validateSchema(verifyEmailSchema), verifyEmail); // Use a POST request since we send data
+router.post('/resend-verification', resendVerificationEmail);
+
+// Authenticated routes
 router.post('/logout', protect, logout);
-// auth.routes.js
 router.get('/me', protect, getMe);
+
+// Password recovery routes
 router.post(
   '/reset-password',
   validateSchema(resetPasswordSchema),

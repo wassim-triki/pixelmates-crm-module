@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { useFormik } from 'formik';
 import Button from '../components/button';
 import Footer from '../components/footer';
-import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../config/axios';
 import InputField from '../components/InputField';
@@ -36,15 +35,7 @@ const validationSchema = yup.object({
 });
 
 function Register() {
-  const { user, login } = useAuth();
   const navigate = useNavigate();
-
-  // ✅ **Redirect to profile if user is already logged in**
-  useEffect(() => {
-    if (user) {
-      navigate('/profile');
-    }
-  }, [user, navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -67,9 +58,8 @@ function Register() {
           role: 'Client', // Default role for clients
         });
 
-        // ✅ **Auto-login after registration**
-        await login(values.email, values.password);
-        navigate('/ProfilePage'); // ✅ **Redirect after successful login**
+        // ✅ **Redirect user to verification page instead of auto-login**
+        navigate('/verify-email', { state: { email: values.email } });
       } catch (error) {
         setErrors({
           apiError: error.response?.data?.message || 'Registration failed',
@@ -102,23 +92,18 @@ function Register() {
 
             <form className="w-full space-y-5" onSubmit={formik.handleSubmit}>
               <div className="space-y-4">
-                {/* First Name */}
                 <InputField
                   label="First Name"
                   name="firstName"
                   formik={formik}
                   placeholder="Enter your first name"
                 />
-
-                {/* Last Name */}
                 <InputField
                   label="Last Name"
                   name="lastName"
                   formik={formik}
                   placeholder="Enter your last name"
                 />
-
-                {/* Email */}
                 <InputField
                   label="Email"
                   name="email"
@@ -126,8 +111,6 @@ function Register() {
                   formik={formik}
                   placeholder="Enter your email"
                 />
-
-                {/* Password */}
                 <InputField
                   label="Password"
                   name="password"
@@ -135,8 +118,6 @@ function Register() {
                   formik={formik}
                   placeholder="Create a password"
                 />
-
-                {/* Confirm Password */}
                 <InputField
                   label="Confirm Password"
                   name="confirmPassword"
@@ -173,7 +154,6 @@ function Register() {
                   )}
               </div>
 
-              {/* Submit Button (Disabled if form is invalid) */}
               <Button
                 type="submit"
                 className="w-full bg-transparent hover:bg-yellow-500 text-white hover:text-white border-2 disabled:border-yellow-500/50 border-yellow-500 font-semibold py-3 px-6 rounded-full transition-all duration-300 disabled:bg-gray-500 disabled:text-gray-700"

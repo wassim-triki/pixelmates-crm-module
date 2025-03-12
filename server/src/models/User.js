@@ -21,11 +21,14 @@ const UserSchema = new mongoose.Schema(
       ref: 'Restaurant',
       required: false,
     }, // Only for Admins/Employees
-    status: { 
-      type: String, 
-      enum: ['Active', 'Banned', 'Blocked'], 
-      default: 'Active' // Default value is 'active'
-    }
+    status: {
+      type: String,
+      enum: ['Active', 'Banned', 'Blocked'],
+      default: 'Active', // Default value is 'active'
+    },
+    isVerified: { type: Boolean, default: false },
+    verificationCode: { type: String }, // 6-digit verification code
+    verificationCodeExpire: { type: Date }, // Expiration time for the code
   },
   { timestamps: true }
 );
