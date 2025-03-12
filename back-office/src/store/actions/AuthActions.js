@@ -105,17 +105,16 @@ export function loginAction(email, password, navigate) {
 
 export function logoutAction(navigate) {
   return (dispatch) => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      return; // Prevent multiple logout calls
-    }
+    // const token = localStorage.getItem('accessToken');
+    // if (!token) {
+    //   return; // Prevent multiple logout calls
+    // }
     logout()
       .then(() => {
         dispatch({
           type: LOGOUT_ACTION,
         });
         localStorage.removeItem('accessToken');
-        navigate('/login');
       })
       .catch((error) => {
         console.log(error);
@@ -127,6 +126,9 @@ export function logoutAction(navigate) {
         //     error.response.data.message || 'Something went wrong'
         //   )
         // );
+      })
+      .finally(() => {
+        navigate('/login');
       });
   };
 }

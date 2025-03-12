@@ -1,56 +1,56 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 /// Scroll
-import { Dropdown } from "react-bootstrap";
+import { Dropdown } from 'react-bootstrap';
 import Logout from './Logout';
-import { getCurrentUser } from "../../../services/AuthService"; // Import your auth service
+import { getCurrentUser } from '../../../services/AuthService'; // Import your auth service
 /// Image
-import profile from "../../../assets/images/profile/17.jpg";
-import avatar from "../../../assets/images/avatar/1.jpg";
+import profile from '../../../assets/images/profile/17.jpg';
+import avatar from '../../../assets/images/avatar/1.jpg';
 
 const Header = ({ onNote }) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  var path = window.location.pathname.split("/");
-  var name = path[path.length - 1].split("-");
+  var path = window.location.pathname.split('/');
+  var name = path[path.length - 1].split('-');
   var filterName = name.length >= 3 ? name.filter((n, i) => i > 0) : name;
-  var finalName = filterName.includes("app")
-    ? filterName.filter((f) => f !== "app")
-    : filterName.includes("ui")
-    ? filterName.filter((f) => f !== "ui")
-    : filterName.includes("uc")
-    ? filterName.filter((f) => f !== "uc")
-    : filterName.includes("basic")
-    ? filterName.filter((f) => f !== "basic")
-    : filterName.includes("jquery")
-    ? filterName.filter((f) => f !== "jquery")
-    : filterName.includes("table")
-    ? filterName.filter((f) => f !== "table")
-    : filterName.includes("page")
-    ? filterName.filter((f) => f !== "page")
-    : filterName.includes("email")
-    ? filterName.filter((f) => f !== "email")
-    : filterName.includes("ecom")
-    ? filterName.filter((f) => f !== "ecom")
-    : filterName.includes("chart")
-    ? filterName.filter((f) => f !== "chart")
-    : filterName.includes("editor")
-    ? filterName.filter((f) => f !== "editor")
+  var finalName = filterName.includes('app')
+    ? filterName.filter((f) => f !== 'app')
+    : filterName.includes('ui')
+    ? filterName.filter((f) => f !== 'ui')
+    : filterName.includes('uc')
+    ? filterName.filter((f) => f !== 'uc')
+    : filterName.includes('basic')
+    ? filterName.filter((f) => f !== 'basic')
+    : filterName.includes('jquery')
+    ? filterName.filter((f) => f !== 'jquery')
+    : filterName.includes('table')
+    ? filterName.filter((f) => f !== 'table')
+    : filterName.includes('page')
+    ? filterName.filter((f) => f !== 'page')
+    : filterName.includes('email')
+    ? filterName.filter((f) => f !== 'email')
+    : filterName.includes('ecom')
+    ? filterName.filter((f) => f !== 'ecom')
+    : filterName.includes('chart')
+    ? filterName.filter((f) => f !== 'chart')
+    : filterName.includes('editor')
+    ? filterName.filter((f) => f !== 'editor')
     : filterName;
-    
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const response = await getCurrentUser();
         setUserData(response.data);
       } catch (err) {
-        setError("Failed to load profile");
+        setError('Failed to load profile');
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchUserProfile();
   }, []);
   return (
@@ -61,19 +61,19 @@ const Header = ({ onNote }) => {
             <div className="header-left">
               <div
                 className="dashboard_bar"
-                style={{ textTransform: "capitalize" }}
+                style={{ textTransform: 'capitalize' }}
               >
-                {finalName.join(" ").length === 0
-                  ? "Dashboard"
-                  : finalName.join(" ")}
-                {filterName[0] === "" ? (
+                {finalName.join(' ').length === 0
+                  ? 'Dashboard'
+                  : finalName.join(' ')}
+                {filterName[0] === '' ? (
                   <span>Welcome to Sego Admin!</span>
-                ) : filterName[0] === "orders" ? (
+                ) : filterName[0] === 'orders' ? (
                   <span>Here is your order list data</span>
-                ) : filterName[0] === "general" ? (
+                ) : filterName[0] === 'general' ? (
                   <span>Here is your general customers list data</span>
                 ) : (
-                  ""
+                  ''
                 )}
               </div>
             </div>
@@ -120,7 +120,7 @@ const Header = ({ onNote }) => {
                     />
                   </svg>
                   <span className="badge light text-white bg-primary rounded-circle">
-                    12
+                    0
                   </span>
                 </Dropdown.Toggle>
 
@@ -222,7 +222,7 @@ const Header = ({ onNote }) => {
                           </div>
                         </div>
                       </li>
-                    </ul>                    
+                    </ul>
                   </div>
                   <Link className="all-notification" to="#">
                     See all notifications <i className="ti-arrow-right" />
@@ -260,7 +260,7 @@ const Header = ({ onNote }) => {
                     />
                   </svg>
                   <span className="badge light text-white bg-primary rounded-circle">
-                    5
+                    0
                   </span>
                 </Dropdown.Toggle>
               </Dropdown>
@@ -288,7 +288,7 @@ const Header = ({ onNote }) => {
                     />
                   </svg>
                   <span className="badge light text-white bg-primary rounded-circle">
-                    2
+                    0
                   </span>
                 </Dropdown.Toggle>
 
@@ -303,7 +303,7 @@ const Header = ({ onNote }) => {
                         >
                           <span>10 minutes ago</span>
                           <h6 className="mb-0">
-                            Youtube, a video-sharing website, goes live{" "}
+                            Youtube, a video-sharing website, goes live{' '}
                             <strong className="text-primary">$500</strong>.
                           </h6>
                         </Link>
@@ -316,7 +316,7 @@ const Header = ({ onNote }) => {
                         >
                           <span>20 minutes ago</span>
                           <h6 className="mb-0">
-                            New order placed{" "}
+                            New order placed{' '}
                             <strong className="text-info">#XF-2356.</strong>
                           </h6>
                           <p className="mb-0">
@@ -333,7 +333,7 @@ const Header = ({ onNote }) => {
                         >
                           <span>30 minutes ago</span>
                           <h6 className="mb-0">
-                            john just buy your product{" "}
+                            john just buy your product{' '}
                             <strong className="text-warning">Sell $250</strong>
                           </h6>
                         </Link>
@@ -346,7 +346,7 @@ const Header = ({ onNote }) => {
                         >
                           <span>15 minutes ago</span>
                           <h6 className="mb-0">
-                            StumbleUpon is acquired by eBay.{" "}
+                            StumbleUpon is acquired by eBay.{' '}
                           </h6>
                         </Link>
                       </li>
@@ -374,7 +374,7 @@ const Header = ({ onNote }) => {
                           </h6>
                         </Link>
                       </li>
-                    </ul>                   
+                    </ul>
                   </div>
                 </Dropdown.Menu>
               </Dropdown>
@@ -384,18 +384,21 @@ const Header = ({ onNote }) => {
                   variant=""
                   className="nav-link i-false p-0c-pointer pointr"
                 >
-                  <img 
-                    src={userData?.image || profile} 
+                  <img
+                    src={userData?.image || profile}
                     width={30}
                     height={30}
                     alt="Profile"
                     className="rounded-circle"
                     style={{ objectFit: 'cover' }}
                   />
-                  
+
                   <div className="header-info ms-2">
                     {loading ? (
-                      <div className="skeleton-line" style={{ width: '120px' }} />
+                      <div
+                        className="skeleton-line"
+                        style={{ width: '120px' }}
+                      />
                     ) : error ? (
                       <span className="text-danger small">Profile Error</span>
                     ) : (
@@ -405,7 +408,8 @@ const Header = ({ onNote }) => {
                         </span>
                         <small className="text-muted">
                           {userData?.role?.name}
-                          {userData?.restaurant && ` • ${userData.restaurant.name}`}
+                          {userData?.restaurant &&
+                            ` • ${userData.restaurant.name}`}
                         </small>
                       </>
                     )}
