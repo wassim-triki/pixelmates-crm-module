@@ -57,7 +57,7 @@ function Register() {
       <main className="relative flex-grow flex items-center justify-center sm:justify-end py-10 px-4 sm:px-6 lg:px-20">
         <div className="w-full max-w-md sm:w-[480px] sm:h-auto p-10 rounded-2xl bg-white/10 backdrop-blur-xl flex flex-col justify-between">
           <div className="flex flex-col items-center space-y-6">
-            <h1 className="text-3xl font-bold text-white">Create Account</h1>
+            <h1 className="text-3xl font-bold text-white">Sign up</h1>
 
             {formik.errors.apiError && <p className="text-[#FA8072] text-sm mt-1 font-semibold">{formik.errors.apiError}</p>}
 
@@ -101,7 +101,7 @@ function Register() {
           </div>
           <div className="text-center mt-4">
             <span className="text-white"> Already have an account? </span>
-            <Link to="/login" className="text-black hover:text-[#FA8072] font-medium">Sign in</Link>
+            <Link to="/login" className="text-black hover:text-[#FA8072] font-medium">SignIn</Link>
           </div>
         </div>
       </main>

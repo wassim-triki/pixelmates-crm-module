@@ -147,7 +147,7 @@ function Login() {
               to="/signup"
               className="text-black hover:text-[#FA8072] font-medium"
             >
-              Signup
+              SignUp
             </Link>
           </div>
         </div>
