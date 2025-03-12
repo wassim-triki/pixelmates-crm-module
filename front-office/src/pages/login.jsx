@@ -47,7 +47,7 @@ function Login() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col relative min-h-screen overflow-hidden">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
@@ -65,7 +65,7 @@ function Login() {
 
             {/* Error Messages */}
             {apiError && (
-              <p className="text-red-500 text-center w-full font-medium">
+              <p className="text-[#FA8072] text-sm mt-1 font-semibold">
                 {apiError}
               </p>
             )}
@@ -91,7 +91,7 @@ function Login() {
                     placeholder="Enter your email"
                   />
                   {formik.errors.email && formik.touched.email && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-[#FA8072] text-sm mt-1 font-semibold">
                       {formik.errors.email}
                     </p>
                   )}
@@ -112,7 +112,7 @@ function Login() {
                     placeholder="Enter your password"
                   />
                   {formik.errors.password && formik.touched.password && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-[#FA8072] text-sm mt-1 font-semibold">
                       {formik.errors.password}
                     </p>
                   )}
@@ -122,7 +122,7 @@ function Login() {
                 <div className="text-right">
                   <Link
                     to="/forgot-password"
-                    className="text-yellow-500 hover:text-yellow-400 text-sm font-medium"
+                    className="text-black hover:text-[#FA8072] text-sm font-medium"
                   >
                     Forgot Password?
                   </Link>
@@ -131,7 +131,7 @@ function Login() {
 
               {/* Submit Button */}
               <Button
-                className="w-full bg-transparent hover:bg-yellow-500 text-white hover:text-white border-2 border-yellow-500 font-semibold py-3 px-6 rounded-full transition-all duration-300"
+                className="w-full bg-[#FA8072] hover:bg-[#FA8072] text-white font-semibold py-3 px-6 rounded-full transition-all duration-300"
                 type="submit"
                 disabled={loading}
               >
@@ -145,7 +145,7 @@ function Login() {
             <span className="text-white">Don't have an account? </span>
             <Link
               to="/signup"
-              className="text-yellow-500 hover:text-yellow-400 font-medium"
+              className="text-black hover:text-[#FA8072] font-medium"
             >
               Signup
             </Link>

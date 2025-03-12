@@ -28,7 +28,7 @@ const Footer = () => {
                 </a>
               </li>
               <li className="mb-2">
-                <a href="/aboutUs" className="text-white hover:text-black font-semibold">
+                <a href="/about-us" className="text-white hover:text-black font-semibold">
                   About Us
                 </a>
               </li>

@@ -71,7 +71,7 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            to="/about"
+            to="/about-us"
             className="text-[#FA8072] font-bold hover:text-black transition"
           >
             About Us

@@ -70,7 +70,6 @@ const EditProfile = () => {
           </form>
         </BlurContainer>
       </main>
-      <Footer />
     </div>
   );
 };

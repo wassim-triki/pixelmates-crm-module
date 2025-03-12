@@ -18,6 +18,7 @@ import Navbar from './components/navBar';
 import Footer from './components/footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyCode from './pages/VerifyCode';
+import AboutUs from './pages/aboutUs';
 
 const App = () => {
   const location = useLocation();
@@ -28,6 +29,7 @@ const App = () => {
       {!hiddenNavbarRoutes.includes(location.pathname) && <Navbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about-us" element={<AboutUs />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/reset-password" element={<ResetPassword />} />

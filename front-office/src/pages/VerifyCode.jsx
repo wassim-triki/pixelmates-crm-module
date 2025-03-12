@@ -75,7 +75,7 @@ function VerifyCode() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center">
+    <div className="flex flex-col min-h-screen items-center justify-center relative overflow-hidden">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
@@ -102,7 +102,7 @@ function VerifyCode() {
                   ? 'text-green-500'
                   : message.type === 'error'
                   ? 'text-red-500'
-                  : 'text-yellow-400'
+                  : 'text-[#FA8072] text-sm mt-1 font-semibold'
               }`}
             >
               {message.text}
@@ -120,7 +120,7 @@ function VerifyCode() {
             />
             <Button
               type="submit"
-              className="w-full bg-yellow-500 text-white py-3 px-6 rounded-full transition-all duration-300"
+              className="w-full bg-[#FA8072] hover:bg-[#FA8072] text-white font-semibold py-3 px-6 rounded-full transition-all duration-300"
               disabled={loading || !code || resendLoading}
             >
               {loading ? 'Verifying...' : 'Verify Code'}
@@ -131,8 +131,7 @@ function VerifyCode() {
           <div className="text-center mt-4">
             <p className="text-white">Didn’t receive the code?</p>
             <button
-              className="text-yellow-500 hover:text-yellow-400 font-medium mt-1"
-              onClick={handleResendCode}
+                className="w-full !bg-transparent hover:!bg-[#FA8072] text-black hover:text-white border-2 border-black font-semibold py-3 px-6 rounded-full transition-all duration-300"onClick={handleResendCode}
               disabled={resendLoading || resendDisabled}
             >
               {resendLoading
@@ -144,7 +143,6 @@ function VerifyCode() {
           </div>
         </BlurContainer>
       </main>
-      {/* <Footer /> */}
     </div>
   );
 }

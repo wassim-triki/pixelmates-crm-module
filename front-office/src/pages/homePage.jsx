@@ -50,10 +50,10 @@ const HomePage = () => {
                     update in real-time, and enhance customer experiences.
                   </p>
                   <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-                    <Button className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-full transition-all">
+                    <Button className="bg-[#FA8072] hover:bg-black text-white font-semibold py-3 px-6 rounded-full transition-all">
                       Buy now
                     </Button>
-                    <Button className="!bg-transparent hover:!bg-yellow-500 text-yellow-500 hover:text-white border-2 border-yellow-500 font-semibold py-3 px-6 rounded-full transition-all duration-300">
+                    <Button className="!bg-transparent hover:!bg-[#FA8072] text-black hover:text-white border-2 border-black font-semibold py-3 px-6 rounded-full transition-all duration-300">
                       See menu
                     </Button>
                   </div>

@@ -11,7 +11,7 @@ const Settings = () => {
   const [language, setLanguage] = useState("English");
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="relative min-h-screen overflow-hidden">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
@@ -101,8 +101,6 @@ const Settings = () => {
           </div>
         </BlurContainer>
       </main>
-
-      <Footer />
     </div>
   );
 };
