@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - feature/adjust-form-position
   pull_request:
     branches:
       - main
@@ -48,8 +49,8 @@ jobs:
           cd server
           npm test || echo "No tests found"
 
-  client:
-    name: Client Build
+  back-office:
+    name: Back Office Build
     runs-on: ubuntu-latest
 
     steps:
@@ -61,19 +62,49 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
-          cache-dependency-path: client/package-lock.json
+          cache-dependency-path: back-office/package-lock.json
 
-      - name: Install dependencies (Client)
+      - name: Install dependencies (Back Office)
         run: |
-          cd client
+          cd back-office
           npm ci  # Utilisation de npm ci
 
-      - name: Build Project (Client)
+      - name: Build Project (Back Office)
         run: |
-          cd client
+          cd back-office
           npm run build || echo "Build failed, check logs"
 
-      - name: Run tests (Client)
+      - name: Run tests (Back Office)
         run: |
-          cd client
+          cd back-office
+          npm test || echo "No tests found"
+
+  front-office:
+    name: Front Office Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: front-office/package-lock.json
+
+      - name: Install dependencies (Front Office)
+        run: |
+          cd front-office
+          npm ci  # Utilisation de npm ci
+
+      - name: Build Project (Front Office)
+        run: |
+          cd front-office
+          npm run build || echo "Build failed, check logs"
+
+      - name: Run tests (Front Office)
+        run: |
+          cd front-office
           npm test || echo "No tests found"
