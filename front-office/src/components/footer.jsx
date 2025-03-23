@@ -40,7 +40,7 @@ const Footer = () => {
     // </footer>
     <footer className="relative bottom-0 left-0 w-full text-[#FA8072] !text-white py-3 backdrop-blur-lg shadow-lg z-10 !bg-[#25262B]">
       <div className="container mx-auto ">
-        <div className="grid grid-cols-1 md:grid-cols-4 px-4 pt-8 pb-4 gap-20 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-4 px-4 pt-8 pb-4 gap-10 md:gap-20 items-start">
           {/* Logo Section */}
           <div className="text-center md:text-left">
             <Link to="/" className="inline-block">
@@ -58,69 +58,69 @@ const Footer = () => {
 
           {/* Services Section */}
           <div className="text-center md:text-left flex flex-col gap-4">
-            <p className="text-lg font-semibold hover:text-[#EF7D70] transition-colors duration-300 block">
+            <p className="text-lg font-semibold flex flex-col items-center  transition-colors duration-300 md:block">
               Company
               <span className=" mt-1.5 block w-16 h-0.5 bg-[#F07D70]"></span>
             </p>
             <Link
               to="/about-us"
-              className="text-sm hover:text-[#EF7D70] w-fit transition-colors duration-300 block opacity-80"
+              className="text-sm hover:text-[#EF7D70] md:w-fit transition-colors duration-300 block opacity-80"
             >
               About Us
             </Link>
             <Link
               to="/services"
-              className="text-sm hover:text-[#EF7D70] w-fit transition-colors duration-300 block opacity-80"
+              className="text-sm hover:text-[#EF7D70] md:w-fit transition-colors duration-300 block opacity-80"
             >
               Our Services
             </Link>
             <Link
               to="/privacy-policy"
-              className="text-sm hover:text-[#EF7D70] w-fit transition-colors duration-300 block opacity-80"
+              className="text-sm hover:text-[#EF7D70] md:w-fit transition-colors duration-300 block opacity-80"
             >
               Privacy Policy
             </Link>
             <Link
               to="/partners"
-              className="text-sm hover:text-[#EF7D70] w-fit transition-colors duration-300 block opacity-80"
+              className="text-sm hover:text-[#EF7D70] md:w-fit transition-colors duration-300 block opacity-80"
             >
               Partners
             </Link>
           </div>
 
           <div className="text-center md:text-left flex flex-col gap-4">
-            <p className="text-lg font-semibold hover:text-[#EF7D70] transition-colors duration-300 block">
+            <p className="text-lg font-semibold flex flex-col items-center  transition-colors duration-300 md:block">
               Ressources
               <span className=" mt-1.5 block w-16 h-0.5 bg-[#F07D70]"></span>
             </p>
             <Link
               to="/"
-              className="text-sm w-fit hover:text-[#EF7D70] transition-colors duration-300 block opacity-80"
+              className="text-sm hover:text-[#EF7D70] md:w-fit transition-colors duration-300 block opacity-80"
             >
               Home
             </Link>
             <Link
               to="/contact-us"
-              className="text-sm w-fit hover:text-[#EF7D70] transition-colors duration-300 block opacity-80"
+              className="text-sm hover:text-[#EF7D70] md:w-fit transition-colors duration-300 block opacity-80"
             >
               Contact Us
             </Link>
             <Link
               to="/faq"
-              className="text-sm w-fit hover:text-[#EF7D70] transition-colors duration-300 block opacity-80"
+              className="text-sm hover:text-[#EF7D70] md:w-fit transition-colors duration-300 block opacity-80"
             >
               FAQ
             </Link>
           </div>
           <div className="text-center md:text-left flex flex-col gap-4">
-            <p className="text-lg font-semibold hover:text-[#EF7D70] transition-colors duration-300 block">
+            <p className="text-lg font-semibold flex flex-col items-center  transition-colors duration-300 md:block">
               Reach Us At
               <span className=" mt-1.5 block w-16 h-0.5 bg-[#F07D70]"></span>
             </p>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mx-auto md:mx-0">
               <a
                 href="#"
-                className="flex gap-3 items-center hover:text-[#EF7D70] opacity-80  transition-colors duration-300 "
+                className="flex gap-3 items-center hover:text-[#EF7D70] opacity-80  transition-colors duration-300"
               >
                 <FaMapLocationDot className="text-2xl" />
                 <p className="font-normal text-sm">
