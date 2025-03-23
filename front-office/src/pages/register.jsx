@@ -315,13 +315,6 @@ function Register() {
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      <footer className="absolsute bottom-0 left-0 right-0 z-10 bg-[#444444] py-3 text-center border-t border-gray-500/30">
-        <p className="text-xs font-light opacity-90 text-white">
-          © 2025 TheMenuFy. All rights reserved.
-        </p>
-      </footer>
     </>
   );
 }

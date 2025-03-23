@@ -96,7 +96,8 @@ const App = () => {
         </main>
 
         {/* Conditionally render Footer based on the route */}
-        {showFooter && <Footer />}
+        {/* {showFooter && <Footer />} */}
+        <Footer />
       </div>
     </AuthProvider>
   );

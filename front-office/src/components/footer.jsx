@@ -17,9 +17,9 @@ const Footer = () => {
   const hideFooterRoutes = ['/login', '/signup'];
 
   // Check if the current route is in the hideFooterRoutes array
-  if (hideFooterRoutes.includes(location.pathname)) {
-    return null; // Do not render the footer on these routes
-  }
+  // if (hideFooterRoutes.includes(location.pathname)) {
+  //   return null; // Do not render the footer on these routes
+  // }
 
   // Define the background color for each page
   const pageColors = {

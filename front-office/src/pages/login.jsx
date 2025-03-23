@@ -170,13 +170,6 @@ function Login() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="absolute bottom-0 left-0 right-0 bg-transparent py-3 text-center border-t border-[#FA8072]/30">
-        <p className="text-xs font-light opacity-90 text-white">
-          © 2025 TheMenuFy. All rights reserved.
-        </p>
-      </footer>
     </div>
   );
 }
