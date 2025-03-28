@@ -24,6 +24,9 @@ const RestaurantList = () => {
   const [newRestaurant, setNewRestaurant] = useState({ name: '', address: '', cuisineType: '', taxeTPS: '', taxeTVQ: '', color: '', logo: '', promotion: '', payCashMethod: '', images: [] });
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
   
+
+  const [validationErrors, setValidationErrors] = useState({});
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -136,7 +139,51 @@ const handleCloseNewRestaurantModal = () => {
     setShowNewRestaurantModal(false); // Corrected state variable
   };
 
+ /*  const handleCreateRestaurant = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('No authentication token found');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+  
+      // Format the fields
+      const formattedNewRestaurant = {
+        ...newRestaurant,
+        taxeTPS: newRestaurant.taxeTPS ? `${newRestaurant.taxeTPS}%` : '',
+        taxeTVQ: newRestaurant.taxeTVQ ? `${newRestaurant.taxeTVQ}%` : '',
+        color: newRestaurant.color ? `#${newRestaurant.color}` : ''
+      };
+  
+      console.log('Creating restaurant with data:', formattedNewRestaurant); // Log the request data
+  
+      await axios.post('http://localhost:5000/api/restaurants', formattedNewRestaurant, config);
+      const response = await axios.get('http://localhost:5000/api/restaurants', config);
+      setRestaurants(response.data.restaurants);
+      handleCloseNewRestaurantModal();
+      setError(null);
+    } catch (err) {
+      console.error('Error creating restaurant:', err); // Log the error
+      setError(formatError({ message: err.message }) || err.message);
+    }
+  }; */
+
   const handleCreateRestaurant = async () => {
+    const errors = {};
+
+    if (!newRestaurant.name) errors.name = 'Name is required';
+    if (!newRestaurant.address) errors.address = 'Address is required';
+    if (!newRestaurant.cuisineType) errors.cuisineType = 'Cuisine Type is required';
+    if (!newRestaurant.taxeTPS) errors.taxeTPS = 'Taxe TPS is required';
+    if (!newRestaurant.taxeTVQ) errors.taxeTVQ = 'Taxe TVQ is required';
+    if (!newRestaurant.color) errors.color = 'Color is required';
+    if (!newRestaurant.logo) errors.logo = 'Logo is required';
+    if (!newRestaurant.promotion) errors.promotion = 'Promotion is required';
+    if (!newRestaurant.payCashMethod) errors.payCashMethod = 'Pay Cash Method is required';
+  
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+  
     try {
       const token = localStorage.getItem('accessToken');
       if (!token) throw new Error('No authentication token found');
@@ -162,23 +209,6 @@ const handleCloseNewRestaurantModal = () => {
       setError(formatError({ message: err.message }) || err.message);
     }
   };
-
-   /*try {
-        const token = localStorage.getItem('accessToken');
-        if (!token) throw new Error('No authentication token found');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-  
-        await axios.post('http://localhost:5000/api/restaurants', newRestaurant, config);
-        const restaurantsResponse = await axios.get('http://localhost:5000/api/restaurants', config);
-        setUsers(restaurantsResponse.data);
-        handleCloseNewRestaurantModal();
-        setError(null);
-      } catch (err) {
-        const errorMessage = err.response?.data?.message || err.message || 'Error creating user';
-        console.error('Error creating user:', err);
-        setError(formatError({ message: errorMessage }) || errorMessage);
-      }
-    };*/
 
   const handleSearch = () => {
     if (searchTerm.trim() === "") {
@@ -312,7 +342,7 @@ const handleCloseNewRestaurantModal = () => {
                   <td>{restaurant.cuisineType}</td>
                   <td>
                     <div className="d-flex align-items-center justify-content-end">
-                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowRestaurantModalzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz(restaurant)}>
+                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowRestaurantModal(restaurant)}>
                         <i className="fas fa-eye"></i>
                       </button>
                       <button className="btn btn-sm me-2" style={{ backgroundColor: "#ffc107", color: "black" }} onClick={() => handleEditModal(restaurant)}>
@@ -384,9 +414,9 @@ const handleCloseNewRestaurantModal = () => {
         <p><strong>Name:</strong> {selectedRestaurant.name || 'N/A'}</p>
         <p><strong>Address:</strong> {selectedRestaurant.address || 'N/A'}</p>
         <p><strong>Cuisine Type:</strong> {selectedRestaurant.cuisineType || 'N/A'}</p>
-        <p><strong>Taxe TPS:</strong> {selectedRestaurant.taxeTPS ? `${selectedRestaurant.taxeTPS}%` : 'N/A'}</p>
-        <p><strong>Taxe TVQ:</strong> {selectedRestaurant.taxeTVQ ? `${selectedRestaurant.taxeTVQ}%` : 'N/A'}</p>
-        <p><strong>Color:</strong> {selectedRestaurant.color ? `#${selectedRestaurant.color}` : 'N/A'}</p>
+        <p><strong>Taxe TPS:</strong> {selectedRestaurant.taxeTPS ? `${selectedRestaurant.taxeTPS} ` : 'N/A'}</p>
+        <p><strong>Taxe TVQ:</strong> {selectedRestaurant.taxeTVQ ? `${selectedRestaurant.taxeTVQ} ` : 'N/A'}</p>
+        <p><strong>Color:</strong> {selectedRestaurant.color ? ` ${selectedRestaurant.color}` : 'N/A'}</p>
         <p><strong>Promotion:</strong> {selectedRestaurant.promotion || 'N/A'}</p>
         <p><strong>Pay Cash Method:</strong> {selectedRestaurant.payCashMethod || 'N/A'}</p>
       </div>
@@ -520,6 +550,7 @@ const handleCloseNewRestaurantModal = () => {
           value={newRestaurant.name}
           onChange={(e) => setNewRestaurant({ ...newRestaurant, name: e.target.value })}
         />
+        {validationErrors.name && <div style={{ color: 'red' }}>{validationErrors.name}</div>}
       </Form.Group>
       <Form.Group controlId="formNewRestaurantAddress">
         <Form.Label>Address</Form.Label>
@@ -528,10 +559,12 @@ const handleCloseNewRestaurantModal = () => {
           value={newRestaurant.address}
           onChange={(e) => setNewRestaurant({ ...newRestaurant, address: e.target.value })}
         />
+        {validationErrors.address && <div style={{ color: 'red' }}>{validationErrors.address}</div>}
       </Form.Group>
       <Form.Group controlId="formNewRestaurantCuisineType">
         <Form.Label>Cuisine Type</Form.Label>
         <Form.Control as="select" value={newRestaurant.cuisineType} onChange={(e) => setNewRestaurant({ ...newRestaurant, cuisineType: e.target.value })}>
+          <option value="">Select Cuisine Type</option>
           <option value="Italian">Italian</option>
           <option value="Mexican">Mexican</option>
           <option value="Asian">Asian</option>
@@ -540,6 +573,7 @@ const handleCloseNewRestaurantModal = () => {
           <option value="Fusion">Fusion</option>
           <option value="Other">Other</option>
         </Form.Control>
+        {validationErrors.cuisineType && <div style={{ color: 'red' }}>{validationErrors.cuisineType}</div>}
       </Form.Group>
       <Form.Group controlId="formNewRestaurantTaxeTPS">
         <Form.Label>Taxe TPS</Form.Label>
@@ -548,6 +582,7 @@ const handleCloseNewRestaurantModal = () => {
           value={newRestaurant.taxeTPS ? `${newRestaurant.taxeTPS}%` : ''}
           onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTPS: e.target.value.replace('%', '') })}
         />
+        {validationErrors.taxeTPS && <div style={{ color: 'red' }}>{validationErrors.taxeTPS}</div>}
       </Form.Group>
       <Form.Group controlId="formNewRestaurantTaxeTVQ">
         <Form.Label>Taxe TVQ</Form.Label>
@@ -556,6 +591,7 @@ const handleCloseNewRestaurantModal = () => {
           value={newRestaurant.taxeTVQ ? `${newRestaurant.taxeTVQ}%` : ''}
           onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTVQ: e.target.value.replace('%', '') })}
         />
+        {validationErrors.taxeTVQ && <div style={{ color: 'red' }}>{validationErrors.taxeTVQ}</div>}
       </Form.Group>
       <Form.Group controlId="formNewRestaurantColor">
         <Form.Label>Color</Form.Label>
@@ -565,6 +601,7 @@ const handleCloseNewRestaurantModal = () => {
           maxLength={7}
           onChange={(e) => setNewRestaurant({ ...newRestaurant, color: e.target.value.replace('#', '') })}
         />
+        {validationErrors.color && <div style={{ color: 'red' }}>{validationErrors.color}</div>}
       </Form.Group>
       <Form.Group controlId="formNewRestaurantLogo">
         <Form.Label>Logo</Form.Label>
@@ -573,6 +610,7 @@ const handleCloseNewRestaurantModal = () => {
           value={newRestaurant.logo}
           onChange={(e) => setNewRestaurant({ ...newRestaurant, logo: e.target.value })}
         />
+        {validationErrors.logo && <div style={{ color: 'red' }}>{validationErrors.logo}</div>}
       </Form.Group>
       <Form.Group controlId="formNewRestaurantPromotion">
         <Form.Label>Promotion</Form.Label>
@@ -581,16 +619,18 @@ const handleCloseNewRestaurantModal = () => {
           value={newRestaurant.promotion}
           onChange={(e) => setNewRestaurant({ ...newRestaurant, promotion: e.target.value })}
         />
+        {validationErrors.promotion && <div style={{ color: 'red' }}>{validationErrors.promotion}</div>}
       </Form.Group>
       <Form.Group controlId="formNewRestaurantPayCashMethod">
         <Form.Label>Pay Cash Method</Form.Label>
         <Form.Control as="select" value={newRestaurant.payCashMethod} onChange={(e) => setNewRestaurant({ ...newRestaurant, payCashMethod: e.target.value })}>
+          <option value="">Select Pay Cash Method</option>
           <option value="accepted">Accepted</option>
           <option value="not-accepted">Not Accepted</option>
           <option value="on-request">On Request</option>
         </Form.Control>
+        {validationErrors.payCashMethod && <div style={{ color: 'red' }}>{validationErrors.payCashMethod}</div>}
       </Form.Group>
-     
     </Form>
   </Modal.Body>
   <Modal.Footer>
@@ -608,4 +648,4 @@ const handleCloseNewRestaurantModal = () => {
 
         export default RestaurantList;
         
-               
+                
