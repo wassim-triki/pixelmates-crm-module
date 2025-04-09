@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/button';
 import { useAuth } from '../context/AuthContext';
 import { FcGoogle } from 'react-icons/fc'; // Google Icon
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const validationSchema = yup.object({
   email: yup
@@ -19,7 +20,8 @@ function Login() {
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const [showPassword, setShowPassword] = useState(false);
+  
   useEffect(() => {
     if (user) {
       navigate('/profile');
@@ -56,15 +58,18 @@ function Login() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
         style={{
-          backgroundImage: "url('/login.jpg')",
+          backgroundImage: "url('/Backg_Login.png')",
+          boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.1)', // ← comme Register
         }}
+        
       />
 
       {/* Main Content */}
       <main className="relative flex-grow flex items-center justify-center py-6 px-4 sm:px-6 lg:px-20">
-        <div className="w-full max-w-md sm:w-[480px] p-5 rounded-2xl bg-white/20 backdrop-blur-xl flex flex-col justify-between">
+      <div className="w-full max-w-md sm:w-[480px] sm:h-auto p-4 rounded-2xl bg-white/10 backdrop-blur-xl flex flex-col justify-between"
+          style={{ marginTop: '60px' }}>
           <div className="flex flex-col items-center space-y-6">
-            <h1 className="text-3xl font-bold text-white pt-4">Sign in</h1>
+            <h1 className="text-3xl font-bold text-white pt-4">Sign In</h1>
 
             {/* Error Messages */}
             {apiError && (
@@ -109,32 +114,39 @@ function Login() {
                     placeholder="Enter your email"
                   />
                   {formik.errors.email && formik.touched.email && (
-                    <p className="text-[#FA8072] text-sm mt-1 font-semibold">
+                  <p className="text-red-500  w-full font-medium">
                       {formik.errors.email}
                     </p>
                   )}
                 </div>
 
-                {/* Password Input */}
-                <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-4 py-3 bg-white/10 border border-gray-300/30 rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-white placeholder-gray-300"
-                    placeholder="Enter your password"
-                  />
-                  {formik.errors.password && formik.touched.password && (
-                    <p className="text-[#FA8072] text-sm mt-1 font-semibold">
-                      {formik.errors.password}
-                    </p>
-                  )}
-                </div>
+{/* Password Input */}
+<div className="relative">
+  <label className="block text-white text-sm font-medium mb-2">
+    Password
+  </label>
+  <input
+    type={showPassword ? 'text' : 'password'}
+    name="password"
+    value={formik.values.password}
+    onChange={formik.handleChange}
+    onBlur={formik.handleBlur}
+    className="w-full px-4 py-3 bg-white/10 border border-gray-300/30 rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-white placeholder-gray-300"
+    placeholder="Enter your password"
+  />
+  {formik.errors.password && formik.touched.password && (
+    <p className="text-red-500 w-full font-medium">
+      {formik.errors.password}
+    </p>
+  )}
+  <div
+    className="absolute right-3 top-[39px] cursor-pointer text-white hover:text-gray-200 transition duration-200"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+    {showPassword ? <FiEye /> : <FiEyeOff />}
+  </div>
+</div>
+
 
                 {/* Forgot Password Link */}
                 <div className="text-right">
@@ -149,11 +161,11 @@ function Login() {
 
               {/* Submit Button */}
               <Button
-                className="w-full !bg-[#FA8072] hover:!bg-[#c47168] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full cursor-pointer transition-all duration-300  disabled:text-gray-700"
+                className="w-full !bg-[#FA8072] hover:!bg-[#e0685a] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full cursor-pointer transition-all duration-300  disabled:text-gray-700"
                 type="submit"
                 disabled={loading}
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
           </div>
@@ -165,7 +177,7 @@ function Login() {
               to="/signup"
               className="text-[#FA8072] hover:text-[#FF6347] font-medium"
             >
-              SignUp
+              Sign up
             </Link>
           </div>
         </div>
