@@ -276,50 +276,63 @@ const RestaurantList = () => {
       )}
 
       {/* Header Section (unchanged) */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="fw-bold">Restaurants</h1>
-        <Button variant="success" onClick={handleShowCreateModal} disabled={loading}>
-          <i className="fas fa-plus me-2" /> Add Restaurant
-        </Button>
-      </div>
+  {/* Header Section */}
+<div className="d-flex justify-content-between align-items-center mb-4 px-3">
+  <Button 
+    variant="success" 
+    onClick={handleShowCreateModal} 
+    disabled={loading}
+    className="d-flex align-items-center"
+  >
+    <i className="fas fa-plus me-2" /> Add Restaurant
+  </Button>
+</div>
 
-      {/* Search and Sort (unchanged) */}
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <div className="input-group">
-            <span className="input-group-text">
-              <i className="fas fa-search" />
-            </span>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search by name, address, or cuisine..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              disabled={loading}
-            />
-            <Button variant="primary" onClick={handleSearch} disabled={loading}>
-              Search
-            </Button>
-          </div>
-        </div>
-        <div className="col-md-6 d-flex justify-content-end">
-          <Dropdown>
-            <Dropdown.Toggle variant="outline-primary" disabled={loading}>
-              Sort By: {sortConfig.key} ({sortConfig.direction})
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => requestSort('name')}>Name</Dropdown.Item>
-              <Dropdown.Item onClick={() => requestSort('address')}>Address</Dropdown.Item>
-              <Dropdown.Item onClick={() => requestSort('cuisineType')}>
-                Cuisine Type
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
-      </div>
-
+{/* Search and Sort Section */}
+<div className="row mb-4 px-3 g-3">
+  <div className="col-md-6 col-12">
+    <div className="input-group shadow-sm ">
+      <span className="input-group-text bg-light border-0">
+        <i className="fas fa-search " />
+      </span>
+      <input
+        type="text"
+        className="form-control border-0 bg-light"
+        placeholder="Search by name, address, or cuisine..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+        disabled={loading}
+      />
+      <Button 
+        variant="primary" 
+        onClick={handleSearch} 
+        disabled={loading}
+        className="px-4"
+      >
+        Search
+      </Button>
+    </div>
+  </div>
+  <div className="col-md-6 col-12 d-flex justify-content-md-end justify-content-start align-items-center mt-md-0 mt-3">
+    <Dropdown>
+      <Dropdown.Toggle 
+        variant="outline-primary" 
+        disabled={loading}
+        className="shadow-sm"
+      >
+        Sort By: {sortConfig.key.charAt(0).toUpperCase() + sortConfig.key.slice(1)} ({sortConfig.direction})
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item onClick={() => requestSort('name')}>Name</Dropdown.Item>
+        <Dropdown.Item onClick={() => requestSort('address')}>Address</Dropdown.Item>
+        <Dropdown.Item onClick={() => requestSort('cuisineType')}>
+          Cuisine Type
+        </Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  </div>
+</div>
       {/* Restaurant Table (unchanged) */}
       {loading ? (
         <div className="text-center my-5">
