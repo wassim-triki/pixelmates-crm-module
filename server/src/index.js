@@ -18,6 +18,8 @@ dotenv.config();
 connectDB();
 
 require('./config/googleAuth');
+require('./config/facebookAuth');
+
 const app = express();
 
 // Middleware

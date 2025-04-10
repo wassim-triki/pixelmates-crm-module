@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../components/button';
 import BlurContainer from '../components/blurContainer';
-
+import Chatbot from '../components/Chatbot';  
 const HomePage = () => {
   const menuItems = [
     { id: 1, name: 'Must Explain', price: '$15.00', image: '/test.png' },
@@ -58,6 +58,7 @@ const HomePage = () => {
                     <Button className="!bg-transparent hover:!bg-[#FA8072] text-black hover:text-white border-2 border-black font-semibold py-3 px-6 rounded-full transition-all duration-300">
                       See menu
                     </Button>
+                    
                   </div>
                 </div>
                 <div className="md:w-1/2 flex justify-center overflow-hidden mt-8 md:mt-0">
@@ -118,9 +119,13 @@ const HomePage = () => {
               Discover More
             </Button>
           </div>
+          
         </div>
       </div>
-    </div>
+      
+            {/* Chatbot Component */}
+            <Chatbot /> {/* Chatbot ajouté ici */}
+            </div>
   );
 };
 

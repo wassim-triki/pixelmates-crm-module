@@ -13,12 +13,14 @@ const Profile = () => {
     <div className="flex flex-col min-h-screen bg-transparent relative">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
-        style={{
-          backgroundImage: "url('/Profile.jpg')",
-          boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
-        }}
-      />
+  className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
+  style={{
+    backgroundImage: "url('/Backg_Login.png')",
+    filter: 'blur(5px)', // Application d'un flou à l'image
+  }}
+/>
+
+      
 
       {/* Main Content */}
       <main className="relative flex-grow flex items-center justify-center py-12 px-6 sm:px-8 md:px-12">
@@ -44,20 +46,15 @@ const Profile = () => {
             {/* Profile Info */}
             <div className="space-y-6 w-full">
               <div className="flex items-center space-x-3 bg-white/10 p-4 rounded-lg w-full">
-                <Mail className="text-yellow-500" size={20} />
+                <Mail className="text-white" size={20} />
                 <p className="text-center flex-1 mr-7">{user?.email}</p>
-              </div>
-
-              <div className="flex items-center space-x-3 bg-white/10 p-4 rounded-lg">
-                <Lock className="text-yellow-500" size={20} />
-                <p className="text-center flex-1 mr-7">••••••••••••••••</p>
               </div>
             </div>
 
             {/* Edit Button */}
             <Link to="/EditProfile">
-              <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white border-2 border-yellow-500 font-semibold py-3 px-6 rounded-full transition-all duration-300 flex items-center justify-center space-x-2">
-                <Edit3 size={18} />
+            <Button className="w-full !bg-[#FA8072] hover:!bg-[#e0685a] active:bg-[#FA8072] text-white hover:text-white active:text-white border-2 disabled:border-[#FA8072]/50 border-[#FA8072] font-semibold py-3 px-6 rounded-full cursor-pointer transition-all duration-300 flex items-center justify-center space-x-2">
+            <Edit3 size={18} />
                 <span>Edit Profile</span>
               </Button>
             </Link>

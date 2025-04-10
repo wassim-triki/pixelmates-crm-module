@@ -26,10 +26,13 @@ const UserSchema = new mongoose.Schema(
     verificationCodeExpire: { type: Date },
     provider: {
       type: String,
-      enum: ['local', 'google'],
+      enum: ['local', 'google', 'facebook'],
       default: 'local',
     },
-    providerId: { type: String }, // Google user ID
+    providerId: { type: String }, // Google or Facebook user ID
+    facebookId: { type: String }, // Facebook user ID
+    facebookAccessToken: { type: String }, // facultatif, utile pour API Facebook
+
   },
   { timestamps: true }
 );

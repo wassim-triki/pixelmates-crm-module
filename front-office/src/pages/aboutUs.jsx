@@ -1,17 +1,25 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import BlurContainer from '../components/blurContainer';
+import { motion } from 'framer-motion'; // Added for motion.div
+
+// Placeholder for BlurContainer (replace with your actual implementation)
+const BlurContainer = ({ blur, opacity, padding, rounded, className, children }) => (
+  <div
+    className={`${className} backdrop-blur-${blur} bg-opacity-${opacity} p-${padding} rounded-${rounded}`}
+  >
+    {children}
+  </div>
+);
 
 const AboutUs = () => {
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative">
+      {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('/bg.jpg')",
-          boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
-        }}
+        className="absolute inset-0 bg-cover bg-fixed bg-center -z-10"
+        style={{ backgroundImage: "url('/Backg_Login.png')" }}
       />
+
+      {/* Main Content */}
       <div className="relative min-h-screen flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-16">
         <div className="w-full max-w-7xl pt-8">
           <BlurContainer
@@ -30,128 +38,141 @@ const AboutUs = () => {
                 </p>
               </div>
 
-              {/* Why Choose Us Section */}
-              <section className="text-center mb-16">
-                <h2 className="text-3xl font-semibold text-[#FA8072] mb-6">Why Choose Us?</h2>
-                <p className="text-lg text-white text-left">
-                  We provide a seamless and delightful culinary experience with a variety of mouthwatering dishes curated for every taste. Our platform connects you to the best local eateries, ensuring you enjoy great meals delivered right to your doorstep.
-                </p>
-              </section>
+              {/* Content Container */}
+              <div className="px-4 sm:px-6 lg:px-8 py-10">
+                <div className="max-w-screen-xl mx-auto rounded-2xl p-8 backdrop-blur-md">
+                  {/* Our Features Section */}
+                  <section className="text-center mb-16">
+                    <h2 className="text-3xl font-semibold text-[#FA8072] mb-6">Our Features</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                      <motion.div
+                        className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
+                        whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <h3 className="text-xl font-semibold text-[#FA8072] mb-4">
+                          Smart Reservation Management
+                        </h3>
+                        <ul className="list-disc text-left text-white/90 pl-5">
+                          <li>Real-time sync between online & in-person bookings</li>
+                          <li>AI-powered table allocation for seamless seating</li>
+                          <li>Automated waitlists with instant notifications</li>
+                        </ul>
+                      </motion.div>
 
-              {/* Our Features Section */}
-              <section className="text-center mb-16">
-                <h2 className="text-3xl font-semibold text-[#FA8072] mb-6">Our Features</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <motion.div 
-                    className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
-                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.2)" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <h3 className="text-xl font-semibold text-[#FA8072] mb-4">Smart Reservation Management</h3>
-                    <ul className="list-disc text-left text-white/90">
-                      <li>Real-time sync between online & in-person bookings</li>
-                      <li>AI-powered table allocation for seamless seating</li>
-                      <li>Automated waitlists with instant notifications</li>
-                    </ul>
-                  </motion.div>
+                      <motion.div
+                        className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
+                        whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <h3 className="text-xl font-semibold text-[#FA8072] mb-4">
+                          Intelligent Complaint Handling
+                        </h3>
+                        <ul className="list-disc text-left text-white/90 pl-5">
+                          <li>Centralized dashboard for quick issue resolution</li>
+                          <li>Automated priority system for faster responses</li>
+                          <li>AI chatbot & instant feedback loop to build trust</li>
+                        </ul>
+                      </motion.div>
 
-                  <motion.div 
-                    className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
-                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.2)" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <h3 className="text-xl font-semibold text-[#FA8072] mb-4">Intelligent Complaint Handling</h3>
-                    <ul className="list-disc text-left text-white/90">
-                      <li>Centralized dashboard for quick issue resolution</li>
-                      <li>Automated priority system for faster responses</li>
-                      <li>AI chatbot & instant feedback loop to build customer trust</li>
-                    </ul>
-                  </motion.div>
+                      <motion.div
+                        className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
+                        whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <h3 className="text-xl font-semibold text-[#FA8072] mb-4">
+                          Advanced Customer Loyalty Program
+                        </h3>
+                        <ul className="list-disc text-left text-white/90 pl-5">
+                          <li>Personalized rewards & promotions</li>
+                          <li>AI-driven loyalty points based on behavior</li>
+                          <li>Data insights to enhance customer engagement</li>
+                        </ul>
+                      </motion.div>
+                    </div>
+                  </section>
 
-                  <motion.div 
-                    className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
-                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.2)" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <h3 className="text-xl font-semibold text-[#FA8072] mb-4">Advanced Customer Loyalty Program</h3>
-                    <ul className="list-disc text-left text-white/90">
-                      <li>Personalized rewards & promotions</li>
-                      <li>AI-driven loyalty points system based on behavior</li>
-                      <li>Data insights to predict & enhance customer engagement</li>
-                    </ul>
-                  </motion.div>
+                  {/* Vision & Values Section */}
+                  <section className="flex flex-col md:flex-row justify-between gap-8 mb-16 text-white">
+                    <motion.div
+                      className="flex-1 bg-white/10 p-8 rounded-xl shadow-lg border border-white/20"
+                      whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <h2 className="text-3xl font-semibold text-[#FA8072] mb-6 text-center">
+                        Our Vision
+                      </h2>
+                      <p className="text-lg leading-relaxed text-left">
+                        At TheMenuFy, our vision is to provide customers with a memorable culinary
+                        experience by combining creativity, freshness, and authenticity.
+                      </p>
+                    </motion.div>
+
+                    <motion.div
+                      className="flex-1 bg-white/10 p-8 rounded-xl shadow-lg border border-white/20"
+                      whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <h2 className="text-3xl font-semibold text-[#FA8072] mb-6 text-center">
+                        Our Values
+                      </h2>
+                      <p className="text-lg leading-relaxed text-left">
+                        We are guided by values that define our approach to cuisine and service:
+                        quality, authenticity, and customer satisfaction are at our core.
+                      </p>
+                    </motion.div>
+                  </section>
+
+                  {/* Our Partners Section */}
+                  <section className="text-center mb-16">
+                    <h2 className="text-3xl font-semibold text-[#FA8072] mb-6">Our Partners</h2>
+                    <p className="text-lg text-white mb-6 text-left">
+                      Our partners are central to our success. TheMenuFy collaborates with local
+                      restaurants and cafes known for their quality and passion, offering a unique
+                      culinary diversity tailored to all tastes.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {[
+                        {
+                          name: 'Paul',
+                          img: '/Paul.png',
+                          description:
+                            'A famous French bakery offering freshly baked bread, pastries, and savory delights with a focus on quality ingredients.',
+                        },
+                        {
+                          name: 'The Gate',
+                          img: '/TheGate.jpg',
+                          description:
+                            'A renowned restaurant known for its elegant atmosphere and Middle Eastern-inspired dishes with a modern twist.',
+                        },
+                        {
+                          name: 'The 716',
+                          img: '/The716.jpg',
+                          description:
+                            'An upscale dining experience with contemporary dishes made from fresh, local ingredients and a chic ambiance.',
+                        },
+                      ].map((partner, idx) => (
+                        <motion.div
+                          key={idx}
+                          className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
+                          whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <img
+                            src={partner.img}
+                            alt={partner.name}
+                            className="w-full h-52 object-cover rounded-t-lg mb-4"
+                          />
+                          <h3 className="text-xl font-semibold text-[#FA8072] mb-2">
+                            {partner.name}
+                          </h3>
+                          <p className="text-white/90 text-left">{partner.description}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </section>
                 </div>
-              </section>
-
-              {/* Our Vision and Values Sections */}
-              <section className="flex justify-between py-12 mb-16">
-                <motion.div 
-                  className="w-1/2 p-6 bg-white/10 backdrop-blur-lg rounded-lg border border-white/20 mr-8"
-                  whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.2)" }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h2 className="text-3xl font-semibold text-[#FA8072] mb-6 text-center">Our Vision</h2>
-                  <p className="text-lg text-white/90 text-left">
-                    At TheMenuFy, our vision is straightforward: to provide our customers with a memorable culinary experience by combining creativity, freshness, and authenticity.
-                  </p>
-                </motion.div>
-                
-                <motion.div 
-                  className="w-1/2 p-6 bg-white/10 backdrop-blur-lg rounded-lg border border-white/20"
-                  whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.2)" }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h2 className="text-3xl font-semibold text-[#FA8072] mb-6 text-center">Our Values</h2>
-                  <p className="text-lg text-white/90 text-left">
-                    We are guided by a set of values that define our approach to cuisine and customer service. We prioritize quality, authenticity, and customer satisfaction in everything we do.
-                  </p>
-                </motion.div>
-              </section>
-
-              {/* Our Partners Section */}
-              <section className="text-center mb-16">
-                <h2 className="text-3xl font-semibold text-[#FA8072] mb-6">Our Partners</h2>
-                <p className="text-lg text-white mb-6 text-left">
-                  Our partners are at the heart of our success. TheMenuFy collaborates with a selection of local restaurants and cafes, known for their quality and passion. Together, we offer you a unique culinary diversity, tailored to all tastes and preferences.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <motion.div 
-                    className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
-                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.2)" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <img src="/Paul.png" alt="Paul" className="w-full h-55 object-cover rounded-t-lg" />
-                    <h3 className="text-xl font-semibold text-[#FA8072] mt-4">Paul</h3>
-                    <p className="text-white/90 mt-2 text-left">
-                      Paul is a famous French bakery and café, offering an array of freshly baked bread, pastries, and savory delights. Their dedication to quality ingredients and classic recipes has made them a staple in Tunisia's food scene.
-                    </p>
-                  </motion.div>
-
-                  <motion.div 
-                    className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
-                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.2)" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <img src="/TheGate.jpg" alt="The Gate" className="w-full h-55 object-cover rounded-t-lg" />
-                    <h3 className="text-xl font-semibold text-[#FA8072] mt-4">The Gate</h3>
-                    <p className="text-white/90 mt-2 text-left">
-                      The Gate is a renowned restaurant in Tunisia, known for its elegant atmosphere and exquisite Middle Eastern-inspired dishes. Their fusion of traditional and contemporary flavors creates a truly unique dining experience.
-                    </p>
-                  </motion.div>
-
-                  <motion.div 
-                    className="bg-white/10 backdrop-blur-lg p-6 rounded-lg border border-white/20"
-                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.2)" }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <img src="/The716.jpg" alt="The 716" className="w-full h-55 object-cover rounded-t-lg" />
-                    <h3 className="text-xl font-semibold text-[#FA8072] mt-4">The 716</h3>
-                    <p className="text-white/90 mt-2 text-left">
-                      The 716 is an upscale dining experience in Tunisia, offering contemporary dishes with a focus on fresh, local ingredients. Their innovative menu and chic ambiance provide a refined dining experience that blends modern flair with Tunisian tradition.
-                    </p>
-                  </motion.div>
-                </div>
-              </section>
+              </div>
             </div>
           </BlurContainer>
         </div>
