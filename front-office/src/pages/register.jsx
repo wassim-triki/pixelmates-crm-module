@@ -8,6 +8,8 @@ import axiosInstance from '../config/axios';
 import InputField from '../components/InputField';
 import { FcGoogle } from 'react-icons/fc'; // Google Icon
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 // Validation Schema using Yup
 const validationSchema = yup.object({
@@ -42,7 +44,7 @@ function Register() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const formik = useFormik({
     initialValues: {
       firstName: '',
@@ -79,6 +81,12 @@ function Register() {
   // ✅ **Google Sign-up Handler**
   const handleGoogleSignUp = () => {
     window.location.href = `http://localhost:5000/api/auth/google`;
+  };
+
+  // Close modal automatically after agreeing
+  const handleAgreeTerms = () => {
+    formik.setFieldValue('termsAccepted', true);
+    setIsModalOpen(false);
   };
 
   return (
@@ -148,38 +156,37 @@ function Register() {
                   formik={formik}
                   placeholder="Enter your email"
                 />
-<div className="relative">
-  <InputField
-    label="Password"
-    name="password"
-    type={showPassword ? 'text' : 'password'}
-    formik={formik}
-    placeholder="Create a password"
-  />
-  <div
-    className="absolute right-3 top-[39px] cursor-pointer text-white hover:text-gray-200 transition duration-200"
-    onClick={() => setShowPassword(!showPassword)}
-  >
-    {showPassword ? <FiEye /> : <FiEyeOff />}
-  </div>
-</div>
+                <div className="relative">
+                  <InputField
+                    label="Password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    formik={formik}
+                    placeholder="Create a password"
+                  />
+                  <div
+                    className="absolute right-3 top-[39px] cursor-pointer text-white hover:text-gray-200 transition duration-200"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <FiEye /> : <FiEyeOff />}
+                  </div>
+                </div>
 
-<div className="relative">
-  <InputField
-    label="Confirm Password"
-    name="confirmPassword"
-    type={showConfirmPassword ? 'text' : 'password'}
-    formik={formik}
-    placeholder="Confirm your password"
-  />
-  <div
-    className="absolute right-3 top-[39px] cursor-pointer text-white hover:text-gray-200 transition duration-200"
-    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-  >
-    {showConfirmPassword ? <FiEye /> : <FiEyeOff />}
-  </div>
-</div>
-
+                <div className="relative">
+                  <InputField
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    formik={formik}
+                    placeholder="Confirm your password"
+                  />
+                  <div
+                    className="absolute right-3 top-[39px] cursor-pointer text-white hover:text-gray-200 transition duration-200"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <FiEye /> : <FiEyeOff />}
+                  </div>
+                </div>
 
                 {/* Terms and Conditions */}
                 <div className="flex items-center space-x-1">
@@ -200,7 +207,6 @@ function Register() {
                     >
                       Terms and Conditions
                     </button>
-
                   </label>
                 </div>
                 {formik.touched.termsAccepted &&
@@ -231,60 +237,83 @@ function Register() {
           </div>
         </div>
       </main>
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-h-[80vh] overflow-auto">
-            <h2 className="text-lg font-bold mb-4">Terms and Conditions</h2>
-            <p className="text-sm mb-4">
-              By creating an account, you acknowledge and agree to the
-              following Terms & Conditions. These Terms govern your use of our
-              website and services, including order processing, payments,
-              delivery, and refunds.
-            </p>
+{/* Terms and Conditions Modal */}
+{isModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg w-[800px] max-h-[80vh] overflow-auto relative">
+      {/* Close Icon */}
+      <button
+        className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+        onClick={() => setIsModalOpen(false)}
+      >
+        <FontAwesomeIcon icon={faTimes} className="text-xl" />
+      </button>
 
-            <h3 className="text-md font-bold mb-2">1. Order Processing</h3>
-            <p className="text-sm mb-4">
-              All orders placed through TheMenuFy are subject to availability
-              and acceptance. Upon order confirmation, a receipt will be sent
-              to the provided email address. We reserve the right to cancel or
-              modify any order due to stock availability or other unforeseen
-              circumstances.
-            </p>
+      <h2 className="text-lg font-bold mb-6 text-center">Terms and Conditions</h2>
+      <p className="text-sm mb-4">
+        By creating an account, you acknowledge and agree to the following Terms & Conditions. These Terms govern your use of our website and services, including order processing, payments, delivery, and refunds.
+      </p>
 
-            <h3 className="text-md font-bold mb-2">2. Payment</h3>
-            <p className="text-sm mb-4">
-              Payments must be made through the available payment methods on
-              our website. All payment information provided must be accurate
-              and up-to-date. TheMenuFy reserves the right to refuse any
-              payment that is fraudulent or unauthorized.
-            </p>
+      <h3 className="text-md font-bold mb-2">1. Order Processing</h3>
+      <p className="text-sm mb-4">
+        All orders placed through TheMenuFy are subject to availability and acceptance. Upon order confirmation, a receipt will be sent to the provided email address. We reserve the right to cancel or modify any order due to stock availability or other unforeseen circumstances.
+      </p>
 
-            <h3 className="text-md font-bold mb-2">3. Delivery Services</h3>
-            <p className="text-sm mb-4">
-              We offer delivery services within specific regions. Delivery
-              times and fees may vary depending on the location and the
-              selected delivery option. While we strive to meet estimated
-              delivery times, TheMenuFy is not liable for any delays caused by
-              external factors beyond our control.
-            </p>
+      <h3 className="text-md font-bold mb-2">2. Payment</h3>
+      <p className="text-sm mb-4">
+        Payments must be made through the available payment methods on our website. All payment information provided must be accurate and up-to-date. TheMenuFy reserves the right to refuse any payment that is fraudulent or unauthorized.
+      </p>
 
-            <h3 className="text-md font-bold mb-2">4. Refund Policy</h3>
-            <p className="text-sm mb-4">
-              Refunds are available for orders that meet specific criteria,
-              such as incorrect items or damaged goods. Requests for refunds
-              must be made within 14 days of delivery. TheMenuFy reserves the
-              right to approve or reject refund requests based on our review.
-            </p>
+      <h3 className="text-md font-bold mb-2">3. Delivery Services</h3>
+      <p className="text-sm mb-4">
+        We offer delivery services within specific regions. Delivery times and fees may vary depending on the location and the selected delivery option. While we strive to meet estimated delivery times, TheMenuFy is not liable for any delays caused by external factors beyond our control.
+      </p>
 
-            <button
-              className="bg-[#FA8072] text-white py-2 px-4 rounded-full w-full mt-4"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <h3 className="text-md font-bold mb-2">4. Refund Policy</h3>
+      <p className="text-sm mb-4">
+        Refunds are available for orders that meet specific criteria, such as incorrect items or damaged goods. Requests for refunds must be made within 14 days of delivery. TheMenuFy reserves the right to approve or reject refund requests based on our review.
+      </p>
+
+      {/* Additional Information */}
+      <h3 className="text-md font-bold mb-2">5. User Responsibilities</h3>
+      <p className="text-sm mb-4">
+        You are responsible for maintaining the confidentiality of your account information and for all activities under your account. It is your responsibility to ensure the accuracy of the information you provide.
+      </p>
+
+      <h3 className="text-md font-bold mb-2">6. Privacy Policy</h3>
+      <p className="text-sm mb-4">
+        We are committed to protecting your privacy. Please review our Privacy Policy to understand how your personal information is collected, used, and protected while using our services.
+      </p>
+
+      {/* Professional Services Information */}
+      <h3 className="text-md font-bold mb-2">7. Professional Services</h3>
+      <p className="text-sm mb-4">
+        In addition to our standard offerings, TheMenuFy also provides professional services tailored to your business needs. These services include menu consultation, custom branding, and promotional support to help you enhance your online presence and improve customer engagement.
+      </p>
+      <p className="text-sm mb-4">
+        If you are interested in exploring these professional services, please reach out to our support team for more information on how we can assist you in achieving your goals.
+      </p>
+
+      {/* Button Row */}
+      <div className="flex justify-between mt-4">
+        <button
+          className="bg-[#FA8072] text-white py-2 px-4 rounded-full w-[48%]"
+          onClick={handleAgreeTerms}
+        >
+          I Agree
+        </button>
+        <button
+          className="bg-[#ccc] text-white py-2 px-4 rounded-full w-[48%]"
+          onClick={() => setIsModalOpen(false)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }
