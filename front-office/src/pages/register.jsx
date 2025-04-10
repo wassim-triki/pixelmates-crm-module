@@ -10,6 +10,7 @@ import { FcGoogle } from 'react-icons/fc'; // Google Icon
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FaFacebook } from 'react-icons/fa';
 
 // Validation Schema using Yup
 const validationSchema = yup.object({
@@ -83,6 +84,10 @@ function Register() {
     window.location.href = `http://localhost:5000/api/auth/google`;
   };
 
+  const handleFacebookSignUp = () => {
+    window.location.href = 'http://localhost:5000/api/auth/facebook';
+  };
+  
   // Close modal automatically after agreeing
   const handleAgreeTerms = () => {
     formik.setFieldValue('termsAccepted', true);
@@ -120,6 +125,14 @@ function Register() {
               <FcGoogle size={22} />
               Sign up with Google
             </button>
+
+            <button
+             onClick={handleFacebookSignUp}
+             className="flex items-center justify-center w-full gap-3 border-2 border-blue-600/40 py-3 rounded-full text-white bg-transparent hover:bg-blue-600 hover:text-white transition-all duration-300"
+>
+             <FaFacebook className="text-white text-xl" />
+             Sign up with Facebook
+             </button>
 
             <div className="relative flex items-center w-full">
               <div className="w-full border-t border-gray-400"></div>

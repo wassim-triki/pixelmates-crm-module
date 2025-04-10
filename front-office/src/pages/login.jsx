@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/button';
 import { useAuth } from '../context/AuthContext';
 import { FcGoogle } from 'react-icons/fc'; // Google Icon
+import { FaFacebook } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const validationSchema = yup.object({
@@ -52,6 +53,11 @@ function Login() {
     window.location.href = `http://localhost:5000/api/auth/google`;
   };
 
+    // ✅ **Facebook Login Handler**
+    const handleFacebookLogin = () => {
+      window.location.href = 'http://localhost:5000/api/auth/facebook';
+    };
+
   return (
     <div className="flex flex-col min-h-screen relative bg-transparent relative">
       {/* Background Image */}
@@ -86,7 +92,15 @@ function Login() {
               <FcGoogle size={22} />
               Sign in with Google
             </button>
-
+            
+            {/* Facebook Login Button */}
+            <button
+              onClick={handleFacebookLogin}
+              className="flex items-center justify-center w-full gap-3 border-2 border-blue-600/40 py-3 rounded-full text-white bg-transparent hover:bg-blue-600 hover:text-white transition-all duration-300"
+            >
+              <FaFacebook className="text-white text-xl" />
+              Sign in with Facebook
+            </button>
             <div className="relative flex items-center w-full">
               <div className="w-full border-t border-gray-400"></div>
               <span className="px-3 text-white text-sm">OR</span>
