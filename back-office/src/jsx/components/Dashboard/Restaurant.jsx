@@ -330,62 +330,61 @@ const RestaurantList = () => {
         <Alert variant="info">No restaurants found.</Alert>
       ) : (
         <>
-          <div className="table-responsive">
-            <table className="table table-hover table-bordered">
-              <thead className="table-main">
-                <tr>
-                  <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}>
-                    Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => requestSort('address')} style={{ cursor: 'pointer' }}>
-                    Address {sortConfig.key === 'address' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => requestSort('cuisineType')} style={{ cursor: 'pointer' }}>
-                    Cuisine Type {sortConfig.key === 'cuisineType' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-                  </th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedRestaurants.map((restaurant) => (
-                  <tr key={restaurant._id}>
-                    <td>{restaurant.name || 'N/A'}</td>
-                    <td>{restaurant.address || 'N/A'}</td>
-                    <td>{restaurant.cuisineType || 'N/A'}</td>
-                    <td className="text-end">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => handleShowDetailModal(restaurant)}
-                        disabled={loading}
-                      >
-                        <i className="fas fa-eye" />
-                      </Button>
-                      <Button
-                        variant="outline-warning"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => handleShowEditModal(restaurant)}
-                        disabled={loading}
-                      >
-                        <i className="fas fa-edit" />
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => handleDeleteRestaurant(restaurant._id)}
-                        disabled={loading}
-                      >
-                        <i className="fas fa-trash" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
+         <div className="table-responsive">
+  <table className="table table-hover table-bordered">
+    <thead className="table-main">
+      <tr>
+        <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}className="text-center">
+          Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+        </th>
+        <th onClick={() => requestSort('address')} style={{ cursor: 'pointer' }}className="text-center">
+          Address {sortConfig.key === 'address' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+        </th>
+        <th onClick={() => requestSort('cuisineType')} style={{ cursor: 'pointer' }}className="text-center">
+          Cuisine Type {sortConfig.key === 'cuisineType' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+        </th>
+        <th className="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {paginatedRestaurants.map((restaurant) => (
+        <tr key={restaurant._id}>
+          <td>{restaurant.name || 'N/A'}</td>
+          <td>{restaurant.address || 'N/A'}</td>
+          <td>{restaurant.cuisineType || 'N/A'}</td>
+          <td className="text-center">
+            <Button
+              variant="outline-primary"
+              size="sm"
+              className="me-2"
+              onClick={() => handleShowDetailModal(restaurant)}
+              disabled={loading}
+            >
+              <i className="fas fa-eye" />
+            </Button>
+            <Button
+              variant="outline-warning"
+              size="sm"
+              className="me-2"
+              onClick={() => handleShowEditModal(restaurant)}
+              disabled={loading}
+            >
+              <i className="fas fa-edit" />
+            </Button>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={() => handleDeleteRestaurant(restaurant._id)}
+              disabled={loading}
+            >
+              <i className="fas fa-trash" />
+            </Button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
           {/* Pagination (unchanged) */}
           {totalPages > 1 && (
             <Pagination className="justify-content-center mt-3">
