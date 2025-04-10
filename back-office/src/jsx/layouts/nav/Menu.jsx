@@ -14,7 +14,7 @@ export const MenuList = [
                         to: 'clients',
                 }    ,       
                 {
-                    title:'restaurant',
+                    title:'Restaurants',
                     to:'restaurant'
                 },
                        
