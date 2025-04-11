@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import BlurContainer from '../components/blurContainer';
 import Button from '../components/button';
 import { useAuth } from '../context/authContext';
-
+import { FaCamera } from 'react-icons/fa';
 
 const EditProfile = () => {
   const { user, updateUser } = useAuth();
@@ -13,7 +13,9 @@ const EditProfile = () => {
     phone: '',
     address: '',
     birthday: '',
+    image: '',
   });
+  const [imagePreview, setImagePreview] = useState(''); // Initialize imagePreview state
 
   useEffect(() => {
     if (user) {
@@ -23,8 +25,10 @@ const EditProfile = () => {
         email: user.email || '',
         phone: user.phone || '',
         address: user.address || '',
-        birthday: user.birthday ? user.birthday.split('T')[0] : '', // Formater la date ici
+        birthday: user.birthday ? user.birthday.split('T')[0] : '', // Format the date here
+        image: user.image || '', // Set initial image if exists
       });
+      setImagePreview(user.image || ''); // Set the image preview if available
     }
   }, [user]);
 
@@ -45,7 +49,21 @@ const EditProfile = () => {
       alert('Error updating profile: ' + err);
     }
   };
-  
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({
+          ...prev,
+          image: reader.result, // Store the base64 encoded image
+        }));
+        setImagePreview(reader.result); // Set image preview
+      };
+      reader.readAsDataURL(file); // Read the file as base64
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent relative">
@@ -59,9 +77,49 @@ const EditProfile = () => {
       />
 
       {/* Main Content */}
-      <main className="relative flex-grow flex items-center justify-center py-12 px-6">
+      <main className="relative flex-grow flex items-center justify-center py-30 px-6">
         <BlurContainer className="w-full max-w-3xl p-8 sm:p-10 rounded-2xl bg-white/20 backdrop-blur-xl text-white shadow-lg">
           <h1 className="text-3xl font-bold text-center mb-8">Edit Profile</h1>
+
+          {/* Profile Image */}
+          <div className="flex justify-center mb-6">
+            {imagePreview ? (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Profile Preview"
+                  className="w-32 h-32 rounded-full object-cover"
+                />
+                {/* Camera Icon to Upload Image */}
+                <label
+                  htmlFor="image"
+                  className="absolute bottom-0 right-0 bg-white rounded-full p-2 cursor-pointer"
+                >
+                  <FaCamera className="text-black text-xl hover:text-gray-300" />
+                </label>
+              </div>
+            ) : (
+              <div className="relative w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center">
+                <span className="text-white">No Image</span>
+                {/* Camera Icon to Upload Image */}
+                <label
+                  htmlFor="image"
+                  className="absolute bottom-0 right-0 bg-white rounded-full p-2 cursor-pointer"
+                >
+                  <FaCamera className="text-black text-xl hover:text-gray-300" />
+                </label>
+              </div>
+            )}
+
+            <input
+              type="file"
+              id="image"
+              name="image"
+              onChange={handleImageChange}
+              accept="image/*"
+              className="hidden"
+            />
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
