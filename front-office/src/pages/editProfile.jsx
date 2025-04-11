@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BlurContainer from '../components/blurContainer';
 import Button from '../components/button';
 import { useAuth } from '../context/authContext';
 import { FaCamera } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 
 const EditProfile = () => {
   const { user, updateUser } = useAuth();
@@ -16,6 +18,7 @@ const EditProfile = () => {
     image: '',
   });
   const [imagePreview, setImagePreview] = useState(''); // Initialize imagePreview state
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -65,6 +68,10 @@ const EditProfile = () => {
     }
   };
 
+    const handleBackClick = () => {
+      navigate('/profile'); // Navigate to profile page
+    };
+
   return (
     <div className="flex flex-col min-h-screen bg-transparent relative">
       {/* Background */}
@@ -79,6 +86,15 @@ const EditProfile = () => {
       {/* Main Content */}
       <main className="relative flex-grow flex items-center justify-center py-30 px-6">
         <BlurContainer className="w-full max-w-3xl p-8 sm:p-10 rounded-2xl bg-white/20 backdrop-blur-xl text-white shadow-lg">
+        <div className="flex justify-start mb-6">
+            {/* Back Button with Icon */}
+            <button
+              onClick={handleBackClick}
+              className="text-white bg-transparent p-2 rounded-full hover:bg-gray-500 transition-all duration-300"
+            >
+              <FaArrowLeft className="text-2xl" />
+            </button>
+          </div>
           <h1 className="text-3xl font-bold text-center mb-8">Edit Profile</h1>
 
           {/* Profile Image */}

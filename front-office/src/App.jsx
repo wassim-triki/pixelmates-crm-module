@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/authContext';
 import HomePage from './pages/homePage';
 import Login from './pages/login';
 import ResetPassword from './pages/resetPassword';
