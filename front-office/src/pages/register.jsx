@@ -101,6 +101,7 @@ function Register() {
         style={{
           backgroundImage: "url('/Backg_Login.png')",
           boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.1)',
+          filter: 'blur(5px)',
         }}
       />
       <main className="relative flex-grow flex items-center justify-center py-5 px-4 sm:px-6 lg:px-20">

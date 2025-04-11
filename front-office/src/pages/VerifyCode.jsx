@@ -80,8 +80,9 @@ function VerifyCode() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
         style={{
-          backgroundImage: "url('/login.jpg')",
+          backgroundImage: "url('/Backg_Login.png')",
           boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
+          filter: 'blur(5px)',
         }}
       />
       <main className="relative flex flex-col items-center justify-center w-full px-4">

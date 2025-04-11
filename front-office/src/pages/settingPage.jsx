@@ -16,8 +16,9 @@ const Settings = () => {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat -z-10"
         style={{
-          backgroundImage: "url('/Profile.jpg')",
+          backgroundImage: "url('/Backg_Login.png')",
           boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
+          filter: 'blur(5px)',
         }}
       />
 
@@ -26,7 +27,7 @@ const Settings = () => {
         <div className="w-full max-w-md sm:w-[480px] p-10 rounded-2xl bg-white/20 backdrop-blur-xl flex flex-col justify-between">
           {/* Centered Title */}
           <div className="flex flex-col items-center space-y-6">
-            <h1 className="text-3xl font-bold text-white pt-4">Settings</h1>
+            <h1 className="text-3xl font-bold text-white pt-4 py-8">Settings</h1>
           </div>
 
           <div className="space-y-6">

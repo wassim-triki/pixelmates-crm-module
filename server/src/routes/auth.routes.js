@@ -11,6 +11,7 @@ const {
   verifyEmail,
   resendVerificationEmail,
   loginWithOAuth,
+  updateProfile,
 } = require('../controllers/auth.controller');
 
 const { protect } = require('../middlewares/auth.middleware');
@@ -22,6 +23,8 @@ const {
   forgotPasswordSchema,
   verifyEmailSchema,
 } = require('../validators/auth.validator');
+const { updateMany } = require('../models/Role');
+
 
 const router = express.Router();
 
@@ -32,9 +35,12 @@ router.post('/refresh', refreshToken);
 router.post('/verify-email', validateSchema(verifyEmailSchema), verifyEmail);
 router.post('/resend-verification', resendVerificationEmail);
 
+
 // Authenticated routes
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
+router.put('/me/update', protect, updateProfile);
+
 
 // Password recovery
 router.post(
