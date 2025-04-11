@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaPaperPlane } from 'react-icons/fa'; // Change to FaPaperPlane
+import { FaTimes, FaPaperPlane } from 'react-icons/fa';
 import { useAuth } from '../context/authContext';
 
 const Chatbot = () => {
@@ -9,64 +9,98 @@ const Chatbot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const { user } = useAuth();
 
+  const apiKey = "73676677ec625895ec0e633a2c792e3a";
+
   const handleInputChange = (event) => {
     setUserInput(event.target.value);
   };
 
-  const handleSendMessage = () => {
+  const getWeather = async (city = "Paris") => {
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=en`
+      );
+      const data = await response.json();
+  
+      if (data.cod === 200) {
+        const temp = data.main.temp;
+        const feelsLike = data.main.feels_like;
+        const humidity = data.main.humidity;
+        const pressure = data.main.pressure;
+        const visibility = data.visibility;
+        const windSpeed = data.wind.speed;
+        const windDeg = data.wind.deg;
+        const description = data.weather[0].description;
+  
+        const windDirection = degToCompass(windDeg);
+  
+        const message = `
+  🌤️ **Weather Report for ${city}:**\n
+  - 🌥️ **Condition**: ${description}\n
+  - 🌡️ **Temperature**: ${temp.toFixed(1)}°C (Feels like: ${feelsLike.toFixed(1)}°C)\n
+  - 💧 **Humidity**: ${humidity}%\n
+  - 🌬️ **Wind Speed**: ${windSpeed} m/s from ${windDirection}\n
+  - 🌫️ **Visibility**: ${(visibility / 1000).toFixed(1)} km\n
+  - 🧭 **Pressure**: ${pressure} hPa\n
+  - 🌪️ **Wind Direction**: ${windDirection} (from ${windDeg}°)\n
+  - 💧 **Humidity Level**: ${humidity >= 90 ? 'High humidity 🌧️' : 'Comfortable 🌤️'}\n\n
+  📍 Stay safe and enjoy your day!
+  `;
+  
+        return message;
+      } else {
+        return `Error: ${data.message}`;
+      }
+    } catch (error) {
+      return "Something went wrong while fetching the weather.";
+    }
+  };
+  
+  // Convert wind degrees to compass direction
+  const degToCompass = (num) => {
+    const val = Math.floor((num / 22.5) + 0.5);
+    const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                 "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    return arr[val % 16];
+  };
+  
+  
+  
+
+  const handleSendMessage = async () => {
     if (userInput.trim()) {
-      let botResponse = "I'm sorry, I didn't understand that."; // Default response
-
-      // Normalize the user input to lowercase for easier matching
       const normalizedInput = userInput.toLowerCase().trim();
-
-      // Start typing indicator
       setIsTyping(true);
 
-      // Greeting variations
+      let botResponse = "I'm sorry, I didn't understand that.";
+
       if (/\b(hello|hi|salem|hey|hiya|hola|howdy)\b/.test(normalizedInput)) {
         botResponse = "Hello! How can I assist you today?";
-      }
-      // How are you?
-      else if (/\b(how are you|how's it going|how are you doing|how do you do|how are u|how are u doing)\b/.test(normalizedInput)) {
+      } else if (/\b(how are you|how's it going|how are you doing|how do you do|how are u|how are u doing)\b/.test(normalizedInput)) {
         botResponse = "I'm doing great, thank you for asking!";
-      }
-      // User's name (if authenticated)
-      else if (/\b(what is your name|who are you|what's your name|who are u)\b/.test(normalizedInput)) {
+      } else if (/\b(what is your name|who are you|what's your name|who are u)\b/.test(normalizedInput)) {
         if (user) {
           botResponse = `I am your friendly chatbot, and your name is ${user.firstName} ${user.lastName}!`;
         } else {
           botResponse = "Please log in so I can know your name!";
         }
-      }
-      // Date/Time
-      else if (/\b(what is the date today|what time is it|current time|what's the date today)\b/.test(normalizedInput)) {
-        const currentDate = new Date();
-        const dateString = currentDate.toLocaleString();
-        botResponse = `Today is ${dateString}`;
-      }
-      // Asking about the user's name (if authenticated)
-      else if (/\b(what is my name|who am i|what is my full name|what's my name|what's my full name)\b/.test(normalizedInput)) {
+      } else if (/\b(what is my name|who am i|what is my full name|what's my name|what's my full name)\b/.test(normalizedInput)) {
         if (user) {
           botResponse = `Your name is ${user.lastName} ${user.firstName}!`;
         } else {
           botResponse = "Please log in to get your full name!";
         }
-      }
-      // Weather
-      else if (/\b(what is the weather today|how's the weather|what's the weather today)\b/.test(normalizedInput)) {
-        botResponse = "Sorry, I can't fetch live weather data right now, but you can check your local weather service for up-to-date information!";
-      }
-      // Jokes
-      else if (/\b(tell me a joke|make me laugh|give me a joke|joke)\b/.test(normalizedInput)) {
+      } else if (/\b(what is the date today|what time is it|current time|what's the date today)\b/.test(normalizedInput)) {
+        const currentDate = new Date();
+        const dateString = currentDate.toLocaleString();
+        botResponse = `Today is ${dateString}`;
+      } else if (/\b(tell me a joke|make me laugh|give me a joke|joke)\b/.test(normalizedInput)) {
         botResponse = "Why don't skeletons fight each other? They don't have the guts!";
-      }
-      // Order help
-      else if (/\b(can you help me with my order|order assistance|help with my order)\b/.test(normalizedInput)) {
+      } else if (/\b(can you help me with my order|order assistance|help with my order)\b/.test(normalizedInput)) {
         botResponse = "Of course! I can assist you with tracking or updating your order. Could you provide your order number, please?";
-      }
-      // Time in a city
-      else if (/\b(what is the time in)\b/.test(normalizedInput)) {
+      } else if (/\b(what is the weather today|how's the weather|what's the weather today)\b/.test(normalizedInput)) {
+        botResponse = await getWeather(); 
+      } else if (/\b(what is the time in)\b/.test(normalizedInput)) {
         const cityMatch = normalizedInput.match(/what is the time in (\w+)/i);
         if (cityMatch && cityMatch[1]) {
           const city = cityMatch[1];
@@ -74,28 +108,26 @@ const Chatbot = () => {
         } else {
           botResponse = "Please provide a city to check the time.";
         }
-      }
-      // Handle 'Who are you' or 'What can you do'
-      else if (/\b(what can u do|what can you do)\b/.test(normalizedInput)) {
+      } else if (/\b(what is the weather in|how is the weather in|weather in)\b/.test(normalizedInput)) {
+        const cityMatch = normalizedInput.match(/(?:weather in|what is the weather in|how is the weather in) ([a-zA-Z\s]+)/);
+        if (cityMatch && cityMatch[1]) {
+          const city = cityMatch[1].trim();
+          botResponse = await getWeather(city);
+        } else {
+          botResponse = "Could you please specify the location you'd like to know the weather for?";
+        }
+      } else if (/\b(what can u do|what can you do)\b/.test(normalizedInput)) {
         botResponse = "I am your friendly chatbot, here to assist you with whatever you need!";
-      }
-      //  "How do I contact support?"
-      else if (/\b(how do i contact support|how to contact support|how to contact u|your contact|give me your contact)\b/.test(normalizedInput)) {
+      } else if (/\b(how do i contact support|how to contact support|how to contact u|your contact|give me your contact)\b/.test(normalizedInput)) {
         botResponse = "You can contact support through our support page or by emailing menu.comapp@gmail.com!";
-      }
-      // Handle "What is your purpose?"
-      else if (/\b(what is your purpose|what can you help with|why are you here|why are u here|what can u do|what can u help|help me )\b/.test(normalizedInput)) {
+      } else if (/\b(what is your purpose|what can you help with|why are you here|why are u here|what can u help|help me )\b/.test(normalizedInput)) {
         botResponse = "I'm here to assist you with your questions and help you navigate the website!";
-      }
-      // Fallback response for unrecognized input
-      else {
+      } else {
         botResponse = "I'm not sure about that. Could you clarify your question?";
       }
 
-      // Stop typing indicator after response is set
       setIsTyping(false);
 
-      // Respond with the user's message and bot's response
       setMessages((prevMessages) => [
         ...prevMessages,
         { sender: 'user', text: userInput },
@@ -106,11 +138,10 @@ const Chatbot = () => {
   };
 
   const toggleChatbot = () => {
-    setIsOpen(!isOpen); // Open/close the chatbot
+    setIsOpen(!isOpen);
   };
 
   useEffect(() => {
-    // Automatically scroll to the bottom when a new message is added
     const chatContainer = document.getElementById('chat-container');
     if (chatContainer) {
       chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -119,16 +150,14 @@ const Chatbot = () => {
 
   useEffect(() => {
     if (isOpen) {
-      // Auto-focus the input field when the chatbot is opened
       const inputElement = document.getElementById('user-input');
       if (inputElement) inputElement.focus();
     }
   }, [isOpen]);
 
   useEffect(() => {
-    // Add default welcome message when the chatbot is opened
     if (isOpen && messages.length === 0) {
-      setMessages([ { sender: 'bot', text: "Hello! I'm MenuFy Assistant, how can I assist you today?" } ]);
+      setMessages([{ sender: 'bot', text: "Hello! I'm MenuFy Assistant, how can I assist you today?" }]);
     }
   }, [isOpen, messages]);
 
@@ -148,11 +177,9 @@ const Chatbot = () => {
       </button>
 
       {isOpen && (
-        <div className=" fixed bottom-4 right-4 w-[450px] max-h-[80vh] overflow-auto bg-white border-2 border-[#FA8072] rounded-lg shadow-lg p-4 flex flex-col">
-          {/* Title */}
+        <div className="fixed bottom-4 right-4 w-[450px] max-h-[80vh] overflow-auto bg-white border-2 border-[#FA8072] rounded-lg shadow-lg p-4 flex flex-col">
           <div className="text-center font-semibold text-lg mb-4">Ask MenuFy Assistant</div>
 
-          {/* Close button */}
           <div className="flex justify-end mb-2">
             <button onClick={toggleChatbot} className="text-[#FA8072] text-xl hover:text-[#f56a59]">
               <FaTimes />
@@ -168,10 +195,7 @@ const Chatbot = () => {
                   </div>
                 </div>
               ))}
-              {/* Display typing indicator */}
-              {isTyping && (
-                <div className="text-left text-gray-500 p-2 animate-pulse">Bot is typing...</div>
-              )}
+              {isTyping && <div className="text-left text-gray-500 p-2 animate-pulse">Bot is typing...</div>}
             </div>
 
             <div className="flex space-x-2 relative">
