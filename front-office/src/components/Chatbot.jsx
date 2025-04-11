@@ -10,7 +10,7 @@ const Chatbot = () => {
   const { user } = useAuth();
 
   const apiKey = "73676677ec625895ec0e633a2c792e3a";
-
+  const apiToken ="2536|52h4SKvwBrlsOPWYetbbCg4sv2ob5IMt8LszhOBI";
   const handleInputChange = (event) => {
     setUserInput(event.target.value);
   };
@@ -64,6 +64,38 @@ const Chatbot = () => {
     return arr[val % 16];
   };
   
+  const getCountryInfo = async (country) => {
+    try {
+      const response = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
+      const data = await response.json();
+      
+      if (data.status !== 404) {
+        const countryInfo = data[0];
+        const name = countryInfo.name.common;
+        const capital = countryInfo.capital ? countryInfo.capital[0] : 'No capital listed';
+        const population = countryInfo.population;
+        const region = countryInfo.region;
+        const subRegion = countryInfo.subregion;
+        const currencies = countryInfo.currencies ? Object.values(countryInfo.currencies).map(curr => curr.name).join(', ') : 'No currency listed';
+        const languages = countryInfo.languages ? Object.values(countryInfo.languages).join(', ') : 'No languages listed';
+        const borders = countryInfo.borders ? countryInfo.borders.join(', ') : 'No borders listed';
+        
+        return `🌍 **Country Information for ${name}:**
+   - 🏙️ **Capital**: ${capital}
+   - 👥 **Population**: ${population.toLocaleString()}
+   - 🌏 **Region**: ${region}
+   - 🌍 **Subregion**: ${subRegion}
+   - 💰 **Currencies**: ${currencies}
+   - 🗣️ **Languages**: ${languages}
+   - 🌍 **Borders**: ${borders}
+   `;
+      } else {
+        return "Sorry, I couldn't find information about that country.";
+      }
+    } catch (error) {
+      return "Sorry, something went wrong while fetching country information.";
+    }
+  };
   
   
 
@@ -100,7 +132,16 @@ const Chatbot = () => {
         botResponse = "Of course! I can assist you with tracking or updating your order. Could you provide your order number, please?";
       } else if (/\b(what is the weather today|how's the weather|what's the weather today)\b/.test(normalizedInput)) {
         botResponse = await getWeather(); 
-      } else if (/\b(what is the time in)\b/.test(normalizedInput)) {
+      } else if (/\b(what is the country info|country information|tell me about|give me info about |give me information about)\b/.test(normalizedInput)) {
+        const countryMatch = normalizedInput.match(/(?:about|the country) (\w+)/);
+        if (countryMatch && countryMatch[1]) {
+          const country = countryMatch[1].trim();
+          botResponse = await getCountryInfo(country); 
+        } else {
+          botResponse = "Please provide the name of a country.";
+        }
+      }
+       else if (/\b(what is the time in)\b/.test(normalizedInput)) {
         const cityMatch = normalizedInput.match(/what is the time in (\w+)/i);
         if (cityMatch && cityMatch[1]) {
           const city = cityMatch[1];
