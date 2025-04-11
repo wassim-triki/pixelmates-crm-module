@@ -23,7 +23,7 @@ const EditProfile = () => {
         email: user.email || '',
         phone: user.phone || '',
         address: user.address || '',
-        birthday: user.birthday || '',
+        birthday: user.birthday ? user.birthday.split('T')[0] : '', // Formater la date ici
       });
     }
   }, [user]);

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { User, Mail, Phone, Calendar, Home, Edit3 } from 'lucide-react';
 import BlurContainer from '../components/blurContainer';
 import Button from '../components/button';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authContext';
 
 const Profile = () => {
   const { user } = useAuth();
