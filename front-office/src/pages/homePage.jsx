@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../components/button';
 import BlurContainer from '../components/blurContainer';
 import Chatbot from '../components/Chatbot';  
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet'; // Import Leaflet
+
 const HomePage = () => {
   const menuItems = [
     { id: 1, name: 'Must Explain', price: '$15.00', image: '/test.png' },
@@ -20,6 +23,56 @@ const HomePage = () => {
       setMainImage(newImage);
     }
   };
+
+  useEffect(() => {
+    const map = L.map('map').setView([36.8065, 10.1815], 6);
+  
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+  
+    const restaurants = [
+      { name: 'Tunis', lat: 36.8065, lng: 10.1815 },
+      { name: 'Sfax', lat: 34.7406, lng: 10.7603 },
+    ];
+  
+    restaurants.forEach((r) => {
+      L.marker([r.lat, r.lng])
+        .addTo(map)
+        .bindPopup(`${r.name} - Restaurant partenaire 🍽️`);
+    });
+  
+    // 🔎 Fonction de géocodage inverse avec Nominatim
+    const getCityCountry = async (lat, lng) => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+        );
+        const data = await response.json();
+        const city = data.address.city || data.address.town || data.address.village || '';
+        const country = data.address.country || '';
+        return `${city}, ${country}`;
+      } catch (error) {
+        console.error('Erreur lors du géocodage inverse :', error);
+        return 'Lieu inconnu';
+      }
+    };
+  
+    // 👆 Interaction clic utilisateur
+    map.on('click', async function (e) {
+      const { lat, lng } = e.latlng;
+      const locationName = await getCityCountry(lat, lng);
+  
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(
+          `<strong>${locationName}</strong><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lng.toFixed(4)}`
+        )
+        .openPopup();
+    });
+  }, []);
+  
 
   return (
     <div className="relative flex flex-col min-h-screen bg-gray-100">
@@ -41,7 +94,7 @@ const HomePage = () => {
             rounded="2xl"
             className="w-full mx-auto p-6"
           >
-            <div className="flex flex-col space-y-20"> {/* Increased spacing to make sections more extended */}
+            <div className="flex flex-col space-y-20">
               <div className="flex flex-col md:flex-row items-center justify-between gap-8 px-4">
                 <div className="flex flex-col space-y-6 md:w-1/2 text-center md:text-left">
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
@@ -53,12 +106,11 @@ const HomePage = () => {
                   </p>
                   <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                     <Button className="bg-[#FA8072] hover:bg-black text-white font-semibold py-3 px-6 rounded-full transition-all">
-                    Book Now
+                      Book Now
                     </Button>
                     <Button className="!bg-transparent hover:!bg-[#FA8072] text-black hover:text-white border-2 border-black font-semibold py-3 px-6 rounded-full transition-all duration-300">
                       See menu
                     </Button>
-                    
                   </div>
                 </div>
                 <div className="md:w-1/2 flex justify-center overflow-hidden mt-8 md:mt-0">
@@ -74,7 +126,7 @@ const HomePage = () => {
                   />
                 </div>
               </div>
-              
+
               {/* Menu Items Section */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-4">
                 {menuItems.map((item) => (
@@ -91,9 +143,7 @@ const HomePage = () => {
                       />
                     </div>
                     <div className="mt-4">
-                      <p className="text-sm font-medium text-white">
-                        {item.name}
-                      </p>
+                      <p className="text-sm font-medium text-white">{item.name}</p>
                       <p className="text-sm text-white">{item.price}</p>
                     </div>
                   </div>
@@ -103,7 +153,7 @@ const HomePage = () => {
           </BlurContainer>
         </div>
       </div>
-      
+
       {/* Extended Features Section */}
       <div className="bg-white py-20 px-4 sm:px-6 lg:px-16">
         <div className="text-center">
@@ -112,20 +162,26 @@ const HomePage = () => {
           </h2>
           <p className="mt-4 text-lg sm:text-xl text-gray-600">
             Customize your restaurant experience with advanced tools that help you grow your business.
-            Track reservations, improve customer interactions, and boost your kitchen's efficiency.
+            Track reservations, improve customer interactions and boost your kitchen's efficiency.
           </p>
           <div className="flex justify-center mt-8">
             <Button className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-full transition-all">
               Discover More
             </Button>
           </div>
-          
+        </div>
+
+        {/* Carte Leaflet */}
+        <div className="flex justify-center mt-[-50px] mb-10 z-10 relative">
+          <div className="rounded-2xl shadow-lg overflow-hidden border border-gray-300 w-[90%] md:w-[60%] h-[300px]">
+            <div id="map" className="w-full h-full" />
+          </div>
         </div>
       </div>
-      
-            {/* Chatbot Component */}
-            <Chatbot /> {/* Chatbot ajouté ici */}
-            </div>
+
+      {/* Chatbot */}
+      <Chatbot />
+    </div>
   );
 };
 
