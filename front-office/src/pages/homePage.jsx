@@ -4,7 +4,7 @@ import Button from '../components/button';
 import BlurContainer from '../components/blurContainer';
 import Chatbot from '../components/Chatbot';  
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet'; // Import Leaflet
+import L from 'leaflet'; 
 
 const HomePage = () => {
   const menuItems = [
@@ -25,7 +25,17 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    const map = L.map('map').setView([36.8065, 10.1815], 6);
+    const mapContainer = document.getElementById('map');
+  
+    if (!mapContainer) {
+      console.warn('Map container not found');
+      return;
+    }
+      if (mapContainer._leaflet_id) {
+      mapContainer._leaflet_id = null; 
+    }
+  
+    const map = L.map(mapContainer).setView([36.8065, 10.1815], 6);
   
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
@@ -43,7 +53,6 @@ const HomePage = () => {
         .bindPopup(`${r.name} - Restaurant partenaire 🍽️`);
     });
   
-    // 🔎 Fonction de géocodage inverse avec Nominatim
     const getCityCountry = async (lat, lng) => {
       try {
         const response = await fetch(
@@ -59,7 +68,6 @@ const HomePage = () => {
       }
     };
   
-    // 👆 Interaction clic utilisateur
     map.on('click', async function (e) {
       const { lat, lng } = e.latlng;
       const locationName = await getCityCountry(lat, lng);
@@ -71,21 +79,24 @@ const HomePage = () => {
         )
         .openPopup();
     });
-  }, []);
   
-
+    return () => {
+      map.remove(); 
+    };
+  }, []);  
+    
   return (
     <div className="relative flex flex-col min-h-screen bg-gray-100">
       {/* Background section */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+          style={{
           backgroundImage: "url('/bg.jpg')",
           boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.3)',
-        }}
+          }}
       />
       
-      <div className="relative flex-grow flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-16">
+      <div className="relative z-1 relative flex-grow flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-16">
         <div className="w-full max-w-7xl pt-8">
           <BlurContainer
             blur="xl"
@@ -171,12 +182,24 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Carte Leaflet */}
-        <div className="flex justify-center mt-[-50px] mb-10 z-10 relative">
-          <div className="rounded-2xl shadow-lg overflow-hidden border border-gray-300 w-[90%] md:w-[60%] h-[300px]">
+      <div className="flex justify-center ">
+        <div className="flex flex-col md:flex-row items-center justify-between w-[90%] md:w-[80%]">
+          {/* Map */}
+          <div className="rounded-2xl shadow-lg overflow-hidden w-full md:w-[60%] h-[300px]">
             <div id="map" className="w-full h-full" />
           </div>
-        </div>
+          <div
+            className="md:w-[35%] mt-4 md:mt-0 md:ml-8 text-center md:text-left bg-black/10 backdrop-blur-sm p-6 rounded-lg shadow-lg"
+            id="map-text-container"
+          >
+            <h3 className="text-2xl font-bold text-white text-center">Explore Our Partnered Locations</h3>
+            <p className="mt-4 text-lg text-white text-center">
+              Click on the map to explore partnered restaurants. Find out more about each restaurant's
+              offerings and locations by clicking on their markers.
+            </p>
+          </div>
+          </div>
+         </div>
       </div>
 
       {/* Chatbot */}
