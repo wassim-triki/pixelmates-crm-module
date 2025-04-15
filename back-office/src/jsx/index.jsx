@@ -115,6 +115,10 @@ import Unauthorized from './pages/Unauthorized'; // Added Unauthorized import
 import UpdateProfile from './components/AppsMenu/AppProfile/UpdateProfile';
 import Restaurant from './components/Dashboard/Restaurant';
 
+import Statics from './components/Dashboard/Statics';
+
+
+
 const Markup = () => {
   const routes = {
     admin: [{ url: 'admin/dashboard', component: <Home /> }],
@@ -126,6 +130,7 @@ const Markup = () => {
     { url: 'dashboard', component: <Home /> },
     { url: 'clients', component: <Clients /> },
     { url: 'restaurant', component: <Restaurant /> },
+    { url: 'statics', component: <Statics /> },
     { url: 'orders', component: <Orders /> },
     { url: 'Order-id', component: <OrderId /> },
     { url: 'general-customers', component: <GeneralCustomers /> },

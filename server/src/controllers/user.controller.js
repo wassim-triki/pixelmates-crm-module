@@ -126,6 +126,55 @@ const deleteUser = async (req, res) => {
 };
     
 
+
+const getUserStatistics = async (req, res) => {
+  try {
+    // Aggregate the users by month and year
+    const stats = await User.aggregate([
+      {
+        $match: {
+          createdAt: { $exists: true }, // Ensure createdAt field exists
+        },
+      },
+      {
+        $project: {
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+        },
+      },
+      {
+        $group: {
+          _id: { year: "$year", month: "$month" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
+
+    // If no statistics are found, return a message
+    if (stats.length === 0) {
+      return res.status(404).json({ message: "No statistics found" });
+    }
+
+    // Format the result for better clarity
+    const formattedStats = stats.map((stat) => ({
+      year: stat._id.year,
+      month: stat._id.month,
+      count: stat.count,
+    }));
+
+    res.status(200).json(formattedStats);
+  } catch (error) {
+    console.error("Error fetching statistics:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
+
+
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -133,4 +182,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllRoles,
+  getUserStatistics,
 };
