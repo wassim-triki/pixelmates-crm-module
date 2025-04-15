@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authContext';
 
 function OAuthCallback() {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ function OAuthCallback() {
     if (accessToken) {
       localStorage.setItem('accessToken', accessToken);
       fetchUser(); // Fetch user details
-      navigate('/profile'); // Redirect to profile after successful login
+      navigate('/home-page'); // Redirect to profile after successful login
     } else {
       navigate('/login'); // Redirect to login if there's an issue
     }

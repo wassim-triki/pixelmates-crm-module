@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, User, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/authContext';
 
-const Navbar = () => {
+const NavbarAfterLogin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -45,7 +45,7 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 bg-[#262626]/20 text-[#FA8072] py-4 backdrop-blur-md z-10">
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link to="/">
+        <Link to="/home-page">
           <img
             src="/Logo-MenuFy.png"
             alt="Logo"
@@ -63,18 +63,6 @@ const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex space-x-8">
-          <Link
-            to="/"
-            className="text-white font-bold hover:text-[#FA8072] transition"
-          >
-            Home
-          </Link>
-
-          <Link to="/restaurant" className="text-white font-bold hover:text-[#FA8072] transition">
-          Restaurant
-        </Link>
-
-
           <Link
             to="/about-us"
             className="text-white font-bold hover:text-[#FA8072] transition"
@@ -184,8 +172,6 @@ const Navbar = () => {
           >
             Home
           </Link>
-
-          
           <Link
             to="/about"
             className="text-lg text-[#FA8072] font-bold hover:text-white"
@@ -222,4 +208,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavbarAfterLogin;
