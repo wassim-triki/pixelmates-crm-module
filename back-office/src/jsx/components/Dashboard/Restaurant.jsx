@@ -333,6 +333,9 @@ const RestaurantList = () => {
     </Dropdown>
   </div>
 </div>
+<h1 className="text-center fw-bold">Restaurants List</h1>
+<br></br>
+
       {/* Restaurant Table (unchanged) */}
       {loading ? (
         <div className="text-center my-5">
