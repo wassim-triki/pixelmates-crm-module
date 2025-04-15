@@ -319,3 +319,46 @@ exports.getMe = asyncHandler(async (req, res) => {
 
   res.status(200).json(userData);
 });
+
+
+// Update Profile
+exports.updateProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.userId; // ✅ cohérent avec getMe
+
+  const updates = req.body;
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+    new: true,
+    runValidators: true,
+  })
+    .select('-password -refreshToken') // ✅ pour sécuriser la réponse
+    .populate({
+      path: 'role',
+      select: 'name permissions',
+    })
+    .populate({
+      path: 'restaurantId',
+      select: 'name address',
+    });
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  res.status(200).json({
+    id: updatedUser._id,
+    firstName: updatedUser.firstName,
+    lastName: updatedUser.lastName,
+    email: updatedUser.email,
+    phone: updatedUser.phone,
+    address: updatedUser.address,
+    birthday: updatedUser.birthday,
+    image: updatedUser.image,
+    role: {
+      name: updatedUser.role.name,
+      permissions: updatedUser.role.permissions,
+    },
+    restaurant: updatedUser.restaurantId || null,
+  });
+});
+

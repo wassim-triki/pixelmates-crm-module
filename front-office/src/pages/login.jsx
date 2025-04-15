@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/button';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authContext';
 import { FcGoogle } from 'react-icons/fc'; // Google Icon
 import { FaFacebook } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
@@ -23,12 +23,6 @@ function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   
-  useEffect(() => {
-    if (user) {
-      navigate('/profile');
-    }
-  }, [user, navigate]);
-
   const formik = useFormik({
     initialValues: { email: '', password: '' },
     validationSchema,
@@ -37,6 +31,7 @@ function Login() {
       setLoading(true);
       try {
         await login(values.email, values.password);
+        navigate('/home-page')
       } catch (err) {
         if (err === 'Please verify your email before logging in.') {
           navigate('/verify-email', { state: { email: values.email } });
@@ -66,6 +61,7 @@ function Login() {
         style={{
           backgroundImage: "url('/Backg_Login.png')",
           boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.1)', // ← comme Register
+          filter: 'blur(5px)',
         }}
         
       />

@@ -11,12 +11,16 @@ export const MenuList = [
             },     
             {
             title: 'Clients',
-                        to: 'clients',
-                }    ,       
-                {
+                to: 'clients',
+            },    
+            {
                     title:'Restaurants',
                     to:'restaurant'
-                },
+            },
+            {
+                    title: 'statics',
+                    to: 'statics',
+            },    
                        
             {
                 title: 'Orders',
