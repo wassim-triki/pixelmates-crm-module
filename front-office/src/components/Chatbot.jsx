@@ -63,7 +63,12 @@ const Chatbot = () => {
                  "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
     return arr[val % 16];
   };
-  
+    // Make a reservation (simplified for demonstration)
+    const makeReservation = async (restaurant, time, people) => {
+      // Simulate an API call to book a table
+      return `Your reservation for ${restaurant} at ${time} for ${people} people has been successfully made!`;
+    };
+
   const getCountryInfo = async (country) => {
     try {
       const response = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
@@ -169,14 +174,59 @@ const Chatbot = () => {
       } else if (/\b(what is the weather today|how's the weather|what's the weather today)\b/.test(normalizedInput)) {
         botResponse = await getWeather(); 
       } else if (/how to cook|give me recipe|recipe for|cook .*|prepare .*/i.test(normalizedInput)) {
-        const foodMatch = normalizedInput.match(/(?:how to cook|cook|recipe for|prepare)\s(.+)/i);
+        const foodMatch = normalizedInput.match(/(?:how to cook|give me recipe|cook|recipe for|prepare)\s(.+)/i);
         if (foodMatch && foodMatch[1]) {
           const food = foodMatch[1].trim();
           botResponse = await getFoodInfo(food);
         } else {
           botResponse = "Please specify the name of a dish or food you'd like to learn about.";
         }
+      } else if (/\b(reserve table|book a table|table reservation)\b/.test(normalizedInput)) { 
+        const reservationMatch = normalizedInput.match(/reserve table for (\d+) people at (\d{1,2}(:\d{2})?\s?(am|pm)?)/i);
+        
+        if (reservationMatch && reservationMatch[1] && reservationMatch[2]) {
+          const people = reservationMatch[1];
+          let time = reservationMatch[2].trim();
+  
+          // Check if time includes 'am' or 'pm'. If not, assume 'pm'.
+          if (!/\b(am|pm)\b/i.test(time)) {
+            time = `${time} pm`; // Default to pm if no AM/PM is specified
+          }
+  
+          // Normalize time to 12-hour format if needed (example: convert 2 to 2 pm)
+          time = time.toLowerCase();
+          
+          // Parsing hours and minutes properly (optional)
+          const timeParts = time.match(/(\d{1,2})(?::(\d{2}))?\s?(am|pm)?/);
+          if (timeParts) {
+            let hours = parseInt(timeParts[1]);
+            const minutes = timeParts[2] ? timeParts[2] : '00';
+            const ampm = timeParts[3] || 'pm'; // Default to 'pm' if not specified
+  
+            // If the time is in 12-hour format, adjust to 24-hour time if needed (basic check)
+            if (ampm === 'pm' && hours < 12) hours += 12; // Convert PM time to 24-hour
+            if (ampm === 'am' && hours === 12) hours = 0; // Midnight fix
+  
+            time = `${hours}:${minutes} ${ampm}`;
+          }
+  
+          const restaurant = "Sample Restaurant";  // Can be dynamic depending on the restaurant
+          botResponse = await makeReservation(restaurant, time, people);
+          
+          // Send confirmation email after reservation
+          botResponse += "\n\nA confirmation email will be sent shortly to confirm your reservation.";
+        
+        } else {
+          botResponse = "Please provide the number of people and time for your reservation.";
+        }
+  
       }
+       else if (/\b(order food|place an order)\b/.test(normalizedInput)) {
+        botResponse = "I can help you place an order. What would you like to order?";
+      } else if (/\b(give feedback|complaint)\b/.test(normalizedInput)) {
+        botResponse = "I'm sorry to hear that! Please provide your feedback or complaint, and I will forward it to the restaurant.";
+      }
+
         else if (/\b(what is the country info|country information|tell me about|give me info about |give me information about)\b/.test(normalizedInput)) {
         const countryMatch = normalizedInput.match(/(?:about|the country) (\w+)/);
         if (countryMatch && countryMatch[1]) {
@@ -211,7 +261,7 @@ const Chatbot = () => {
       } else {
         botResponse = "I'm not sure about that. Could you clarify your question?";
       }
-
+    
       setIsTyping(false);
 
       setMessages((prevMessages) => [
