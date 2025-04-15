@@ -370,6 +370,7 @@ const RestaurantList = () => {
               variant="outline-primary"
               size="sm"
               className="me-2"
+              style={{ backgroundColor: '#0d6efd', color: 'white' }}
               onClick={() => handleShowDetailModal(restaurant)}
               disabled={loading}
             >
@@ -379,6 +380,8 @@ const RestaurantList = () => {
               variant="outline-warning"
               size="sm"
               className="me-2"
+              style={{ backgroundColor: '#ffc107', color: 'black' }}
+
               onClick={() => handleShowEditModal(restaurant)}
               disabled={loading}
             >
@@ -387,6 +390,7 @@ const RestaurantList = () => {
             <Button
               variant="outline-danger"
               size="sm"
+              style={{ backgroundColor: '#dc3545', color: 'white' }}
               onClick={() => handleDeleteRestaurant(restaurant._id)}
               disabled={loading}
             >
