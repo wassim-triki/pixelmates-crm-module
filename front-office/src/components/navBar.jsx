@@ -69,6 +69,12 @@ const Navbar = () => {
           >
             Home
           </Link>
+
+          <Link to="/restaurant" className="text-white font-bold hover:text-[#FA8072] transition">
+          Restaurant
+        </Link>
+
+
           <Link
             to="/about-us"
             className="text-white font-bold hover:text-[#FA8072] transition"
@@ -178,6 +184,8 @@ const Navbar = () => {
           >
             Home
           </Link>
+
+          
           <Link
             to="/about"
             className="text-lg text-[#FA8072] font-bold hover:text-white"

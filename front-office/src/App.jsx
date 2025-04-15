@@ -15,6 +15,9 @@ import VerifyCode from './pages/VerifyCode';
 import AboutUs from './pages/aboutUs';
 import OAuthCallback from './pages/OAuthCallback';
 import Footer from './components/footer';
+import Restaurant from './components/Restaurant';
+
+
 
 const App = () => {
   const location = useLocation();
@@ -51,6 +54,7 @@ const App = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/forgot-password" element={<ResetPasswordEmail />} />
             <Route path="/verify-email" element={<VerifyCode />} />
+            <Route path="/restaurant" element={<Restaurant />} />
             <Route
               path="/profile"
               element={
