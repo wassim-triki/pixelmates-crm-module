@@ -60,37 +60,31 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-   // Update user profile
-   const updateUser = async (updatedData) => {
+  // Update user profile
+  const updateUser = async (updatedData) => {
     try {
       const token = localStorage.getItem('accessToken');
-  
+
       if (!token) {
         console.error('No token found in localStorage');
         return;
       }
-  
-      const response = await axiosInstance.put(
-        '/auth/me/update',
-        updatedData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-  
+
+      const response = await axiosInstance.put('/auth/me/update', updatedData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
       console.log('Profile updated:', response.data);
+      setUser(response.data); // ✅ Update context with latest user data
     } catch (error) {
       console.error('Error updating profile:', error);
+      throw error; // re-throw to catch it in EditProfile
     }
   };
-  
-     
-  
-  
-  
+
   useEffect(() => {
     const interceptor = axiosInstance.interceptors.response.use(
       (response) => response,
@@ -143,7 +137,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, fetchUser, loading, updateUser }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, fetchUser, loading, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -5,6 +5,7 @@ import Button from '../components/button';
 import { useAuth } from '../context/authContext';
 import { FaCamera } from 'react-icons/fa';
 import { FaArrowLeft } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const EditProfile = () => {
   const { user, updateUser } = useAuth();
@@ -43,16 +44,22 @@ const EditProfile = () => {
     }));
   };
 
+  const [loading, setLoading] = useState(false); // ✅ loading state
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // start loading
+
     try {
       await updateUser(formData);
-      alert('Profile updated successfully!');
+      toast.success('Profile updated successfully!');
+      navigate('/profile');
     } catch (err) {
-      alert('Error updating profile: ' + err);
+      toast.error('Error updating profile!');
+    } finally {
+      setLoading(false); // stop loading
     }
   };
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -68,9 +75,9 @@ const EditProfile = () => {
     }
   };
 
-    const handleBackClick = () => {
-      navigate('/profile'); // Navigate to profile page
-    };
+  const handleBackClick = () => {
+    navigate('/profile'); // Navigate to profile page
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent relative">
@@ -86,7 +93,7 @@ const EditProfile = () => {
       {/* Main Content */}
       <main className="relative flex-grow flex items-center justify-center py-30 px-6">
         <BlurContainer className="w-full max-w-3xl p-8 sm:p-10 rounded-2xl bg-white/20 backdrop-blur-xl text-white shadow-lg">
-        <div className="flex justify-start mb-6">
+          <div className="flex justify-start mb-6">
             {/* Back Button with Icon */}
             <button
               onClick={handleBackClick}
@@ -147,7 +154,10 @@ const EditProfile = () => {
                 { label: 'Address', name: 'address', type: 'text' },
                 { label: 'Birthday', name: 'birthday', type: 'date' },
               ].map((field) => (
-                <div key={field.name} className="flex flex-col sm:flex-row sm:items-center">
+                <div
+                  key={field.name}
+                  className="flex flex-col sm:flex-row sm:items-center"
+                >
                   <label
                     htmlFor={field.name}
                     className="w-full sm:w-32 text-sm font-semibold mb-2 sm:mb-0 sm:mr-4"
@@ -170,8 +180,9 @@ const EditProfile = () => {
               <Button
                 type="submit"
                 className="w-full sm:w-1/2 !bg-[#FA8072] hover:!bg-[#e0685a] active:bg-[#FA8072] text-white border-2 border-[#FA8072] font-semibold py-3 px-6 rounded-full transition-all duration-300"
+                disabled={loading} // ✅ Disable button when loading
               >
-                Save Changes
+                {loading ? 'Updating...' : 'Save Changes'}
               </Button>
             </div>
           </form>

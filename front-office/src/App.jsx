@@ -19,8 +19,6 @@ import OAuthCallback from './pages/OAuthCallback';
 import Footer from './components/footer';
 import Restaurant from './components/Restaurant';
 
-
-
 const App = () => {
   const location = useLocation();
   const [showFooter, setShowFooter] = useState(true);
