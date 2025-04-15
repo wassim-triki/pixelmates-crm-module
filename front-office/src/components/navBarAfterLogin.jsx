@@ -53,25 +53,35 @@ const NavbarAfterLogin = () => {
           />
         </Link>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden text-white"
-        >
-          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+     
+        
 
-        {/* Desktop Navigation Links */}
-        <div className="hidden md:flex space-x-8">
-          <Link
-            to="/about-us"
-            className="text-white font-bold hover:text-[#FA8072] transition"
+        
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden text-white"
           >
-            About Us
-          </Link>
-        </div>
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
 
-        {/* Right Section (Search + Auth) */}
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex space-x-8">
+          <Link
+              to="/restaurant"
+              className="text-white font-bold hover:text-[#FA8072] transition"
+            >
+              Restaurant
+            </Link>
+            <Link
+              to="/about-us"
+              className="text-white font-bold hover:text-[#FA8072] transition"
+            >
+              About Us
+            </Link>
+          
+          </div>
+
+          {/* Right Section (Search + Auth) */}
         <div className="hidden md:flex items-center space-x-6">
           {!user && (
             <Link
