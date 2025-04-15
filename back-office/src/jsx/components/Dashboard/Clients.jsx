@@ -263,223 +263,285 @@ const UserList = () => {
         </Dropdown>
       </div>
 
-      <h1 className="text-center" style={{ fontWeight: "bold" }}>Users List</h1><br></br>
-      <div className="table-responsive rounded card-table">
-        <div className="dataTables_wrapper no-footer">
-          <table className="table table-bordered table-striped dataTable no-footer" role="grid">
-            <thead>
-              <tr>
-                <th className="sorting text-center" style={{ width: 133 }} onClick={() => requestSort('email')}>
-                  Email
-                </th>
-                <th className="sorting text-center" style={{ width: 193 }} onClick={() => requestSort('role.name')}>
-                  Role
-                </th>
-                <th className="sorting text-center" style={{ width: 67 }} onClick={() => requestSort('status')}>
-                  Status
-                </th>
-                <th className="text-center" style={{ width: 108 }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedUsers.map((user) => (
-                <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
-                  <td>{user.email}</td>
-                  <td>{user.role?.name || 'N/A'}</td>
-                  <td>
-                    <span className={user.status === "Active" ? "text-success" : user.status === "Inactive" ? "text-warning" : "text-danger"}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="d-flex align-items-center justify-content-end">
-                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#0d6efd", color: "white" }} onClick={() => handleShowModal(user)}>
-                        <i className="fas fa-eye"></i>
-                      </button>
-                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#ffc107", color: "black" }} onClick={() => handleEditModal(user)}>
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button className="btn btn-sm me-2" style={{ backgroundColor: "#dc3545", color: "white" }} onClick={() => deleteUser(user._id)}>
-                        <i className="fas fa-trash"></i>
-                      </button>
-                      <Dropdown className="dropdown">
-                        <Dropdown.Toggle
-                          variant=""
-                          className="btn btn-sm border-0"
-                          as="div"
-                          aria-expanded="false"
-                        >
-                          <i className="fas fa-ellipsis-v"></i>
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
-                          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Active")}>
-                            <i className="las la-check text-success me-3 scale5" />
-                            Set Active
-                          </Dropdown.Item>
-                          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Inactive")}>
-                            <i className="las la-times text-warning me-3 scale5" />
-                            Set Inactive
-                          </Dropdown.Item>
-                          <Dropdown.Item className="dropdown-item" onClick={() => handleChangeStatus(user, "Banned")}>
-                            <i className="las la-ban text-danger me-3 scale5" />
-                            Set Banned
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="d-sm-flex text-center justify-content-between align-items-center mt-3">
-            <div className="dataTables_info" role="status" aria-live="polite">
-              Showing {currentPage * itemsPerPage + 1} to{' '}
-              {Math.min((currentPage + 1) * itemsPerPage, users.length)} of {users.length} entries
-            </div>
-            <div className="dataTables_paginate paging_simple_numbers">
-              <button
-                className="paginate_button previous"
-                onClick={() => currentPage > 0 && handlePageClick(currentPage - 1)}
-                disabled={currentPage === 0}
+      <h1 className="text-center fw-bold">Users List</h1>
+<br />
+<div className="table-responsive rounded card-table">
+  <div className="dataTables_wrapper no-footer">
+    <table className="table table-bordered table-striped dataTable no-footer" role="grid">
+      <thead>
+        <tr>
+          <th
+            className="sorting text-center"
+            style={{ width: 133 }}
+            onClick={() => requestSort('email')}
+          >
+            Email
+          </th>
+          <th
+            className="sorting text-center"
+            style={{ width: 193 }}
+            onClick={() => requestSort('role.name')}
+          >
+            Role
+          </th>
+          <th
+            className="sorting text-center"
+            style={{ width: 67 }}
+            onClick={() => requestSort('status')}
+          >
+            Status
+          </th>
+          <th className="text-center" style={{ width: 108 }}>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {paginatedUsers.map((user) => (
+          <tr key={user._id} className="alert alert-dismissible border-0 even" role="row">
+            <td>{user.email}</td>
+            <td>{user.role?.name || 'N/A'}</td>
+            <td>
+              <span
+                className={
+                  user.status === 'Active'
+                    ? 'text-success'
+                    : user.status === 'Inactive'
+                    ? 'text-warning'
+                    : 'text-danger'
+                }
               >
-                Previous
-              </button>
-              <span>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i}
-                    className={`paginate_button ${currentPage === i ? 'current' : ''}`}
-                    onClick={() => handlePageClick(i)}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+                {user.status}
               </span>
-              <button
-                className="paginate_button next"
-                onClick={() => currentPage + 1 < totalPages && handlePageClick(currentPage + 1)}
-                disabled={currentPage + 1 === totalPages}
+            </td>
+            <td>
+              <div className="d-flex align-items-center justify-content-end">
+                <button
+                  className="btn btn-sm me-2"
+                  style={{ backgroundColor: '#0d6efd', color: 'white' }}
+                  onClick={() => handleShowModal(user)}
+                >
+                  <i className="fas fa-eye"></i>
+                </button>
+                <button
+                  className="btn btn-sm me-2"
+                  style={{ backgroundColor: '#ffc107', color: 'black' }}
+                  onClick={() => handleEditModal(user)}
+                >
+                  <i className="fas fa-edit"></i>
+                </button>
+                <button
+                  className="btn btn-sm me-2"
+                  style={{ backgroundColor: '#dc3545', color: 'white' }}
+                  onClick={() => deleteUser(user._id)}
+                >
+                  <i className="fas fa-trash"></i>
+                </button>
+                <Dropdown className="dropdown">
+                  <Dropdown.Toggle
+                    variant=""
+                    className="btn btn-sm border-0"
+                    as="div"
+                    aria-expanded="false"
+                  >
+                    <i className="fas fa-ellipsis-v"></i>
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
+                    <Dropdown.Item
+                      className="dropdown-item"
+                      onClick={() => handleChangeStatus(user, 'Active')}
+                    >
+                      <i className="las la-check text-success me-3 scale5" />
+                      Set Active
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      className="dropdown-item"
+                      onClick={() => handleChangeStatus(user, 'Inactive')}
+                    >
+                      <i className="las la-times text-warning me-3 scale5" />
+                      Set Inactive
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      className="dropdown-item"
+                      onClick={() => handleChangeStatus(user, 'Banned')}
+                    >
+                      <i className="las la-ban text-danger me-3 scale5" />
+                      Set Banned
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <div className="d-sm-flex text-center justify-content-between align-items-center mt-3">
+      <div className="dataTables_info" role="status" aria-live="polite">
+        Showing {currentPage * itemsPerPage + 1} to{' '}
+        {Math.min((currentPage + 1) * itemsPerPage, users.length)} of {users.length} entries
+      </div>
+      <div className="dataTables_paginate paging_simple_numbers">
+        <button
+          className="paginate_button previous btn btn-outline-primary btn-sm me-2"
+          onClick={() => currentPage > 0 && handlePageClick(currentPage - 1)}
+          disabled={currentPage === 0}
+        >
+          Previous
+        </button>
+        <span>
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              className={`paginate_button btn btn-sm ${
+                currentPage === i ? 'btn-primary text-white' : 'btn-outline-primary'
+              } me-1`}
+              onClick={() => handlePageClick(i)}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </span>
+        <button
+          className="paginate_button next btn btn-outline-primary btn-sm"
+          onClick={() => currentPage + 1 < totalPages && handlePageClick(currentPage + 1)}
+          disabled={currentPage + 1 === totalPages}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <Modal show={showEditModal} onHide={handleCloseEditModal} size="lg" centered>
+  <Modal.Header closeButton>
+    <Modal.Title className="text-center w-100 fw-bold">Edit User</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedUser && (
+      <Form>
+        <div className="row">
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formFirstName">
+              <Form.Label>First Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={selectedUser.firstName || ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })}
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formLastName">
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={selectedUser.lastName || ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                value={selectedUser.email}
+                onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formPhone">
+              <Form.Label>Phone</Form.Label>
+              <Form.Control
+                type="text"
+                value={selectedUser.phone || ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formAddress">
+              <Form.Label>Address</Form.Label>
+              <Form.Control
+                type="text"
+                value={selectedUser.address || ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, address: e.target.value })}
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formBirthday">
+              <Form.Label>Birthday</Form.Label>
+              <Form.Control
+                type="date"
+                value={selectedUser.birthday ? selectedUser.birthday.split('T')[0] : ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, birthday: e.target.value })}
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                value={selectedUser.password || ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, password: e.target.value })}
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formImage">
+              <Form.Label>Image</Form.Label>
+              <Form.Control
+                type="file"
+                onChange={(e) => setSelectedUser({ ...selectedUser, image: e.target.files[0] })}
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formRole">
+              <Form.Label>Role</Form.Label>
+              <Form.Control
+                as="select"
+                value={selectedUser.role?._id || ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, role: { _id: e.target.value } })}
               >
-                Next
-              </button>
-            </div>
+                {roles.map((role) => (
+                  <option key={role._id} value={role._id}>
+                    {role.name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          </div>
+          <div className="col-md-6 mb-3">
+            <Form.Group controlId="formStatus">
+              <Form.Label>Status</Form.Label>
+              <Form.Control
+                as="select"
+                value={selectedUser.status || ''}
+                onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Banned">Banned</option>
+              </Form.Control>
+            </Form.Group>
           </div>
         </div>
-      </div>
-
-      <Modal show={showEditModal} onHide={handleCloseEditModal}>
-        <Modal.Header closeButton>
-          <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>Edit User</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedUser && (
-            <Form>
-              <Form.Group controlId="formFirstName">
-                <Form.Label>First Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedUser.firstName || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formLastName">
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedUser.lastName || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  value={selectedUser.email}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formPhone">
-                <Form.Label>Phone</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedUser.phone || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formAddress">
-                <Form.Label>Address</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={selectedUser.address || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, address: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="formBirthday">
-                <Form.Label>Birthday</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={selectedUser.birthday ? selectedUser.birthday.split('T')[0] : ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, birthday: e.target.value })}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formPassword">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  value={selectedUser.password || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, password: e.target.value })}  
-                />
-              </Form.Group>
-              
-             
-              <Form.Group controlId="formImage">
-                <Form.Label>Image</Form.Label>
-                <Form.Control
-                  type="file"
-                  onChange={(e) => setSelectedUser({ ...selectedUser, image: e.target.files[0] })}
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formRole">
-                <Form.Label>Role</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={selectedUser.role?._id || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, role: { _id: e.target.value } })}
-                >
-                  {roles.map((role) => (
-                    <option key={role._id} value={role._id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-              <Form.Group controlId="formStatus">
-                <Form.Label>Status</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={selectedUser.status || ''}
-                  onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Banned">Banned</option>
-                </Form.Control>
-              </Form.Group>
-            </Form>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseEditModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleUpdateUser}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      </Form>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleCloseEditModal}>
+      Close
+    </Button>
+    <Button variant="primary" onClick={handleUpdateUser}>
+      Save Changes
+    </Button>
+  </Modal.Footer>
+</Modal>
 
       <Modal show={showNewUserModal} onHide={handleCloseNewUserModal}>
         <Modal.Header closeButton>
@@ -531,39 +593,60 @@ const UserList = () => {
       </Modal>
 
       <Modal show={showViewModal} onHide={handleCloseViewModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title style={{ textAlign: "center", width: "100%", fontWeight: "bold" }}>
-            User Details
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedUser && (
-            <div className="text-center">
-              <img 
-                src={selectedUser.image || 'default-profile.png'} 
-                width={100}
-                height={100}
-                alt="Profile"
-                className="rounded-circle mb-3"
-                style={{ objectFit: 'cover' }}
-              />
-              <p><strong>First Name:</strong> {selectedUser.firstName || 'N/A'}</p>
-              <p><strong>Last Name:</strong> {selectedUser.lastName || 'N/A'}</p>
-              <p><strong>Phone:</strong> {selectedUser.phone || 'N/A'}</p>
-              <p><strong>Address:</strong> {selectedUser.address || 'N/A'}</p>
-              <p><strong>Birthday:</strong> {selectedUser.birthday ? new Date(selectedUser.birthday).toISOString().split('T')[0] : "N/A"}</p>
-              <p><strong>Email:</strong> {selectedUser.email}</p>
-              <p><strong>Role:</strong> {selectedUser.role?.name || 'N/A'}</p>
-              <p><strong>Status:</strong> {selectedUser.status}</p>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseViewModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+  <Modal.Header closeButton>
+    <Modal.Title className="text-center w-100 fw-bold">User Details</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedUser && (
+      <div className="text-center">
+        <div className="mb-4">
+          <img
+            src={selectedUser.image || 'default-profile.png'}
+            alt="Profile"
+            className="rounded-circle img-fluid"
+            style={{
+              width: '150px',
+              height: '150px',
+              objectFit: 'cover',
+              border: '2px solid #ddd',
+            }}
+          />
+        </div>
+        <div className="row text-start">
+          <div className="col-6 mb-2">
+            <p><strong>First Name:</strong> {selectedUser.firstName || 'N/A'}</p>
+          </div>
+          <div className="col-6 mb-2">
+            <p><strong>Last Name:</strong> {selectedUser.lastName || 'N/A'}</p>
+          </div>
+          <div className="col-6 mb-2">
+            <p><strong>Phone:</strong> {selectedUser.phone || 'N/A'}</p>
+          </div>
+          <div className="col-6 mb-2">
+            <p><strong>Address:</strong> {selectedUser.address || 'N/A'}</p>
+          </div>
+          <div className="col-6 mb-2">
+            <p><strong>Birthday:</strong> {selectedUser.birthday ? new Date(selectedUser.birthday).toISOString().split('T')[0] : 'N/A'}</p>
+          </div>
+          <div className="col-6 mb-2">
+            <p><strong>Email:</strong> {selectedUser.email}</p>
+          </div>
+          <div className="col-6 mb-2">
+            <p><strong>Role:</strong> {selectedUser.role?.name || 'N/A'}</p>
+          </div>
+          <div className="col-6 mb-2">
+            <p><strong>Status:</strong> {selectedUser.status}</p>
+          </div>
+        </div>
+      </div>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleCloseViewModal}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
     </>
   );
 };
