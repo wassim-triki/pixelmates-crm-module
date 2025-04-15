@@ -209,7 +209,15 @@ const Chatbot = () => {
   };
 
   return (
-    <div>
+    <div style={{
+      position: 'fixed',
+      bottom: '20px',
+      right: '20px',
+      zIndex: 9999, 
+      width: isOpen ? '350px' : '60px',
+      height: isOpen ? '500px' : '60px',
+      transition: 'all 0.3s ease-in-out'
+    }}>
       <button
         onClick={toggleChatbot}
         className="fixed bottom-4 right-4 bg-[#FA8072] hover:bg-[#f56a59] text-white p-4 rounded-full shadow-lg transition-all duration-300"
