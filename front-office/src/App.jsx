@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider } from './context/authContext';
+import { AuthProvider, useAuth } from './context/authContext'; // Import du contexte
 import HomePage from './pages/homePage';
+import HomePageAfterLogin from './pages/homePageAfterLogin';
 import Login from './pages/login';
 import ResetPassword from './pages/resetPassword';
 import Register from './pages/register';
@@ -10,6 +11,7 @@ import ProfilePage from './pages/profilePage';
 import EditProfile from './pages/editProfile';
 import Settings from './pages/settingPage';
 import Navbar from './components/navBar';
+import NavbarAfterLogin from './components/navBarAfterLogin';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyCode from './pages/VerifyCode';
 import AboutUs from './pages/aboutUs';
@@ -20,7 +22,10 @@ const App = () => {
   const location = useLocation();
   const [showFooter, setShowFooter] = useState(true);
 
-  // List of routes where the Navbar and Footer should be hidden
+  // Utilisation du contexte d'authentification
+  const { user } = useAuth(); // Accédez à l'utilisateur dans le contexte via useAuth()
+
+  // Liste des routes où la Navbar et Footer sont masqués
   const hiddenNavbarRoutes = [
     'login',
     'signup',
@@ -30,20 +35,33 @@ const App = () => {
   ];
 
   useEffect(() => {
-    // If the current location is one of the hidden routes, hide the footer
+    // Si la route actuelle est dans la liste des routes cachées, cacher le footer
     setShowFooter(!hiddenNavbarRoutes.includes(location.pathname));
   }, [location.pathname]);
+
+  // Mise à jour conditionnelle de la Navbar après connexion
+  const renderNavbar = () => {
+    // Si l'utilisateur est connecté, afficher NavbarAfterLogin
+    // Sinon afficher Navbar
+    if (user) {
+      return <NavbarAfterLogin />;
+    } else if (!hiddenNavbarRoutes.includes(location.pathname)) {
+      return <Navbar />;
+    }
+    return null; // Si la route est dans la liste des routes cachées, ne pas afficher de navbar
+  };
 
   return (
     <AuthProvider>
       <div className="flex flex-col min-h-screen">
-        {/* Conditionally render Navbar based on the route */}
-        {!hiddenNavbarRoutes.includes(location.pathname) && <Navbar />}
+        {/* Rendre conditionnellement Navbar */}
+        {renderNavbar()}
 
-        {/* Main content */}
+        {/* Contenu principal */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/home-page" element={<HomePageAfterLogin />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Register />} />
             <Route path="/oauth-callback" element={<OAuthCallback />} />
@@ -75,7 +93,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            {/* Admin and Superadmin Routes with Role Protection */}
+            {/* Routes pour l'admin et le superadmin avec protection de rôle */}
             <Route
               path="/admin"
               element={
@@ -95,9 +113,8 @@ const App = () => {
           </Routes>
         </main>
 
-        {/* Conditionally render Footer based on the route */}
-        {/* {showFooter && <Footer />} */}
-        <Footer />
+        {/* Footer conditionnel basé sur la route */}
+        {showFooter && <Footer />}
       </div>
     </AuthProvider>
   );

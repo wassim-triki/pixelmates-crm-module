@@ -23,12 +23,6 @@ function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   
-  useEffect(() => {
-    if (user) {
-      navigate('/profile');
-    }
-  }, [user, navigate]);
-
   const formik = useFormik({
     initialValues: { email: '', password: '' },
     validationSchema,
@@ -37,6 +31,7 @@ function Login() {
       setLoading(true);
       try {
         await login(values.email, values.password);
+        navigate('/home-page')
       } catch (err) {
         if (err === 'Please verify your email before logging in.') {
           navigate('/verify-email', { state: { email: values.email } });
