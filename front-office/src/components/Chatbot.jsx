@@ -97,6 +97,42 @@ const Chatbot = () => {
     }
   };
   
+  const getFoodInfo = async (query) => {
+    try {
+      const response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`);
+      const data = await response.json();
+  
+      if (data.meals && data.meals.length > 0) {
+        const meal = data.meals[0];
+        const name = meal.strMeal;
+        const category = meal.strCategory;
+        const area = meal.strArea;
+        const instructions = meal.strInstructions.split('. ').slice(0, 2).join('. ') + '.';
+        const ingredients = [];
+  
+        for (let i = 1; i <= 5; i++) {
+          const ingredient = meal[`strIngredient${i}`];
+          const measure = meal[`strMeasure${i}`];
+          if (ingredient && ingredient.trim()) {
+            ingredients.push(`${ingredient} (${measure.trim()})`);
+          }
+        }
+  
+        return `🍽️ **Dish**: ${name}
+  - 🍱 **Category**: ${category}
+  - 🌍 **Origin**: ${area}
+  - 🥣 **Ingredients**: ${ingredients.join(', ')}
+  - 📖 **Instructions**: ${instructions}
+        
+  Want the full recipe? Visit: ${meal.strSource || meal.strYoutube || 'No link available'}
+  `;
+      } else {
+        return "Sorry, I couldn't find any food with that name.";
+      }
+    } catch (error) {
+      return "Something went wrong while fetching food information.";
+    }
+  };
   
 
   const handleSendMessage = async () => {
@@ -132,7 +168,16 @@ const Chatbot = () => {
         botResponse = "Of course! I can assist you with tracking or updating your order. Could you provide your order number, please?";
       } else if (/\b(what is the weather today|how's the weather|what's the weather today)\b/.test(normalizedInput)) {
         botResponse = await getWeather(); 
-      } else if (/\b(what is the country info|country information|tell me about|give me info about |give me information about)\b/.test(normalizedInput)) {
+      } else if (/how to cook|give me recipe|recipe for|cook .*|prepare .*/i.test(normalizedInput)) {
+        const foodMatch = normalizedInput.match(/(?:how to cook|cook|recipe for|prepare)\s(.+)/i);
+        if (foodMatch && foodMatch[1]) {
+          const food = foodMatch[1].trim();
+          botResponse = await getFoodInfo(food);
+        } else {
+          botResponse = "Please specify the name of a dish or food you'd like to learn about.";
+        }
+      }
+        else if (/\b(what is the country info|country information|tell me about|give me info about |give me information about)\b/.test(normalizedInput)) {
         const countryMatch = normalizedInput.match(/(?:about|the country) (\w+)/);
         if (countryMatch && countryMatch[1]) {
           const country = countryMatch[1].trim();
