@@ -8,7 +8,6 @@ const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes.js');
 const errorHandler = require('./middlewares/error-handler.middleware.js');
-const tableRoutes = require('./routes/table.routes.js');
 const roleRoutes = require('./routes/role.routes.js'); // Add this line
 const passport = require('passport');
 const path = require('path');
@@ -58,7 +57,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
-app.use('/api/tables', tableRoutes);
 
 // Default route
 app.get('/', (req, res) => {
