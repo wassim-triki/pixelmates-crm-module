@@ -124,8 +124,6 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
-    
-
 
 const getUserStatistics = async (req, res) => {
   try {
@@ -138,22 +136,22 @@ const getUserStatistics = async (req, res) => {
       },
       {
         $project: {
-          year: { $year: "$createdAt" },
-          month: { $month: "$createdAt" },
+          year: { $year: '$createdAt' },
+          month: { $month: '$createdAt' },
         },
       },
       {
         $group: {
-          _id: { year: "$year", month: "$month" },
+          _id: { year: '$year', month: '$month' },
           count: { $sum: 1 },
         },
       },
-      { $sort: { "_id.year": 1, "_id.month": 1 } },
+      { $sort: { '_id.year': 1, '_id.month': 1 } },
     ]);
 
     // If no statistics are found, return a message
     if (stats.length === 0) {
-      return res.status(404).json({ message: "No statistics found" });
+      return res.status(404).json({ message: 'No statistics found' });
     }
 
     // Format the result for better clarity
@@ -165,15 +163,10 @@ const getUserStatistics = async (req, res) => {
 
     res.status(200).json(formattedStats);
   } catch (error) {
-    console.error("Error fetching statistics:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error('Error fetching statistics:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
-
-
-
 
 module.exports = {
   getAllUsers,

@@ -48,30 +48,40 @@ const EditProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // start loading
+    setLoading(true);
 
     try {
-      await updateUser(formData);
+      const form = new FormData();
+
+      // append all fields
+      for (const key in formData) {
+        form.append(key, formData[key]);
+      }
+
+      await updateUser(form, true); // true = isMultipart
       toast.success('Profile updated successfully!');
       navigate('/profile');
     } catch (err) {
       toast.error('Error updating profile!');
     } finally {
-      setLoading(false); // stop loading
+      setLoading(false);
     }
   };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file, // ✅ store the File object directly
+      }));
+
+      // For preview only
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData((prev) => ({
-          ...prev,
-          image: reader.result, // Store the base64 encoded image
-        }));
-        setImagePreview(reader.result); // Set image preview
+        setImagePreview(reader.result);
       };
-      reader.readAsDataURL(file); // Read the file as base64
+      reader.readAsDataURL(file);
     }
   };
 

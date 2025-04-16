@@ -320,26 +320,23 @@ exports.getMe = asyncHandler(async (req, res) => {
   res.status(200).json(userData);
 });
 
-
 // Update Profile
 exports.updateProfile = asyncHandler(async (req, res) => {
   const userId = req.user.userId; // ✅ cohérent avec getMe
 
   const updates = req.body;
 
+  if (req.file && req.file.path) {
+    updates.image = req.file.path; // Cloudinary URL
+  }
+
   const updatedUser = await User.findByIdAndUpdate(userId, updates, {
     new: true,
     runValidators: true,
   })
-    .select('-password -refreshToken') // ✅ pour sécuriser la réponse
-    .populate({
-      path: 'role',
-      select: 'name permissions',
-    })
-    .populate({
-      path: 'restaurantId',
-      select: 'name address',
-    });
+    .select('-password -refreshToken')
+    .populate('role', 'name permissions')
+    .populate('restaurantId', 'name address');
 
   if (!updatedUser) {
     return res.status(404).json({ message: 'User not found' });
@@ -353,7 +350,7 @@ exports.updateProfile = asyncHandler(async (req, res) => {
     phone: updatedUser.phone,
     address: updatedUser.address,
     birthday: updatedUser.birthday,
-    image: updatedUser.image,
+    image: updatedUser.image, // this is now a URL
     role: {
       name: updatedUser.role.name,
       permissions: updatedUser.role.permissions,
@@ -361,4 +358,3 @@ exports.updateProfile = asyncHandler(async (req, res) => {
     restaurant: updatedUser.restaurantId || null,
   });
 });
-

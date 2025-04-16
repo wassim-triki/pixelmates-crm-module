@@ -61,29 +61,32 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Update user profile
-  const updateUser = async (updatedData) => {
+  const updateUser = async (data, isMultipart = false) => {
     try {
       const token = localStorage.getItem('accessToken');
-
       if (!token) {
         console.error('No token found in localStorage');
         return;
       }
 
-      const response = await axiosInstance.put('/auth/me/update', updatedData, {
+      const response = await axiosInstance.put('/auth/me/update', data, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          ...(isMultipart && { 'Content-Type': 'multipart/form-data' }),
         },
       });
 
-      console.log('Profile updated:', response.data);
-      setUser(response.data); // ✅ Update context with latest user data
+      setUser(response.data); // update context
+      return response.data;
     } catch (error) {
       console.error('Error updating profile:', error);
-      throw error; // re-throw to catch it in EditProfile
+      throw error;
     }
   };
+
+  useEffect(() => {
+    console.log('User state changed:', user); // ✅ Debugging step
+  }, [user]);
 
   useEffect(() => {
     const interceptor = axiosInstance.interceptors.response.use(

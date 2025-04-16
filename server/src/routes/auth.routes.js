@@ -1,5 +1,9 @@
 const express = require('express');
 const passport = require('passport');
+const multer = require('multer');
+const { storage } = require('../utils/cloudinary'); // adjust if your path differs
+const upload = multer({ storage });
+
 const {
   signup,
   login,
@@ -23,8 +27,6 @@ const {
   forgotPasswordSchema,
   verifyEmailSchema,
 } = require('../validators/auth.validator');
-const { updateMany } = require('../models/Role');
-
 
 const router = express.Router();
 
@@ -35,12 +37,12 @@ router.post('/refresh', refreshToken);
 router.post('/verify-email', validateSchema(verifyEmailSchema), verifyEmail);
 router.post('/resend-verification', resendVerificationEmail);
 
-
 // Authenticated routes
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
-router.put('/me/update', protect, updateProfile);
 
+// ✅ Profile update with file upload via Cloudinary
+router.put('/me/update', protect, upload.single('image'), updateProfile);
 
 // Password recovery
 router.post(
@@ -70,7 +72,6 @@ router.get(
   '/facebook',
   passport.authenticate('facebook', { scope: ['email'] })
 );
-
 router.get(
   '/facebook/callback',
   passport.authenticate('facebook', { session: false }),
