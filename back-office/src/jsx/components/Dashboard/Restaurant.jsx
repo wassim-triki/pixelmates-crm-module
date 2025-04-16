@@ -508,46 +508,48 @@ const RestaurantList = () => {
                     <td>{restaurant.address || 'N/A'}</td>
                     <td>{restaurant.cuisineType || 'N/A'}</td>
                     <td className="text-center">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="me-2"
-                        style={{ backgroundColor: '#0d6efd', color: 'white' }}
-                        onClick={() => handleShowDetailModal(restaurant)}
-                        disabled={loading}
-                      >
-                        <i className="fas fa-eye" />
-                      </Button>
-                      <Button
-                        variant="outline-warning"
-                        size="sm"
-                        className="me-2"
-                        style={{ backgroundColor: '#ffc107', color: 'black' }}
-                        onClick={() => handleShowEditModal(restaurant)}
-                        disabled={loading}
-                      >
-                        <i className="fas fa-edit" />
-                      </Button>
-                      <Button
-                        variant="outline-success"
-                        size="sm"
-                        className="me-2"
-                        style={{ backgroundColor: '#28a745', color: 'white' }}
-                        onClick={() => handleShowTablesModal(restaurant)}
-                        disabled={loading}
-                      >
-                        <i className="fas fa-table" />
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        style={{ backgroundColor: '#dc3545', color: 'white' }}
-                        onClick={() => handleDeleteRestaurant(restaurant._id)}
-                        disabled={loading}
-                      >
-                        <i className="fas fa-trash" />
-                      </Button>
-                    </td>
+  <div className="d-flex justify-content-center gap-2 flex-wrap">
+    <Button
+      variant="primary"
+      size="sm"
+      style={{ backgroundColor: '#0d6efd', color: 'white' }}
+      onClick={() => handleShowDetailModal(restaurant)}
+      disabled={loading}
+    >
+      <i className="fas fa-eye" />
+    </Button>
+
+    <Button
+      variant="warning"
+      size="sm"
+      style={{ backgroundColor: '#ffc107', color: 'black' }}
+      onClick={() => handleShowEditModal(restaurant)}
+      disabled={loading}
+    >
+      <i className="fas fa-pen" />
+    </Button>
+
+    <Button
+      variant="danger"
+      size="sm"
+      style={{ backgroundColor: '#dc3545', color: 'white' }}
+      onClick={() => handleDeleteRestaurant(restaurant._id)}
+      disabled={loading}
+    >
+      <i className="fas fa-trash" />
+    </Button>
+
+    <Button
+      variant="success"
+      size="sm"
+      onClick={() => handleShowTablesModal(restaurant)}
+      disabled={loading}
+    >
+      <i className="fas fa-chair" />
+    </Button>
+  </div>
+</td>
+
                   </tr>
                 ))}
               </tbody>
