@@ -78,6 +78,12 @@ const Navbar = () => {
           >
             About Us
           </Link>
+          <Link
+            to="/reservation"
+            className="text-white font-bold hover:text-[#FA8072] transition"
+          >
+            Reservation
+          </Link>
         </div>
 
         {/* Right Section (Search + Auth) */}
@@ -189,6 +195,13 @@ const Navbar = () => {
             onClick={() => setIsMobileMenuOpen(false)}
           >
             About Us
+          </Link>
+          <Link
+            to="/reservation"
+            className="text-lg text-[#FA8072] font-bold hover:text-white"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Reservation
           </Link>
           {!user ? (
             <Link
