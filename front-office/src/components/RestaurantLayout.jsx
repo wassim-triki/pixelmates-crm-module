@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const RestaurantLayout = ({ tables }) => {
   const navigate = useNavigate();
@@ -74,12 +74,12 @@ const RestaurantLayout = ({ tables }) => {
           <div className="text-xs mt-1">{table.chairnb} seats</div>
 
           {!table.isReserved && (
-            <button
+            <Link
+              to={`/reservation/${table._id}`}
               className="mt-2 opacity-0 group-hover:opacity-100 transition text-xs bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-full shadow"
-              onClick={() => navigate(`/reservation/${table._id}`)}
             >
               Reserve
-            </button>
+            </Link>
           )}
         </div>
       </div>
