@@ -27,12 +27,21 @@ const createRestaurant = async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    // Parse tax fields to remove percentage signs and convert to numbers
+    const parsedTaxeTPS = parseFloat(taxeTPS.toString().replace('%', ''));
+    const parsedTaxeTVQ = parseFloat(taxeTVQ.toString().replace('%', ''));
+
+    // Validate parsed tax values
+    if (isNaN(parsedTaxeTPS) || isNaN(parsedTaxeTVQ)) {
+      return res.status(400).json({ message: 'Taxe TPS and Taxe TVQ must be valid numbers' });
+    }
+
     const restaurant = await Restaurant.create({
       name,
       address,
       cuisineType,
-      taxeTPS,
-      taxeTVQ,
+      taxeTPS: parsedTaxeTPS,
+      taxeTVQ: parsedTaxeTVQ,
       color,
       logo,
       promotion,
@@ -87,6 +96,23 @@ const updateRestaurant = async (req, res) => {
 
     if ('tables' in updates) {
       return res.status(400).json({ message: 'Cannot update tables directly' });
+    }
+
+    // Parse tax fields if they are provided in the update
+    if (updates.taxeTPS != null) {
+      const parsedTaxeTPS = parseFloat(updates.taxeTPS.toString().replace('%', ''));
+      if (isNaN(parsedTaxeTPS)) {
+        return res.status(400).json({ message: 'Taxe TPS must be a valid number' });
+      }
+      updates.taxeTPS = parsedTaxeTPS;
+    }
+
+    if (updates.taxeTVQ != null) {
+      const parsedTaxeTVQ = parseFloat(updates.taxeTVQ.toString().replace('%', ''));
+      if (isNaN(parsedTaxeTVQ)) {
+        return res.status(400).json({ message: 'Taxe TVQ must be a valid number' });
+      }
+      updates.taxeTVQ = parsedTaxeTVQ;
     }
 
     const restaurant = await Restaurant.findByIdAndUpdate(id, updates, {
@@ -318,6 +344,7 @@ const updateTable = async (req, res) => {
     res.status(500).json({ message: 'Error updating table', error: error.message });
   }
 };
+
 // @desc    Delete a table
 // @route   DELETE /api/restaurants/:restauId/tables/:id
 // @access  Public
@@ -337,7 +364,7 @@ const deleteTable = async (req, res) => {
     await Table.findByIdAndDelete(id);
 
     await Restaurant.findByIdAndUpdate(restauId, {
-      $pull: { tables: id }
+      $pull: { tables: id },
     });
 
     res.status(200).json({ message: 'Table deleted successfully' });
@@ -345,7 +372,6 @@ const deleteTable = async (req, res) => {
     res.status(500).json({ message: 'Error deleting table', error: error.message });
   }
 };
-
 
 module.exports = {
   createRestaurant,

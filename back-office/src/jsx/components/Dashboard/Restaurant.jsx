@@ -92,7 +92,7 @@ const RestaurantList = () => {
         await fetchRestaurants();
       } else {
         const response = await searchRestaurants(searchTerm);
-        setRestaurants(response.data.restaurants || []);
+        setRestaurants(response.data || []);
         setCurrentPage(1);
       }
     } catch (err) {
@@ -128,7 +128,13 @@ const RestaurantList = () => {
     setLoading(true);
     setError(null);
     try {
-      await createRestaurant(newRestaurant);
+      const restaurantData = {
+        ...newRestaurant,
+        taxeTPS: newRestaurant.taxeTPS ? parseFloat(newRestaurant.taxeTPS) : undefined,
+        taxeTVQ: newRestaurant.taxeTVQ ? parseFloat(newRestaurant.taxeTVQ) : undefined,
+        color: newRestaurant.color || undefined,
+      };
+      await createRestaurant(restaurantData);
       await fetchRestaurants();
       handleCloseCreateModal();
     } catch (err) {
@@ -138,7 +144,7 @@ const RestaurantList = () => {
     }
   };
 
-  // Update Restaurant
+  // Update Restaurant (fixed to match backend)
   const handleUpdateRestaurant = async () => {
     if (!window.confirm('Are you sure you want to update this restaurant?')) return;
 
@@ -151,10 +157,25 @@ const RestaurantList = () => {
     setLoading(true);
     setError(null);
     try {
-      await updateRestaurant(selectedRestaurant, selectedRestaurant._id);
+      // Prepare payload to match backend expectations
+      const restaurantData = {
+        name: selectedRestaurant.name?.trim() || null,
+        address: selectedRestaurant.address?.trim() || null,
+        cuisineType: selectedRestaurant.cuisineType || 'Other',
+        taxeTPS: selectedRestaurant.taxeTPS ? `${selectedRestaurant.taxeTPS}%` : null,
+        taxeTVQ: selectedRestaurant.taxeTVQ ? `${selectedRestaurant.taxeTVQ}%` : null,
+        color: selectedRestaurant.color ? `#${selectedRestaurant.color.replace('#', '')}` : null,
+        logo: selectedRestaurant.logo || null,
+        promotion: selectedRestaurant.promotion || null,
+        payCashMethod: selectedRestaurant.payCashMethod || 'not-accepted',
+        images: selectedRestaurant.images || [],
+      };
+
+      await updateRestaurant(restaurantData, selectedRestaurant._id);
       await fetchRestaurants();
       handleCloseEditModal();
     } catch (err) {
+      console.error('Update error:', err.response?.data || err.message);
       setError(formatError(err) || 'Failed to update restaurant');
     } finally {
       setLoading(false);
@@ -165,22 +186,21 @@ const RestaurantList = () => {
   const validateForm = (data) => {
     const errors = {};
     const hexColorRegex = /^[0-9A-Fa-f]{6}$/;
-    const numberRegex = /^\d+(\.\d+)?$/;
+    const numberRegex = /^\d*\.?\d*$/;
     const urlRegex = /^(https?:\/\/[^\s]+)/;
 
     if (!data.name) errors.name = 'Name is required';
     if (!data.address) errors.address = 'Address is required';
     if (!data.cuisineType) errors.cuisineType = 'Cuisine Type is required';
-    if (!data.taxeTPS) errors.taxeTPS = 'Taxe TPS is required';
-    else if (!numberRegex.test(data.taxeTPS)) errors.taxeTPS = 'Must be a valid number';
-    if (!data.taxeTVQ) errors.taxeTVQ = 'Taxe TVQ is required';
-    else if (!numberRegex.test(data.taxeTVQ)) errors.taxeTVQ = 'Must be a valid number';
-    if (!data.color) errors.color = 'Color is required';
-    else if (!hexColorRegex.test(data.color)) errors.color = 'Must be a 6-digit hex code (e.g., FF5733)';
-    if (!data.logo) errors.logo = 'Logo URL is required';
-    else if (!urlRegex.test(data.logo)) errors.logo = 'Must be a valid URL';
-    if (!data.promotion) errors.promotion = 'Promotion is required';
-    if (!data.payCashMethod) errors.payCashMethod = 'Pay Cash Method is required';
+    if (!data.taxeTPS && data.taxeTPS !== '0') errors.taxeTPS = 'Taxe TPS is required';
+    else if (data.taxeTPS && (!numberRegex.test(data.taxeTPS) || isNaN(parseFloat(data.taxeTPS))))
+      errors.taxeTPS = 'Must be a valid number';
+    if (!data.taxeTVQ && data.taxeTVQ !== '0') errors.taxeTVQ = 'Taxe TVQ is required';
+    else if (data.taxeTVQ && (!numberRegex.test(data.taxeTVQ) || isNaN(parseFloat(data.taxeTVQ))))
+      errors.taxeTVQ = 'Must be a valid number';
+    if (data.color && !hexColorRegex.test(data.color))
+      errors.color = 'Must be a 6-digit hex code (e.g., FF5733)';
+    if (data.logo && !urlRegex.test(data.logo)) errors.logo = 'Must be a valid URL';
 
     return errors;
   };
@@ -189,7 +209,8 @@ const RestaurantList = () => {
   const validateTableForm = (data) => {
     const errors = {};
     if (!data.nbtable) errors.nbtable = 'Table number is required';
-    else if (isNaN(data.nbtable) || data.nbtable < 1) errors.nbtable = 'Must be a number greater than or equal to 1';
+    else if (isNaN(data.nbtable) || data.nbtable < 1)
+      errors.nbtable = 'Must be a number greater than or equal to 1';
     if (!data.chairnb) errors.chairnb = 'Number of chairs is required';
     else if (isNaN(data.chairnb) || data.chairnb < 1 || data.chairnb > 20)
       errors.chairnb = 'Must be a number between 1 and 20';
@@ -210,9 +231,9 @@ const RestaurantList = () => {
   const handleShowEditModal = (restaurant) => {
     setSelectedRestaurant({
       ...restaurant,
-      taxeTPS: restaurant.taxeTPS?.replace('%', '') || '',
-      taxeTVQ: restaurant.taxeTVQ?.replace('%', '') || '',
-      color: restaurant.color?.replace('#', '') || '',
+      taxeTPS: restaurant.taxeTPS != null ? String(restaurant.taxeTPS).replace('%', '') : '',
+      taxeTVQ: restaurant.taxeTVQ != null ? String(restaurant.taxeTVQ).replace('%', '') : '',
+      color: restaurant.color?.startsWith('#') ? restaurant.color.replace('#', '') : restaurant.color || '',
     });
     setShowEditModal(true);
     setValidationErrors({});
@@ -544,7 +565,7 @@ const RestaurantList = () => {
                   key={i + 1}
                   active={i + 1 === currentPage}
                   onClick={() => setCurrentPage(i + 1)}
-                  disabled={loading}
+                   disabled={loading}
                 >
                   {i + 1}
                 </Pagination.Item>
@@ -595,13 +616,15 @@ const RestaurantList = () => {
                 </p>
               </div>
               <div className="col-md-6 mb-3">
- complexities                <p>
-                  <strong>Taxe TPS:</strong> {selectedRestaurant.taxeTPS || 'N/A'}
+                <p>
+                  <strong>Taxe TPS:</strong>{' '}
+                  {selectedRestaurant.taxeTPS != null ? selectedRestaurant.taxeTPS : 'N/A'}
                 </p>
               </div>
               <div className="col-md-6 mb-3">
                 <p>
-                  <strong>Taxe TVQ:</strong> {selectedRestaurant.taxeTVQ || 'N/A'}
+                  <strong>Taxe TVQ:</strong>{' '}
+                  {selectedRestaurant.taxeTVQ != null ? selectedRestaurant.taxeTVQ : 'N/A'}
                 </p>
               </div>
               <div className="col-md-6 mb-3">
@@ -614,12 +637,12 @@ const RestaurantList = () => {
                           display: 'inline-block',
                           width: '15px',
                           height: '15px',
-                          backgroundColor: `#${selectedRestaurant.color}`,
+                          backgroundColor: selectedRestaurant.color,
                           marginRight: '5px',
                           verticalAlign: 'middle',
                         }}
                       />
-                      #{selectedRestaurant.color}
+                      {selectedRestaurant.color}
                     </span>
                   ) : (
                     'N/A'
@@ -709,7 +732,7 @@ const RestaurantList = () => {
                   <Form.Label>Taxe TPS (%)</Form.Label>
                   <Form.Control
                     type="number"
-                    step="0.001"
+                    step="0.01"
                     value={selectedRestaurant.taxeTPS || ''}
                     onChange={(e) =>
                       setSelectedRestaurant({ ...selectedRestaurant, taxeTPS: e.target.value })
@@ -724,7 +747,7 @@ const RestaurantList = () => {
                   <Form.Label>Taxe TVQ (%)</Form.Label>
                   <Form.Control
                     type="number"
-                    step="0.001"
+                    step="0.01"
                     value={selectedRestaurant.taxeTVQ || ''}
                     onChange={(e) =>
                       setSelectedRestaurant({ ...selectedRestaurant, taxeTVQ: e.target.value })
@@ -871,7 +894,7 @@ const RestaurantList = () => {
                 <Form.Label>Taxe TPS (%)</Form.Label>
                 <Form.Control
                   type="number"
-                  step="0.001"
+                  step="0.01"
                   value={newRestaurant.taxeTPS}
                   onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTPS: e.target.value })}
                   isInvalid={!!validationErrors.taxeTPS}
@@ -884,7 +907,7 @@ const RestaurantList = () => {
                 <Form.Label>Taxe TVQ (%)</Form.Label>
                 <Form.Control
                   type="number"
-                  step="0.001"
+                  step="0.01"
                   value={newRestaurant.taxeTVQ}
                   onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTVQ: e.target.value })}
                   isInvalid={!!validationErrors.taxeTVQ}
