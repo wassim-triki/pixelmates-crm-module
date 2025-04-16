@@ -14,12 +14,17 @@ const RestaurantList = () => {
   const restaurantsPerPage = 8;
   const indexOfLast = currentPage * restaurantsPerPage;
   const indexOfFirst = indexOfLast - restaurantsPerPage;
-  const currentRestaurants = filteredRestaurants.slice(indexOfFirst, indexOfLast);
+  const currentRestaurants = filteredRestaurants.slice(
+    indexOfFirst,
+    indexOfLast
+  );
 
   useEffect(() => {
     const getRestaurants = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/restaurants');
+        const response = await axios.get(
+          'http://localhost:5000/api/restaurants'
+        );
         setRestaurants(response.data.restaurants);
         setFilteredRestaurants(response.data.restaurants);
       } catch (error) {
@@ -62,8 +67,11 @@ const RestaurantList = () => {
   const cuisines = [...new Set(restaurants.map((r) => r.cuisineType))];
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-10 pt-40 relative">
-      <div className="absolute inset-0 bg-cover bg-center z-0" style={{ backgroundImage: "url('/bg.jpg')" }} />
+    <div className="min-h-screen -sz-10 bg-gray-100 flex flex-col items-center justify-center px-4 py-10 pt-40 relative">
+      <div
+        className="absolute inset-0 bg-cover bg-center z-0"
+        style={{ backgroundImage: "url('/bg.jpg')" }}
+      />
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0" />
 
       <div className="relative z-10 w-full max-w-7xl pt-20">
@@ -94,7 +102,9 @@ const RestaurantList = () => {
           >
             <option value="">All Cuisines</option>
             {cuisines.map((cuisine) => (
-              <option key={cuisine} value={cuisine}>{cuisine}</option>
+              <option key={cuisine} value={cuisine}>
+                {cuisine}
+              </option>
             ))}
           </select>
         </div>
@@ -105,10 +115,12 @@ const RestaurantList = () => {
             <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : currentRestaurants.length === 0 ? (
-          <p className="text-white text-center text-lg">No restaurants found.</p>
+          <p className="text-white text-center text-lg">
+            No restaurants found.
+          </p>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="grid  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {currentRestaurants.map((restaurant, index) => (
                 <motion.div
                   key={restaurant._id}
@@ -121,12 +133,20 @@ const RestaurantList = () => {
                   <img
                     src={restaurant.logo || '/test.png'}
                     alt={restaurant.name}
-                    className="w-full h-40 object-contain bg-white rounded-lg mb-4 p-2"
+                    className="w-full h-40 object-cover bg-white rounded-lg mb-4 p-2"
                   />
-                  <h3 className="text-xl font-semibold mb-2">{restaurant.name}</h3>
-                  <p className="text-sm opacity-90 mb-1">{restaurant.address}</p>
-                  <p className="text-sm opacity-90 mb-1">Cuisine: {restaurant.cuisineType}</p>
-                  <p className="text-sm opacity-90 mb-1">Rating: {restaurant.note} ⭐</p>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {restaurant.name}
+                  </h3>
+                  <p className="text-sm opacity-90 mb-1">
+                    {restaurant.address}
+                  </p>
+                  <p className="text-sm opacity-90 mb-1">
+                    Cuisine: {restaurant.cuisineType}
+                  </p>
+                  <p className="text-sm opacity-90 mb-1">
+                    Rating: {restaurant.note} ⭐
+                  </p>
                   {restaurant.promotion && (
                     <p className="text-sm text-yellow-400 mt-2">
                       🔥 Promo: {restaurant.promotion}
@@ -141,15 +161,26 @@ const RestaurantList = () => {
 
             {/* Pagination */}
             <div className="flex justify-center mt-8 gap-2">
-              {Array.from({ length: Math.ceil(filteredRestaurants.length / restaurantsPerPage) }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`px-4 py-2 rounded-lg ${currentPage === i + 1 ? 'bg-yellow-400 text-black' : 'bg-white text-black'} shadow-md`}
-                >
-                  {i + 1}
-                </button>
-              ))}
+              {Array.from(
+                {
+                  length: Math.ceil(
+                    filteredRestaurants.length / restaurantsPerPage
+                  ),
+                },
+                (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`px-4 py-2 rounded-lg ${
+                      currentPage === i + 1
+                        ? 'bg-yellow-400 text-black'
+                        : 'bg-white text-black'
+                    } shadow-md`}
+                  >
+                    {i + 1}
+                  </button>
+                )
+              )}
             </div>
           </>
         )}
