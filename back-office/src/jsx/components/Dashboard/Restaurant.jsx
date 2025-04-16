@@ -1,17 +1,21 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Dropdown, Modal, Button, Form, Alert, Spinner, Pagination } from 'react-bootstrap';
-import { getCurrentUser, formatError } from '../../../services/AuthService.js'; // Adjust path
+import { getCurrentUser, formatError } from '../../../services/AuthService.js';
 import {
   getRestaurants,
   createRestaurant,
   updateRestaurant,
   deleteRestaurant,
   searchRestaurants,
-} from '../../../services/RestaurantService.js'; // Adjust path
+  getTablesByRestaurant,
+  createTable,
+  updateTable,
+  deleteTable,
+} from '../../../services/RestaurantService.js';
 
 const RestaurantList = () => {
-  // State Management (unchanged)
+  // State Management
   const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,7 +26,11 @@ const RestaurantList = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showTablesModal, setShowTablesModal] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [tables, setTables] = useState([]);
+  const [newTable, setNewTable] = useState({ nbtable: '', chairnb: '' });
+  const [editingTable, setEditingTable] = useState(null);
   const [newRestaurant, setNewRestaurant] = useState({
     name: '',
     address: '',
@@ -37,10 +45,11 @@ const RestaurantList = () => {
   });
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
   const [validationErrors, setValidationErrors] = useState({});
+  const [tableValidationErrors, setTableValidationErrors] = useState({});
 
   const itemsPerPage = 5;
 
-  // Authentication Check (unchanged)
+  // Authentication Check
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -60,7 +69,7 @@ const RestaurantList = () => {
     checkAuth();
   }, []);
 
-  // Fetch Restaurants (unchanged)
+  // Fetch Restaurants
   const fetchRestaurants = async () => {
     setLoading(true);
     setError(null);
@@ -74,7 +83,7 @@ const RestaurantList = () => {
     }
   };
 
-  // Search Restaurants (unchanged)
+  // Search Restaurants
   const handleSearch = async () => {
     setLoading(true);
     setError(null);
@@ -93,7 +102,7 @@ const RestaurantList = () => {
     }
   };
 
-  // Delete Restaurant (unchanged)
+  // Delete Restaurant
   const handleDeleteRestaurant = async (id) => {
     if (!window.confirm('Are you sure you want to delete this restaurant?')) return;
     setLoading(true);
@@ -108,7 +117,7 @@ const RestaurantList = () => {
     }
   };
 
-  // Create Restaurant (unchanged)
+  // Create Restaurant
   const handleCreateRestaurant = async () => {
     const errors = validateForm(newRestaurant);
     if (Object.keys(errors).length > 0) {
@@ -129,7 +138,7 @@ const RestaurantList = () => {
     }
   };
 
-  // Update Restaurant (unchanged)
+  // Update Restaurant
   const handleUpdateRestaurant = async () => {
     if (!window.confirm('Are you sure you want to update this restaurant?')) return;
 
@@ -152,7 +161,7 @@ const RestaurantList = () => {
     }
   };
 
-  // Form Validation (unchanged)
+  // Form Validation
   const validateForm = (data) => {
     const errors = {};
     const hexColorRegex = /^[0-9A-Fa-f]{6}$/;
@@ -176,7 +185,18 @@ const RestaurantList = () => {
     return errors;
   };
 
-  // Modal Handlers (unchanged)
+  // Table Validation
+  const validateTableForm = (data) => {
+    const errors = {};
+    if (!data.nbtable) errors.nbtable = 'Table number is required';
+    else if (isNaN(data.nbtable) || data.nbtable < 1) errors.nbtable = 'Must be a number greater than or equal to 1';
+    if (!data.chairnb) errors.chairnb = 'Number of chairs is required';
+    else if (isNaN(data.chairnb) || data.chairnb < 1 || data.chairnb > 20)
+      errors.chairnb = 'Must be a number between 1 and 20';
+    return errors;
+  };
+
+  // Modal Handlers
   const handleShowDetailModal = (restaurant) => {
     setSelectedRestaurant(restaurant);
     setShowDetailModal(true);
@@ -226,7 +246,97 @@ const RestaurantList = () => {
     setValidationErrors({});
   };
 
-  // Sorting and Pagination (unchanged)
+  const handleShowTablesModal = async (restaurant) => {
+    setSelectedRestaurant(restaurant);
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getTablesByRestaurant(restaurant._id);
+      setTables(response.data || []);
+      setShowTablesModal(true);
+    } catch (err) {
+      setError(formatError(err) || 'Failed to fetch tables');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCloseTablesModal = () => {
+    setShowTablesModal(false);
+    setSelectedRestaurant(null);
+    setTables([]);
+    setNewTable({ nbtable: '', chairnb: '' });
+    setEditingTable(null);
+    setTableValidationErrors({});
+  };
+
+  // Table Handlers
+  const handleCreateTable = async () => {
+    const errors = validateTableForm(newTable);
+    if (Object.keys(errors).length > 0) {
+      setTableValidationErrors(errors);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      await createTable(selectedRestaurant._id, {
+        nbtable: parseInt(newTable.nbtable),
+        chairnb: parseInt(newTable.chairnb),
+      });
+      const response = await getTablesByRestaurant(selectedRestaurant._id);
+      setTables(response.data || []);
+      setNewTable({ nbtable: '', chairnb: '' });
+      setTableValidationErrors({});
+    } catch (err) {
+      setError(formatError(err) || 'Failed to create table');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateTable = async () => {
+    const errors = validateTableForm(editingTable);
+    if (Object.keys(errors).length > 0) {
+      setTableValidationErrors(errors);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      await updateTable(selectedRestaurant._id, editingTable._id, {
+        nbtable: parseInt(editingTable.nbtable),
+        chairnb: parseInt(editingTable.chairnb),
+      });
+      const response = await getTablesByRestaurant(selectedRestaurant._id);
+      setTables(response.data || []);
+      setEditingTable(null);
+      setTableValidationErrors({});
+    } catch (err) {
+      setError(formatError(err) || 'Failed to update table');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteTable = async (tableId) => {
+    if (!window.confirm('Are you sure you want to delete this table?')) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteTable(selectedRestaurant._id, tableId);
+      const response = await getTablesByRestaurant(selectedRestaurant._id);
+      setTables(response.data || []);
+    } catch (err) {
+      setError(formatError(err) || 'Failed to delete table');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sorting and Pagination
   const sortedRestaurants = useMemo(() => {
     const sorted = [...restaurants].sort((a, b) => {
       const keyA = a[sortConfig.key] || '';
@@ -252,7 +362,7 @@ const RestaurantList = () => {
     }));
   };
 
-  // Render Conditions (unchanged)
+  // Render Conditions
   if (authLoading) {
     return (
       <div className="text-center my-5">
@@ -268,75 +378,66 @@ const RestaurantList = () => {
 
   return (
     <div className="container-fluid py-4">
-      {/* Error Alert (unchanged) */}
+      {/* Error Alert */}
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)}>
           {error}
         </Alert>
       )}
 
-      {/* Header Section (unchanged) */}
-  {/* Header Section */}
-<div className="d-flex justify-content-between align-items-center mb-4 px-3">
-  <Button 
-    variant="success" 
-    onClick={handleShowCreateModal} 
-    disabled={loading}
-    className="d-flex align-items-center"
-  >
-    <i className="fas fa-plus me-2" /> Add Restaurant
-  </Button>
-</div>
+      {/* Header Section */}
+      <div className="d-flex justify-content-between align-items-center mb-4 px-3">
+        <Button
+          variant="success"
+          onClick={handleShowCreateModal}
+          disabled={loading}
+          className="d-flex align-items-center"
+        >
+          <i className="fas fa-plus me-2" /> Add Restaurant
+        </Button>
+      </div>
 
-{/* Search and Sort Section */}
-<div className="row mb-4 px-3 g-3">
-  <div className="col-md-6 col-12">
-    <div className="input-group shadow-sm ">
-      <span className="input-group-text bg-light border-0">
-        <i className="fas fa-search " />
-      </span>
-      <input
-        type="text"
-        className="form-control border-0 bg-light"
-        placeholder="Search by name, address, or cuisine..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-        disabled={loading}
-      />
-      <Button 
-        variant="primary" 
-        onClick={handleSearch} 
-        disabled={loading}
-        className="px-4"
-      >
-        Search
-      </Button>
-    </div>
-  </div>
-  <div className="col-md-6 col-12 d-flex justify-content-md-end justify-content-start align-items-center mt-md-0 mt-3">
-    <Dropdown>
-      <Dropdown.Toggle 
-        variant="outline-primary" 
-        disabled={loading}
-        className="shadow-sm"
-      >
-        Sort By: {sortConfig.key.charAt(0).toUpperCase() + sortConfig.key.slice(1)} ({sortConfig.direction})
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.Item onClick={() => requestSort('name')}>Name</Dropdown.Item>
-        <Dropdown.Item onClick={() => requestSort('address')}>Address</Dropdown.Item>
-        <Dropdown.Item onClick={() => requestSort('cuisineType')}>
-          Cuisine Type
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-  </div>
-</div>
-<h1 className="text-center fw-bold">Restaurants List</h1>
-<br></br>
+      {/* Search and Sort Section */}
+      <div className="row mb-4 px-3 g-3">
+        <div className="col-md-6 col-12">
+          <div className="input-group shadow-sm">
+            <span className="input-group-text bg-light border-0">
+              <i className="fas fa-search" />
+            </span>
+            <input
+              type="text"
+              className="form-control border-0 bg-light"
+              placeholder="Search by name, address, or cuisine..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              disabled={loading}
+            />
+            <Button variant="primary" onClick={handleSearch} disabled={loading} className="px-4">
+              Search
+            </Button>
+          </div>
+        </div>
+        <div className="col-md-6 col-12 d-flex justify-content-md-end justify-content-start align-items-center mt-md-0 mt-3">
+          <Dropdown>
+            <Dropdown.Toggle variant="outline-primary" disabled={loading} className="shadow-sm">
+              Sort By: {sortConfig.key.charAt(0).toUpperCase() + sortConfig.key.slice(1)} (
+              {sortConfig.direction})
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => requestSort('name')}>Name</Dropdown.Item>
+              <Dropdown.Item onClick={() => requestSort('address')}>Address</Dropdown.Item>
+              <Dropdown.Item onClick={() => requestSort('cuisineType')}>
+                Cuisine Type
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
+      </div>
+      <h1 className="text-center fw-bold">Restaurants List</h1>
+      <br />
 
-      {/* Restaurant Table (unchanged) */}
+      {/* Restaurant Table */}
       {loading ? (
         <div className="text-center my-5">
           <Spinner animation="border" variant="primary" />
@@ -346,66 +447,92 @@ const RestaurantList = () => {
         <Alert variant="info">No restaurants found.</Alert>
       ) : (
         <>
-         <div className="table-responsive">
-  <table className="table table-hover table-bordered">
-    <thead className="table-main">
-      <tr>
-        <th onClick={() => requestSort('name')} style={{ cursor: 'pointer' }}className="text-center">
-          Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-        </th>
-        <th onClick={() => requestSort('address')} style={{ cursor: 'pointer' }}className="text-center">
-          Address {sortConfig.key === 'address' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-        </th>
-        <th onClick={() => requestSort('cuisineType')} style={{ cursor: 'pointer' }}className="text-center">
-          Cuisine Type {sortConfig.key === 'cuisineType' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-        </th>
-        <th className="text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {paginatedRestaurants.map((restaurant) => (
-        <tr key={restaurant._id}>
-          <td>{restaurant.name || 'N/A'}</td>
-          <td>{restaurant.address || 'N/A'}</td>
-          <td>{restaurant.cuisineType || 'N/A'}</td>
-          <td className="text-center">
-            <Button
-              variant="outline-primary"
-              size="sm"
-              className="me-2"
-              style={{ backgroundColor: '#0d6efd', color: 'white' }}
-              onClick={() => handleShowDetailModal(restaurant)}
-              disabled={loading}
-            >
-              <i className="fas fa-eye" />
-            </Button>
-            <Button
-              variant="outline-warning"
-              size="sm"
-              className="me-2"
-              style={{ backgroundColor: '#ffc107', color: 'black' }}
-
-              onClick={() => handleShowEditModal(restaurant)}
-              disabled={loading}
-            >
-              <i className="fas fa-edit" />
-            </Button>
-            <Button
-              variant="outline-danger"
-              size="sm"
-              style={{ backgroundColor: '#dc3545', color: 'white' }}
-              onClick={() => handleDeleteRestaurant(restaurant._id)}
-              disabled={loading}
-            >
-              <i className="fas fa-trash" />
-            </Button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-          {/* Pagination (unchanged) */}
+          <div className="table-responsive">
+            <table className="table table-hover table-bordered">
+              <thead className="table-main">
+                <tr>
+                  <th
+                    onClick={() => requestSort('name')}
+                    style={{ cursor: 'pointer' }}
+                    className="text-center"
+                  >
+                    Name{' '}
+                    {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                  </th>
+                  <th
+                    onClick={() => requestSort('address')}
+                    style={{ cursor: 'pointer' }}
+                    className="text-center"
+                  >
+                    Address{' '}
+                    {sortConfig.key === 'address' &&
+                      (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                  </th>
+                  <th
+                    onClick={() => requestSort('cuisineType')}
+                    style={{ cursor: 'pointer' }}
+                    className="text-center"
+                  >
+                    Cuisine Type{' '}
+                    {sortConfig.key === 'cuisineType' &&
+                      (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                  </th>
+                  <th className="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedRestaurants.map((restaurant) => (
+                  <tr key={restaurant._id}>
+                    <td>{restaurant.name || 'N/A'}</td>
+                    <td>{restaurant.address || 'N/A'}</td>
+                    <td>{restaurant.cuisineType || 'N/A'}</td>
+                    <td className="text-center">
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        className="me-2"
+                        style={{ backgroundColor: '#0d6efd', color: 'white' }}
+                        onClick={() => handleShowDetailModal(restaurant)}
+                        disabled={loading}
+                      >
+                        <i className="fas fa-eye" />
+                      </Button>
+                      <Button
+                        variant="outline-warning"
+                        size="sm"
+                        className="me-2"
+                        style={{ backgroundColor: '#ffc107', color: 'black' }}
+                        onClick={() => handleShowEditModal(restaurant)}
+                        disabled={loading}
+                      >
+                        <i className="fas fa-edit" />
+                      </Button>
+                      <Button
+                        variant="outline-success"
+                        size="sm"
+                        className="me-2"
+                        style={{ backgroundColor: '#28a745', color: 'white' }}
+                        onClick={() => handleShowTablesModal(restaurant)}
+                        disabled={loading}
+                      >
+                        <i className="fas fa-table" />
+                      </Button>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        style={{ backgroundColor: '#dc3545', color: 'white' }}
+                        onClick={() => handleDeleteRestaurant(restaurant._id)}
+                        disabled={loading}
+                      >
+                        <i className="fas fa-trash" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Pagination */}
           {totalPages > 1 && (
             <Pagination className="justify-content-center mt-3">
               <Pagination.Prev
@@ -453,42 +580,61 @@ const RestaurantList = () => {
           {selectedRestaurant && (
             <div className="row">
               <div className="col-md-6 mb-3">
-                <p><strong>Name:</strong> {selectedRestaurant.name || 'N/A'}</p>
+                <p>
+                  <strong>Name:</strong> {selectedRestaurant.name || 'N/A'}
+                </p>
               </div>
               <div className="col-md-6 mb-3">
-                <p><strong>Address:</strong> {selectedRestaurant.address || 'N/A'}</p>
+                <p>
+                  <strong>Address:</strong> {selectedRestaurant.address || 'N/A'}
+                </p>
               </div>
               <div className="col-md-6 mb-3">
-                <p><strong>Cuisine Type:</strong> {selectedRestaurant.cuisineType || 'N/A'}</p>
+                <p>
+                  <strong>Cuisine Type:</strong> {selectedRestaurant.cuisineType || 'N/A'}
+                </p>
               </div>
               <div className="col-md-6 mb-3">
-                <p><strong>Taxe TPS:</strong> {selectedRestaurant.taxeTPS || 'N/A'}</p>
+ complexities                <p>
+                  <strong>Taxe TPS:</strong> {selectedRestaurant.taxeTPS || 'N/A'}
+                </p>
               </div>
               <div className="col-md-6 mb-3">
-                <p><strong>Taxe TVQ:</strong> {selectedRestaurant.taxeTVQ || 'N/A'}</p>
+                <p>
+                  <strong>Taxe TVQ:</strong> {selectedRestaurant.taxeTVQ || 'N/A'}
+                </p>
               </div>
               <div className="col-md-6 mb-3">
-                <p><strong>Color:</strong> {selectedRestaurant.color ? (
-                  <span>
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        width: '15px',
-                        height: '15px',
-                        backgroundColor: `#${selectedRestaurant.color}`,
-                        marginRight: '5px',
-                        verticalAlign: 'middle',
-                      }}
-                    />
-                    #{selectedRestaurant.color}
-                  </span>
-                ) : 'N/A'}</p>
+                <p>
+                  <strong>Color:</strong>{' '}
+                  {selectedRestaurant.color ? (
+                    <span>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: '15px',
+                          height: '15px',
+                          backgroundColor: `#${selectedRestaurant.color}`,
+                          marginRight: '5px',
+                          verticalAlign: 'middle',
+                        }}
+                      />
+                      #{selectedRestaurant.color}
+                    </span>
+                  ) : (
+                    'N/A'
+                  )}
+                </p>
               </div>
               <div className="col-md-6 mb-3">
-                <p><strong>Promotion:</strong> {selectedRestaurant.promotion || 'N/A'}</p>
+                <p>
+                  <strong>Promotion:</strong> {selectedRestaurant.promotion || 'N/A'}
+                </p>
               </div>
               <div className="col-md-6 mb-3">
-                <p><strong>Pay Cash Method:</strong> {selectedRestaurant.payCashMethod || 'N/A'}</p>
+                <p>
+                  <strong>Pay Cash Method:</strong> {selectedRestaurant.payCashMethod || 'N/A'}
+                </p>
               </div>
             </div>
           )}
@@ -514,34 +660,50 @@ const RestaurantList = () => {
                   <Form.Control
                     type="text"
                     value={selectedRestaurant.name || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, name: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, name: e.target.value })
+                    }
                     isInvalid={!!validationErrors.name}
                   />
-                  <Form.Control.Feedback type="invalid">{validationErrors.name}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.name}
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="col-md-4 mb-3" controlId="editAddress">
                   <Form.Label>Address</Form.Label>
                   <Form.Control
                     type="text"
                     value={selectedRestaurant.address || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, address: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, address: e.target.value })
+                    }
                     isInvalid={!!validationErrors.address}
                   />
-                  <Form.Control.Feedback type="invalid">{validationErrors.address}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.address}
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="col-md-4 mb-3" controlId="editCuisineType">
                   <Form.Label>Cuisine Type</Form.Label>
                   <Form.Select
                     value={selectedRestaurant.cuisineType || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, cuisineType: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, cuisineType: e.target.value })
+                    }
                     isInvalid={!!validationErrors.cuisineType}
                   >
                     <option value="">Select Cuisine Type</option>
-                    {['Italian', 'Mexican', 'Asian', 'French', 'American', 'Fusion', 'Other'].map((type) => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
+                    {['Italian', 'Mexican', 'Asian', 'French', 'American', 'Fusion', 'Other'].map(
+                      (type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      )
+                    )}
                   </Form.Select>
-                  <Form.Control.Feedback type="invalid">{validationErrors.cuisineType}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.cuisineType}
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="col-md-4 mb-3" controlId="editTaxeTPS">
                   <Form.Label>Taxe TPS (%)</Form.Label>
@@ -549,10 +711,14 @@ const RestaurantList = () => {
                     type="number"
                     step="0.001"
                     value={selectedRestaurant.taxeTPS || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, taxeTPS: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, taxeTPS: e.target.value })
+                    }
                     isInvalid={!!validationErrors.taxeTPS}
                   />
-                  <Form.Control.Feedback type="invalid">{validationErrors.taxeTPS}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.taxeTPS}
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="col-md-4 mb-3" controlId="editTaxeTVQ">
                   <Form.Label>Taxe TVQ (%)</Form.Label>
@@ -560,56 +726,78 @@ const RestaurantList = () => {
                     type="number"
                     step="0.001"
                     value={selectedRestaurant.taxeTVQ || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, taxeTVQ: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, taxeTVQ: e.target.value })
+                    }
                     isInvalid={!!validationErrors.taxeTVQ}
                   />
-                  <Form.Control.Feedback type="invalid">{validationErrors.taxeTVQ}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.taxeTVQ}
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="col-md-4 mb-3" controlId="editColor">
                   <Form.Label>Color (Hex)</Form.Label>
                   <Form.Control
                     type="text"
                     value={selectedRestaurant.color || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, color: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, color: e.target.value })
+                    }
                     maxLength={6}
                     placeholder="e.g., FF5733"
                     isInvalid={!!validationErrors.color}
                   />
-                  <Form.Control.Feedback type="invalid">{validationErrors.color}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.color}
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="col-md-4 mb-3" controlId="editLogo">
                   <Form.Label>Logo URL</Form.Label>
                   <Form.Control
                     type="url"
                     value={selectedRestaurant.logo || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, logo: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, logo: e.target.value })
+                    }
                     isInvalid={!!validationErrors.logo}
                   />
-                  <Form.Control.Feedback type="invalid">{validationErrors.logo}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.logo}
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="col-md-4 mb-3" controlId="editPromotion">
                   <Form.Label>Promotion</Form.Label>
                   <Form.Control
                     type="text"
                     value={selectedRestaurant.promotion || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, promotion: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, promotion: e.target.value })
+                    }
                     isInvalid={!!validationErrors.promotion}
                   />
-                  <Form.Control.Feedback type="invalid">{validationErrors.promotion}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.promotion}
+                  </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="col-md-4 mb-3" controlId="editPayCashMethod">
                   <Form.Label>Pay Cash Method</Form.Label>
                   <Form.Select
                     value={selectedRestaurant.payCashMethod || ''}
-                    onChange={(e) => setSelectedRestaurant({ ...selectedRestaurant, payCashMethod: e.target.value })}
+                    onChange={(e) =>
+                      setSelectedRestaurant({ ...selectedRestaurant, payCashMethod: e.target.value })
+                    }
                     isInvalid={!!validationErrors.payCashMethod}
                   >
                     <option value="">Select Pay Cash Method</option>
                     {['accepted', 'not-accepted', 'on-request'].map((method) => (
-                      <option key={method} value={method}>{method.replace('-', ' ')}</option>
+                      <option key={method} value={method}>
+                        {method.replace('-', ' ')}
+                      </option>
                     ))}
                   </Form.Select>
-                  <Form.Control.Feedback type="invalid">{validationErrors.payCashMethod}</Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.payCashMethod}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
             </Form>
@@ -641,7 +829,9 @@ const RestaurantList = () => {
                   onChange={(e) => setNewRestaurant({ ...newRestaurant, name: e.target.value })}
                   isInvalid={!!validationErrors.name}
                 />
-                <Form.Control.Feedback type="invalid">{validationErrors.name}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.name}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="col-md-4 mb-3" controlId="createAddress">
                 <Form.Label>Address</Form.Label>
@@ -651,21 +841,31 @@ const RestaurantList = () => {
                   onChange={(e) => setNewRestaurant({ ...newRestaurant, address: e.target.value })}
                   isInvalid={!!validationErrors.address}
                 />
-                <Form.Control.Feedback type="invalid">{validationErrors.address}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.address}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="col-md-4 mb-3" controlId="createCuisineType">
                 <Form.Label>Cuisine Type</Form.Label>
                 <Form.Select
                   value={newRestaurant.cuisineType}
-                  onChange={(e) => setNewRestaurant({ ...newRestaurant, cuisineType: e.target.value })}
+                  onChange={(e) =>
+                    setNewRestaurant({ ...newRestaurant, cuisineType: e.target.value })
+                  }
                   isInvalid={!!validationErrors.cuisineType}
                 >
                   <option value="">Select Cuisine Type</option>
-                  {['Italian', 'Mexican', 'Asian', 'French', 'American', 'Fusion', 'Other'].map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
+                  {['Italian', 'Mexican', 'Asian', 'French', 'American', 'Fusion', 'Other'].map(
+                    (type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    )
+                  )}
                 </Form.Select>
-                <Form.Control.Feedback type="invalid">{validationErrors.cuisineType}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.cuisineType}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="col-md-4 mb-3" controlId="createTaxeTPS">
                 <Form.Label>Taxe TPS (%)</Form.Label>
@@ -676,7 +876,9 @@ const RestaurantList = () => {
                   onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTPS: e.target.value })}
                   isInvalid={!!validationErrors.taxeTPS}
                 />
-                <Form.Control.Feedback type="invalid">{validationErrors.taxeTPS}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.taxeTPS}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="col-md-4 mb-3" controlId="createTaxeTVQ">
                 <Form.Label>Taxe TVQ (%)</Form.Label>
@@ -687,7 +889,9 @@ const RestaurantList = () => {
                   onChange={(e) => setNewRestaurant({ ...newRestaurant, taxeTVQ: e.target.value })}
                   isInvalid={!!validationErrors.taxeTVQ}
                 />
-                <Form.Control.Feedback type="invalid">{validationErrors.taxeTVQ}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.taxeTVQ}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="col-md-4 mb-3" controlId="createColor">
                 <Form.Label>Color (Hex)</Form.Label>
@@ -699,7 +903,9 @@ const RestaurantList = () => {
                   placeholder="e.g., FF5733"
                   isInvalid={!!validationErrors.color}
                 />
-                <Form.Control.Feedback type="invalid">{validationErrors.color}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.color}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="col-md-4 mb-3" controlId="createLogo">
                 <Form.Label>Logo URL</Form.Label>
@@ -709,31 +915,43 @@ const RestaurantList = () => {
                   onChange={(e) => setNewRestaurant({ ...newRestaurant, logo: e.target.value })}
                   isInvalid={!!validationErrors.logo}
                 />
-                <Form.Control.Feedback type="invalid">{validationErrors.logo}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.logo}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="col-md-4 mb-3" controlId="createPromotion">
                 <Form.Label>Promotion</Form.Label>
                 <Form.Control
                   type="text"
                   value={newRestaurant.promotion}
-                  onChange={(e) => setNewRestaurant({ ...newRestaurant, promotion: e.target.value })}
+                  onChange={(e) =>
+                    setNewRestaurant({ ...newRestaurant, promotion: e.target.value })
+                  }
                   isInvalid={!!validationErrors.promotion}
                 />
-                <Form.Control.Feedback type="invalid">{validationErrors.promotion}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.promotion}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="col-md-4 mb-3" controlId="createPayCashMethod">
                 <Form.Label>Pay Cash Method</Form.Label>
                 <Form.Select
                   value={newRestaurant.payCashMethod}
-                  onChange={(e) => setNewRestaurant({ ...newRestaurant, payCashMethod: e.target.value })}
+                  onChange={(e) =>
+                    setNewRestaurant({ ...newRestaurant, payCashMethod: e.target.value })
+                  }
                   isInvalid={!!validationErrors.payCashMethod}
                 >
                   <option value="">Select Pay Cash Method</option>
                   {['accepted', 'not-accepted', 'on-request'].map((method) => (
-                    <option key={method} value={method}>{method.replace('-', ' ')}</option>
+                    <option key={method} value={method}>
+                      {method.replace('-', ' ')}
+                    </option>
                   ))}
                 </Form.Select>
-                <Form.Control.Feedback type="invalid">{validationErrors.payCashMethod}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.payCashMethod}
+                </Form.Control.Feedback>
               </Form.Group>
             </div>
           </Form>
@@ -744,6 +962,150 @@ const RestaurantList = () => {
           </Button>
           <Button variant="primary" onClick={handleCreateRestaurant} disabled={loading}>
             {loading ? <Spinner animation="border" size="sm" /> : 'Create Restaurant'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Tables Modal */}
+      <Modal show={showTablesModal} onHide={handleCloseTablesModal} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title className="w-100 text-center fw-bold">
+            Manage Tables for {selectedRestaurant?.name}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form className="mb-4">
+            <div className="row">
+              <Form.Group className="col-md-6 mb-3" controlId="createTableNumber">
+                <Form.Label>Table Number</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={newTable.nbtable}
+                  onChange={(e) => setNewTable({ ...newTable, nbtable: e.target.value })}
+                  isInvalid={!!tableValidationErrors.nbtable}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {tableValidationErrors.nbtable}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="col-md-6 mb-3" controlId="createTableChairs">
+                <Form.Label>Number of Chairs</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={newTable.chairnb}
+                  onChange={(e) => setNewTable({ ...newTable, chairnb: e.target.value })}
+                  isInvalid={!!tableValidationErrors.chairnb}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {tableValidationErrors.chairnb}
+                </Form.Control.Feedback>
+              </Form.Group>
+            </div>
+            <Button variant="primary" onClick={handleCreateTable} disabled={loading}>
+              {loading ? <Spinner animation="border" size="sm" /> : 'Add Table'}
+            </Button>
+          </Form>
+
+          {tables.length === 0 ? (
+            <Alert variant="info">No tables found for this restaurant.</Alert>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-hover table-bordered">
+                <thead className="table-main">
+                  <tr>
+                    <th className="text-center">Table Number</th>
+                    <th className="text-center">Number of Chairs</th>
+                    <th className="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tables.map((table) => (
+                    <tr key={table._id}>
+                      {editingTable && editingTable._id === table._id ? (
+                        <>
+                          <td>
+                            <Form.Control
+                              type="number"
+                              value={editingTable.nbtable}
+                              onChange={(e) =>
+                                setEditingTable({ ...editingTable, nbtable: e.target.value })
+                              }
+                              isInvalid={!!tableValidationErrors.nbtable}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {tableValidationErrors.nbtable}
+                            </Form.Control.Feedback>
+                          </td>
+                          <td>
+                            <Form.Control
+                              type="number"
+                              value={editingTable.chairnb}
+                              onChange={(e) =>
+                                setEditingTable({ ...editingTable, chairnb: e.target.value })
+                              }
+                              isInvalid={!!tableValidationErrors.chairnb}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {tableValidationErrors.chairnb}
+                            </Form.Control.Feedback>
+                          </td>
+                          <td className="text-center">
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className="me-2"
+                              onClick={handleUpdateTable}
+                              disabled={loading}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => setEditingTable(null)}
+                              disabled={loading}
+                            >
+                              Cancel
+                            </Button>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td>{table.nbtable}</td>
+                          <td>{table.chairnb}</td>
+                          <td className="text-center">
+                            <Button
+                              variant="outline-warning"
+                              size="sm"
+                              className="me-2"
+                              style={{ backgroundColor: '#ffc107', color: 'black' }}
+                              onClick={() => setEditingTable(table)}
+                              disabled={loading}
+                            >
+                              <i className="fas fa-edit" />
+                            </Button>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              style={{ backgroundColor: '#dc3545', color: 'white' }}
+                              onClick={() => handleDeleteTable(table._id)}
+                              disabled={loading}
+                            >
+                              <i className="fas fa-trash" />
+                            </Button>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseTablesModal} disabled={loading}>
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

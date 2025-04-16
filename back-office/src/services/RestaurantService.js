@@ -67,3 +67,28 @@ export function uploadImage(restaurantId, imageData) {
     },
   });
 }
+
+// Get tables by restaurant ID
+export function getTablesByRestaurant(restaurantId) {
+  return axiosInstance.get(`/restaurants/${restaurantId}/tables`);
+}
+
+// Create a table for a restaurant
+export function createTable(restaurantId, tableData) {
+  return axiosInstance.post(`/restaurants/${restaurantId}/tables`, tableData);
+}
+
+// Get table by ID
+export function getTableById(restaurantId, tableId) {
+  return axiosInstance.get(`/restaurants/${restaurantId}/tables/${tableId}`);
+}
+
+// Update table by ID
+export function updateTable(restaurantId, tableId, tableData) {
+  return axiosInstance.put(`/restaurants/${restaurantId}/tables/${tableId}`, tableData);
+}
+
+// Delete table by ID
+export function deleteTable(restaurantId, tableId) {
+  return axiosInstance.delete(`/restaurants/${restaurantId}/tables/${tableId}`);
+}
