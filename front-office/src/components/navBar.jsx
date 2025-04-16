@@ -43,7 +43,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-[#262626]/20 text-[#FA8072] py-4 backdrop-blur-md">
+    <nav className="fixed top-0 z-[1000] left-0 right-0 bg-[#262626]/20 text-[#FA8072] py-4 backdrop-blur-md">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/">
           <img
@@ -76,11 +76,20 @@ const Navbar = () => {
           >
             About Us
           </Link>
+          {user && (
+            <Link
+              to="/reservation"
+              className="text-white font-bold hover:text-[#FA8072] transition"
+            >
+              Reservation
+            </Link>
+          )}
+
           <Link
-            to="/reservation"
+            to="/restaurant"
             className="text-white font-bold hover:text-[#FA8072] transition"
           >
-            Reservation
+            Restaurant
           </Link>
         </div>
 

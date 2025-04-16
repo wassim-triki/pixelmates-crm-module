@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const RestaurantList = () => {
   const [restaurants, setRestaurants] = useState([]);
@@ -144,7 +145,7 @@ const RestaurantList = () => {
                   <p className="text-sm opacity-90 mb-1">
                     Cuisine: {restaurant.cuisineType}
                   </p>
-                  <p className="text-sm opacity-90 mb-1">
+                  <p className="text-sm opacity-90 mb-4">
                     Rating: {restaurant.note} ⭐
                   </p>
                   {restaurant.promotion && (
@@ -152,9 +153,15 @@ const RestaurantList = () => {
                       🔥 Promo: {restaurant.promotion}
                     </p>
                   )}
-                  <button className="mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-all">
+                  {/* <button className="mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-all">
                     View Details
-                  </button>
+                  </button> */}
+                  <Link
+                    to={`/restaurant/${restaurant._id}`}
+                    className="mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-all"
+                  >
+                    Book Now
+                  </Link>
                 </motion.div>
               ))}
             </div>

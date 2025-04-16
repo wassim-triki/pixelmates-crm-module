@@ -19,8 +19,7 @@ import OAuthCallback from './pages/OAuthCallback';
 import Footer from './components/footer';
 import Restaurant from './components/Restaurant';
 import ReservationPage from './pages/ReservationPage';
-import ReservationForm from "./pages/ReservationForm";
-
+import ReservationForm from './pages/ReservationForm';
 
 const App = () => {
   const location = useLocation();
@@ -40,12 +39,13 @@ const App = () => {
   }, [location.pathname]);
 
   const renderNavbar = () => {
-    if (user) {
-      return <NavbarAfterLogin />;
-    } else if (!hiddenNavbarRoutes.includes(location.pathname)) {
-      return <Navbar />;
-    }
-    return null;
+    // if (user) {
+    //   return <NavbarAfterLogin />;
+    // } else if (!hiddenNavbarRoutes.includes(location.pathname)) {
+    //   return <Navbar />;
+    // }
+    // return null;
+    return <Navbar />;
   };
 
   return (
@@ -65,12 +65,51 @@ const App = () => {
             <Route path="/verify-email" element={<VerifyCode />} />
             <Route path="/restaurant" element={<Restaurant />} />
             <Route path="/reservation/:tableId" element={<ReservationForm />} />
-            <Route path="/reservation" element={<ReservationPage />} />
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute requiredRole="admin">{/* AdminDashboard */}</ProtectedRoute>} />
-            <Route path="/superadmin" element={<ProtectedRoute requiredRole="superadmin">{/* SuperAdminPanel */}</ProtectedRoute>} />
+            <Route
+              path="/restaurant/:restaurantId"
+              element={<ReservationPage />}
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-profile"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  {/* AdminDashboard */}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/superadmin"
+              element={
+                <ProtectedRoute requiredRole="superadmin">
+                  {/* SuperAdminPanel */}
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
         {showFooter && <Footer />}
