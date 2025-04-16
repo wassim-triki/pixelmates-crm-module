@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/authContext'; // Import du contexte
+import { AuthProvider, useAuth } from './context/authContext'; // ou AuthContext selon le nom exact du fichier
 import HomePage from './pages/homePage';
 import HomePageAfterLogin from './pages/homePageAfterLogin';
 import Login from './pages/login';
@@ -18,15 +18,15 @@ import AboutUs from './pages/aboutUs';
 import OAuthCallback from './pages/OAuthCallback';
 import Footer from './components/footer';
 import Restaurant from './components/Restaurant';
+import ReservationPage from './pages/ReservationPage';
+import ReservationForm from "./pages/ReservationForm";
+
 
 const App = () => {
   const location = useLocation();
   const [showFooter, setShowFooter] = useState(true);
+  const { user } = useAuth();
 
-  // Utilisation du contexte d'authentification
-  const { user } = useAuth(); // Accédez à l'utilisateur dans le contexte via useAuth()
-
-  // Liste des routes où la Navbar et Footer sont masqués
   const hiddenNavbarRoutes = [
     'login',
     'signup',
@@ -36,29 +36,22 @@ const App = () => {
   ];
 
   useEffect(() => {
-    // Si la route actuelle est dans la liste des routes cachées, cacher le footer
     setShowFooter(!hiddenNavbarRoutes.includes(location.pathname));
   }, [location.pathname]);
 
-  // Mise à jour conditionnelle de la Navbar après connexion
   const renderNavbar = () => {
-    // Si l'utilisateur est connecté, afficher NavbarAfterLogin
-    // Sinon afficher Navbar
     if (user) {
       return <NavbarAfterLogin />;
     } else if (!hiddenNavbarRoutes.includes(location.pathname)) {
       return <Navbar />;
     }
-    return null; // Si la route est dans la liste des routes cachées, ne pas afficher de navbar
+    return null;
   };
 
   return (
     <AuthProvider>
       <div className="flex flex-col min-h-screen">
-        {/* Rendre conditionnellement Navbar */}
         {renderNavbar()}
-
-        {/* Contenu principal */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -71,51 +64,15 @@ const App = () => {
             <Route path="/forgot-password" element={<ResetPasswordEmail />} />
             <Route path="/verify-email" element={<VerifyCode />} />
             <Route path="/restaurant" element={<Restaurant />} />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/edit-profile"
-              element={
-                <ProtectedRoute>
-                  <EditProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            {/* Routes pour l'admin et le superadmin avec protection de rôle */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  {/* AdminDashboard */}
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/superadmin"
-              element={
-                <ProtectedRoute requiredRole="superadmin">
-                  {/* SuperAdminPanel */}
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/reservation/:tableId" element={<ReservationForm />} />
+            <Route path="/reservation" element={<ReservationPage />} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute requiredRole="admin">{/* AdminDashboard */}</ProtectedRoute>} />
+            <Route path="/superadmin" element={<ProtectedRoute requiredRole="superadmin">{/* SuperAdminPanel */}</ProtectedRoute>} />
           </Routes>
         </main>
-
-        {/* Footer conditionnel basé sur la route */}
         {showFooter && <Footer />}
       </div>
     </AuthProvider>

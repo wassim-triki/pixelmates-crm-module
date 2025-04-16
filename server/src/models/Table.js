@@ -31,6 +31,13 @@ const TableSchema = new mongoose.Schema(
       ref: 'Restaurant',
       required: [true, 'Restaurant ID is required'],
     },
+    isReserved: {
+      type: Boolean,
+      default: false, // Par défaut, la table n'est pas réservée
+      select: true 
+      
+    }
+
   },
   {
     timestamps: true,
