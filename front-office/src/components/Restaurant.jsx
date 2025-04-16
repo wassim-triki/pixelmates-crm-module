@@ -67,7 +67,7 @@ const RestaurantList = () => {
   const cuisines = [...new Set(restaurants.map((r) => r.cuisineType))];
 
   return (
-    <div className="min-h-screen -z-10 bg-gray-100 flex flex-col items-center justify-center px-4 py-10 pt-40 relative">
+    <div className="min-h-screen -sz-10 bg-gray-100 flex flex-col items-center justify-center px-4 py-10 pt-40 relative">
       <div
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{ backgroundImage: "url('/bg.jpg')" }}
@@ -133,7 +133,7 @@ const RestaurantList = () => {
                   <img
                     src={restaurant.logo || '/test.png'}
                     alt={restaurant.name}
-                    className="w-full h-40 object-contain bg-white rounded-lg mb-4 p-2"
+                    className="w-full h-40 object-cover bg-white rounded-lg mb-4 p-2"
                   />
                   <h3 className="text-xl font-semibold mb-2">
                     {restaurant.name}
