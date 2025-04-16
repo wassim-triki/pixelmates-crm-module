@@ -1,4 +1,5 @@
 const express = require('express');
+const Table = require('./models/Table');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/database.js');
@@ -14,8 +15,25 @@ const passport = require('passport');
 const path = require('path');
 dotenv.config();
 
-// Connect to MongoDB
-connectDB();
+// Fonction pour mettre à jour les documents existants
+async function updateExistingDocuments() {
+  try {
+    const result = await Table.updateMany(
+      { isReserved: { $exists: false } }, // Documents sans le champ isReserved
+      { $set: { isReserved: false } }    // Ajout du champ avec la valeur par défaut
+    );
+
+    console.log(`${result.modifiedCount} documents mis à jour avec le champ isReserved`);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des documents :', error);
+  }
+}
+updateExistingDocuments()
+//Connect to MongoDB
+connectDB().then(() => {
+  console.log('Connexion à la base de données réussie');
+  updateExistingDocuments(); // Appel de la fonction ici
+});
 
 require('./config/googleAuth');
 require('./config/facebookAuth');

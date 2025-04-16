@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const RestaurantList = () => {
   const [restaurants, setRestaurants] = useState([]);
@@ -67,7 +68,7 @@ const RestaurantList = () => {
   const cuisines = [...new Set(restaurants.map((r) => r.cuisineType))];
 
   return (
-    <div className="min-h-screen -z-10 bg-gray-100 flex flex-col items-center justify-center px-4 py-10 pt-40 relative">
+    <div className="min-h-screen -sz-10 bg-gray-100 flex flex-col items-center justify-center px-4 py-10 pt-40 relative">
       <div
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{ backgroundImage: "url('/bg.jpg')" }}
@@ -133,7 +134,7 @@ const RestaurantList = () => {
                   <img
                     src={restaurant.logo || '/test.png'}
                     alt={restaurant.name}
-                    className="w-full h-40 object-contain bg-white rounded-lg mb-4 p-2"
+                    className="w-full h-40 object-cover bg-white rounded-lg mb-4 p-2"
                   />
                   <h3 className="text-xl font-semibold mb-2">
                     {restaurant.name}
@@ -144,7 +145,7 @@ const RestaurantList = () => {
                   <p className="text-sm opacity-90 mb-1">
                     Cuisine: {restaurant.cuisineType}
                   </p>
-                  <p className="text-sm opacity-90 mb-1">
+                  <p className="text-sm opacity-90 mb-4">
                     Rating: {restaurant.note} ⭐
                   </p>
                   {restaurant.promotion && (
@@ -152,9 +153,15 @@ const RestaurantList = () => {
                       🔥 Promo: {restaurant.promotion}
                     </p>
                   )}
-                  <button className="mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-all">
+                  {/* <button className="mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-all">
                     View Details
-                  </button>
+                  </button> */}
+                  <Link
+                    to={`/restaurant/${restaurant._id}`}
+                    className="mt-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-all"
+                  >
+                    Book Now
+                  </Link>
                 </motion.div>
               ))}
             </div>

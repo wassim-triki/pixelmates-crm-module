@@ -43,7 +43,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-[#262626]/20 text-[#FA8072] py-4 backdrop-blur-md z-10">
+    <nav className="fixed top-0 z-[1000] left-0 right-0 bg-[#262626]/20 text-[#FA8072] py-4 backdrop-blur-md">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/">
           <img
@@ -70,13 +70,26 @@ const Navbar = () => {
             Home
           </Link>
 
-        
-
           <Link
             to="/about-us"
             className="text-white font-bold hover:text-[#FA8072] transition"
           >
             About Us
+          </Link>
+          {user && (
+            <Link
+              to="/reservation"
+              className="text-white font-bold hover:text-[#FA8072] transition"
+            >
+              Reservation
+            </Link>
+          )}
+
+          <Link
+            to="/restaurant"
+            className="text-white font-bold hover:text-[#FA8072] transition"
+          >
+            Restaurant
           </Link>
         </div>
 
@@ -182,13 +195,19 @@ const Navbar = () => {
             Home
           </Link>
 
-          
           <Link
             to="/about"
             className="text-lg text-[#FA8072] font-bold hover:text-white"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             About Us
+          </Link>
+          <Link
+            to="/reservation"
+            className="text-lg text-[#FA8072] font-bold hover:text-white"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Reservation
           </Link>
           {!user ? (
             <Link
