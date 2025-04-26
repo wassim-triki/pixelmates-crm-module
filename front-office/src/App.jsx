@@ -43,20 +43,11 @@ const App = () => {
     setShowFooter(!hiddenNavbarRoutes.includes(pathname));
   }, [location.pathname]);
 
-  const renderNavbar = () => {
-    if (user && !hiddenNavbarRoutes.includes(location.pathname.replace(/^\//, '').split('/')[0])) {
-      return <NavbarAfterLogin />;
-    } else if (!hiddenNavbarRoutes.includes(location.pathname.replace(/^\//, '').split('/')[0])) {
-      return <Navbar />;
-    }
-    return null;
-  };
-
   return (
     <AuthProvider>
       <ComplaintProvider>
         <div className="flex flex-col min-h-screen">
-          {renderNavbar()}
+          <Navbar />
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -69,15 +60,15 @@ const App = () => {
               <Route path="/forgot-password" element={<ResetPasswordEmail />} />
               <Route path="/verify-email" element={<VerifyCode />} />
               <Route path="/restaurant" element={<Restaurant />} />
-              <Route path="/reservation/:tableId" element={<ReservationForm />} />
+              <Route
+                path="/reservation/:tableId"
+                element={<ReservationForm />}
+              />
               <Route
                 path="/restaurant/:restaurantId"
                 element={<ReservationPage />}
               />
-              <Route
-                path="/complaint"
-                element={<ComplaintForm />}
-              />
+              <Route path="/complaint" element={<ComplaintForm />} />
               <Route
                 path="/my-complaints"
                 element={
