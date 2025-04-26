@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/database.js');
 const restaurantRoutes = require('./routes/restaurant.routes.js');
+const complaintRoutes = require('./routes/complaint.routes.js');
 const userRoutes = require('./routes/user.routes.js');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
@@ -77,6 +78,7 @@ app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/reservations', reservationRoutes);
+app.use('/api/complaints', complaintRoutes);
 // Default route
 app.get('/', (req, res) => {
   res.send('Pixelmates CRM Backend is running...');

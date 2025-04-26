@@ -11,13 +11,18 @@ const Navbar = () => {
   const { logout, user, loading } = useAuth();
   const profileDropdownRef = useRef(null);
 
-  // Function to close dropdown when clicking outside
+  // Debug: Log user, loading, accessToken, and login condition
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    console.log('Navbar - AccessToken:', token);
+    console.log('Navbar - User:', user);
+    console.log('Navbar - Loading:', loading);
+    console.log('Navbar - Is User Logged In (user && !loading):', user && !loading);
+  }, [user, loading]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        profileDropdownRef.current &&
-        !profileDropdownRef.current.contains(event.target)
-      ) {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
         setIsProfileOpen(false);
       }
     };
@@ -53,7 +58,6 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* Mobile Menu Toggle */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden text-white"
@@ -61,50 +65,41 @@ const Navbar = () => {
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
-        {/* Desktop Navigation Links */}
         <div className="hidden md:flex space-x-8">
-          <Link
-            to="/"
-            className="text-white font-bold hover:text-[#FA8072] transition"
-          >
+          <Link to="/" className="text-white font-bold hover:text-[#FA8072] transition">
             Home
           </Link>
-
-          <Link
-            to="/about-us"
-            className="text-white font-bold hover:text-[#FA8072] transition"
-          >
+          <Link to="/about-us" className="text-white font-bold hover:text-[#FA8072] transition">
             About Us
           </Link>
-          {user && (
-            <Link
-              to="/reservation"
-              className="text-white font-bold hover:text-[#FA8072] transition"
-            >
-              Reservation
-            </Link>
+          {user && !loading && (
+            <>
+              <Link
+                to="/reservation"
+                className="text-white font-bold hover:text-[#FA8072] transition"
+              >
+                Reservation
+              </Link>
+              <Link
+                to="/my-complaints"
+                className="text-white font-bold hover:text-[#FA8072] transition"
+              >
+                My Complaints
+              </Link>
+            </>
           )}
-
-          <Link
-            to="/restaurant"
-            className="text-white font-bold hover:text-[#FA8072] transition"
-          >
+          <Link to="/restaurant" className="text-white font-bold hover:text-[#FA8072] transition">
             Restaurant
           </Link>
         </div>
 
-        {/* Right Section (Search + Auth) */}
         <div className="hidden md:flex items-center space-x-6">
-          {!user && (
-            <Link
-              to="/login"
-              className="text-white font-bold hover:text-[#FA8072] transition"
-            >
+          {!user && !loading && (
+            <Link to="/login" className="text-white font-bold hover:text-[#FA8072] transition">
               Login
             </Link>
           )}
 
-          {/* Search Box */}
           <div className="relative">
             <input
               type="text"
@@ -113,21 +108,17 @@ const Navbar = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search
-              className="absolute right-3 top-2 text-gray-500"
-              size={20}
-            />
+            <Search className="absolute right-3 top-2 text-gray-500" size={20} />
           </div>
 
-          {/* Profile Dropdown */}
-          {user && (
+          {user && !loading && (
             <div ref={profileDropdownRef} className="relative">
               <button
                 className="flex items-center space-x-2 hover:bg-[#FA8072]/30 p-2 rounded-full transition"
                 onClick={() => setIsProfileOpen((prev) => !prev)}
               >
                 <div className="relative w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full overflow-hidden">
-                  {user?.image ? (
+                  {user.image ? (
                     <img
                       src={user.image}
                       alt="User profile"
@@ -137,22 +128,9 @@ const Navbar = () => {
                     <User className="text-gray-700" size={20} />
                   )}
                 </div>
-                <div className="header-info">
-                  {loading ? (
-                    <div
-                      className="skeleton-line animate-pulse"
-                      style={{
-                        width: '120px',
-                        height: '16px',
-                        background: '#e0e0e0',
-                      }}
-                    />
-                  ) : (
-                    <span className="block text-dark font-bold">
-                      {user.firstName} {user.lastName}
-                    </span>
-                  )}
-                </div>
+                <span className="block text-white font-bold">
+                  {user.firstName || 'User'} {user.lastName || ''}
+                </span>
               </button>
 
               {isProfileOpen && (
@@ -184,7 +162,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-black/90 text-white flex flex-col items-center py-6 space-y-6">
           <Link
@@ -194,26 +171,42 @@ const Navbar = () => {
           >
             Home
           </Link>
-
           <Link
-            to="/about"
+            to="/about-us"
             className="text-lg text-[#FA8072] font-bold hover:text-white"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             About Us
           </Link>
+          {user && !loading && (
+            <>
+              <Link
+                to="/reservation"
+                className="text-lg text-[#FA8072] font-bold hover:text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Reservation
+              </Link>
+              <Link
+                to="/my-complaints"
+                className="text-lg text-[#FA8072] font-bold hover:text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                My Complaints
+              </Link>
+            </>
+          )}
           <Link
-            to="/reservation"
+            to="/restaurant"
             className="text-lg text-[#FA8072] font-bold hover:text-white"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            Reservation
+            Restaurant
           </Link>
-          {!user ? (
+          {!user && !loading ? (
             <Link
               to="/login"
               className="text-lg text-[#FA8072] font-bold hover:text-white"
-              onClick={() => setIsMobileMenuOpen(false)}
             >
               Login
             </Link>
@@ -228,7 +221,7 @@ const Navbar = () => {
           {user && !loading && (
             <div className="text-center text-white">
               <span className="block text-[#FA8072] font-bold">
-                {user.firstName} {user.lastName}
+                {user.firstName || 'User'} {user.lastName || ''}
               </span>
             </div>
           )}
