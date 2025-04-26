@@ -13,7 +13,7 @@ function OAuthCallback() {
     if (accessToken) {
       localStorage.setItem('accessToken', accessToken);
       fetchUser(); // Fetch user details
-      navigate('/home-page'); // Redirect to profile after successful login
+      navigate('/'); // Redirect to profile after successful login
     } else {
       navigate('/login'); // Redirect to login if there's an issue
     }

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/authContext';
 import { ComplaintProvider } from './context/complaintContext';
 import HomePage from './pages/homePage';
-import HomePageAfterLogin from './pages/homePageAfterLogin';
 import Login from './pages/login';
 import ResetPassword from './pages/resetPassword';
 import Register from './pages/register';
@@ -12,7 +11,6 @@ import ProfilePage from './pages/profilePage';
 import EditProfile from './pages/editProfile';
 import Settings from './pages/settingPage';
 import Navbar from './components/navBar';
-import NavbarAfterLogin from './components/navBarAfterLogin';
 import ProtectedRoute from './components/ProtectedRoute';
 import VerifyCode from './pages/VerifyCode';
 import AboutUs from './pages/aboutUs';
@@ -51,7 +49,6 @@ const App = () => {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/home-page" element={<HomePageAfterLogin />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Register />} />
               <Route path="/oauth-callback" element={<OAuthCallback />} />

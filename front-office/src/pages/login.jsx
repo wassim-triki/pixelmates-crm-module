@@ -31,7 +31,7 @@ function Login() {
       setLoading(true);
       try {
         await login(values.email, values.password);
-        navigate('/home-page');
+        navigate('/');
       } catch (err) {
         if (err === 'Please verify your email before logging in.') {
           navigate('/verify-email', { state: { email: values.email } });
