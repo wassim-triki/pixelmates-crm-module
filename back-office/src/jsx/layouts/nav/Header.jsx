@@ -67,7 +67,7 @@ const Header = ({ onNote }) => {
                   ? 'Dashboard'
                   : finalName.join(' ')}
                 {filterName[0] === '' ? (
-                  <span>Welcome to Sego Admin!</span>
+                  <span>Welcome to The MenuFy!</span>
                 ) : filterName[0] === 'orders' ? (
                   <span>Here is your order list data</span>
                 ) : filterName[0] === 'general' ? (
@@ -94,7 +94,7 @@ const Header = ({ onNote }) => {
                   </div>
                 </div>
               </li>
-
+{/*
               <Dropdown
                 className="nav-item dropdown notification_dropdown"
                 as="li"
@@ -123,8 +123,9 @@ const Header = ({ onNote }) => {
                     0
                   </span>
                 </Dropdown.Toggle>
-
+                
                 <Dropdown.Menu align="end" className="mt-2">
+                  {/*
                   <div className="widget-media dz-scroll p-3 height380 ps">
                     <ul className="timeline">
                       <li className="nav-item">
@@ -229,6 +230,8 @@ const Header = ({ onNote }) => {
                   </Link>
                 </Dropdown.Menu>
               </Dropdown>
+              */}
+              {/*
               <Dropdown
                 className="nav-item dropdown notification_dropdown"
                 as="li"
@@ -377,7 +380,7 @@ const Header = ({ onNote }) => {
                     </ul>
                   </div>
                 </Dropdown.Menu>
-              </Dropdown>
+              </Dropdown>*/}
               <Dropdown className="nav-item dropdown header-profile" as="li">
                 <Dropdown.Toggle
                   as="a"
@@ -416,7 +419,7 @@ const Header = ({ onNote }) => {
                   </div>
                 </Dropdown.Toggle>
                 <Dropdown.Menu align="end" className="mt-2">
-                  <Link to="/app-profile" className="dropdown-item ai-icon">
+               {/*   <Link to="/app-profile" className="dropdown-item ai-icon">
                     <svg
                       id="icon-user1"
                       xmlns="http://www.w3.org/2000/svg"
@@ -434,7 +437,7 @@ const Header = ({ onNote }) => {
                       <circle cx={12} cy={7} r={4} />
                     </svg>
                     <span className="ms-2">Profile </span>
-                  </Link>
+                  </Link>*/}
                   <Link to="/update-profile" className="dropdown-item ai-icon">
                     <svg
                       id="icon-user1"
@@ -454,7 +457,7 @@ const Header = ({ onNote }) => {
                     </svg>
                     <span className="ms-2">My Profile </span>
                   </Link>
-                  <Link to="/email-inbox" className="dropdown-item ai-icon">
+         {/*         <Link to="/email-inbox" className="dropdown-item ai-icon">
                     <svg
                       id="icon-inbox"
                       xmlns="http://www.w3.org/2000/svg"
@@ -472,10 +475,11 @@ const Header = ({ onNote }) => {
                       <polyline points="22,6 12,13 2,6" />
                     </svg>
                     <span className="ms-2">Inbox </span>
-                  </Link>
+                  </Link>*/}
                   <Logout />
                 </Dropdown.Menu>
               </Dropdown>
+              
             </ul>
           </div>
         </nav>

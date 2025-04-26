@@ -21,7 +21,7 @@ export const MenuList = [
                     title: 'statics',
                     to: 'statics',
             },    
-                       
+             /*          
             {
                 title: 'Orders',
                 to: 'orders',
@@ -46,7 +46,7 @@ export const MenuList = [
 			{
                 title: 'Task',
                 to: 'task',                
-            },    
+            },  */  
         ],
     },
     

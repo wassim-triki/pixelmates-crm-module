@@ -74,7 +74,9 @@ const SideBar = () => {
     <div className="deznav">
       <div className="deznav-scroll dz-scroll">
           <ul className="metismenu" id="menu">              
-            {MenuList.map((data, index)=>{
+          {MenuList
+  .filter((data) => data.title === "Dashboard") // 👈 filtrer uniquement "Dashboard"
+  .map((data, index) => {
               let menuClass = data.classsChange;
                 if(menuClass === "menu-title"){
                   return(
@@ -148,6 +150,7 @@ const SideBar = () => {
               }
             })}          
           </ul>	
+          {/* 
           <div className="add-menu-sidebar">
             <img src={foodServing} alt="foodServing" />
             <p className="mb-3">Organize your menus through button bellow</p>
@@ -182,14 +185,14 @@ const SideBar = () => {
                 </div>
               </form>
             </Modal.Body>
-          </Modal>
+          </Modal>*/}
           <div className="copyright">
             <p>
-              <strong>Sego Restaurant Admin Dashboard</strong> © {d.getFullYear()} All Rights Reserved
+              <strong>The MenuFy Admin Dashboard</strong> © {d.getFullYear()} All Rights Reserved
             </p>
             <p>
               Made with{" "}
-              <span className="heart" onClick={()=>heartBlast()}></span>{" "}by DexignZone
+              <span className="heart" onClick={()=>heartBlast()}></span>{" "}by Pixelmates
             </p>
           </div>
       </div>

@@ -41,6 +41,7 @@ const Widget = () => {
   return (
     <Fragment>
       {/* <Ext /> */}
+      {/*
       <PageTitle activeMenu='Statistics' motherMenu='Widget' />
       <div className='row'>
         <div className='col-xl-4 col-xxl-6 col-lg-6'>
@@ -3632,7 +3633,7 @@ const Widget = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>*/}
     </Fragment>
   )
 }
