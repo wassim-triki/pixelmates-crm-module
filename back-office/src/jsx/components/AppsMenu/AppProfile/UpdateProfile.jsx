@@ -1,283 +1,241 @@
-import React, { Fragment, useReducer, useEffect, useState } from "react";
-import { Button, Dropdown, Tab, Nav } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import LightGallery from 'lightgallery/react';
-import 'lightgallery/css/lightgallery.css';
-import 'lightgallery/css/lg-zoom.css';
-import 'lightgallery/css/lg-thumbnail.css';
-import lgThumbnail from 'lightgallery/plugins/thumbnail';
-import lgZoom from 'lightgallery/plugins/zoom';
-import profile from "../../../../assets/images/profile/profile.png";
+import React, { useEffect, useState } from "react";
+import { Card, Row, Col, Button, Form, Spinner } from "react-bootstrap";
+import { getCurrentUser } from "../../../../services/AuthService";
+import profilePlaceholder from "../../../../assets/images/profile/profile.png"; 
+import axiosInstance from "../../../../services/AxiosInstance";
 import PageTitle from "../../../layouts/PageTitle";
-import axios from 'axios';
-import { getCurrentUser } from "../../../../services/AuthService.js";
+import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { User, Mail, Phone, Home, Calendar } from "lucide-react"; // Icons for form fields
 
-const initialState = false;
-const reducer = (state, action) => {
-    switch (action.type) {
-        case 'sendMessage':
-            return { ...state, sendMessage: !state.sendMessage }
-        case 'postModal':
-            return { ...state, post: !state.post }
-        case 'linkModal':
-            return { ...state, link: !state.link }
-        case 'cameraModal':
-            return { ...state, camera: !state.camera }
-        case 'replyModal':
-            return { ...state, reply: !state.reply }
-        default:
-            return state
-    }
-}
+const UpdateProfile = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    birthday: "",
+    image: "", // Add image field
+  });
+  const [imagePreview, setImagePreview] = useState(""); // For image preview
+  const navigate = useNavigate();
 
-
-
-
-const Update_Profile = () => {
-    const [, dispatch] = useReducer(reducer, initialState);
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        address: '',
-        phone: '',
-        birthday: '',
-        image: '',
-        role: '',
-        status: ''
-    });
-    const [imageFile, setImageFile] = useState(null);
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const response = await getCurrentUser();
-                setUser(response.data);
-                setFormData({
-                    firstName: response.data.firstName,
-                    lastName: response.data.lastName,
-                    email: response.data.email,
-                    password: '',
-                    address: response.data.address,
-                    phone: response.data.phone,
-                    birthday: response.data.birthday ? response.data.birthday.split('T')[0] : '',
-                    image: response.data.image,
-                    role: response.data.role.name,
-                    status: response.data.status
-                });
-            } catch (err) {
-                setError('Error fetching user data: ' + err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUserData();
-    }, []);
-
-    const handleChange = (e) => {
+  // Fetch current user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await getCurrentUser();
+        setUser(response.data);
         setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
+          firstName: response.data.firstName,
+          lastName: response.data.lastName,
+          email: response.data.email,
+          phone: response.data.phone || '',
+          address: response.data.address || '',
+          birthday: response.data.birthday ? new Date(response.data.birthday).toISOString().split('T')[0] : '',
+          image: response.data.image || '', // Set image
         });
+        setImagePreview(response.data.image || ''); // Set image preview if exists
+      } catch (err) {
+        setError("Error fetching user data: " + err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleImageChange = (e) => {
-        setImageFile(e.target.files[0]);
-    };
+    fetchUserData();
+  }, []);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!user) {
-            setError('User data is not available');
-            return;
-        }
-        try {
-            const token = localStorage.getItem('accessToken');
-            if (!token) throw new Error('No authentication token found');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
-            const formDataToSend = new FormData();
-            for (const key in formData) {
-                formDataToSend.append(key, formData[key]);
-            }
-            if (imageFile) {
-                formDataToSend.append('image', imageFile);
-            }
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
 
-            await axios.put(`http://localhost:5000/api/users/${user.id}`, formDataToSend, config);
-            alert('Profile updated successfully');
-        } catch (err) {
-            setError('Error updating profile: ' + err.message);
-        }
-    };
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>{error}</p>;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    return (
-        <Fragment>
-            <PageTitle activeMenu="Profile" motherMenu="App" />
+    // Prompt user for confirmation before updating
+    const isConfirmed = window.confirm("Are you sure you want to update your profile?");
+    if (!isConfirmed) return; // Do nothing if user clicks "Cancel"
 
-            <div className="row">
-                <div className="col-lg-12">
-                    <div className="profile card card-body px-3 pt-3 pb-0">
-                        <div className="profile-head">
-                            <div className="photo-content ">
-                                <div className="cover-photo rounded"></div>
-                            </div>
-                            <div className="profile-info">
-                                <div className="profile-photo">
-                                    <img src={user?.image} className="img-fluid rounded-circle" alt="profile" />
-                                </div>
-                                <div className="profile-details">
-                                    <div className="profile-name px-3 pt-2">
-                                        <h4 className="text-primary mb-0">{user ? `${user.firstName} ${user.lastName}` : 'Loading...'}</h4>
-                                        <p>{user ? user.role.name : ''}</p>
-                                    </div>
-                                    <div className="profile-email px-2 pt-2">
-                                        <h4 className="text-muted mb-0">{user ? user.email : 'Loading...'}</h4>
-                                        <p>Email</p>
-                                    </div>
-                                    <Dropdown className="dropdown ms-auto">
-                                        <Dropdown.Toggle
-                                            variant="primary"
-                                            className="btn btn-primary light sharp i-false"
-                                            data-toggle="dropdown"
-                                            aria-expanded="true"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="18px"
-                                                height="18px"
-                                                viewBox="0 0 24 24"
-                                                version="1.1"
-                                            >
-                                                <g
-                                                    stroke="none"
-                                                    strokeWidth="1"
-                                                    fill="none"
-                                                    fillRule="evenodd"
-                                                >
-                                                    <rect x="0" y="0" width="24" height="24"></rect>
-                                                    <circle fill="#000000" cx="5" cy="12" r="2"></circle>
-                                                    <circle fill="#000000" cx="12" cy="12" r="2"></circle>
-                                                    <circle fill="#000000" cx="19" cy="12" r="2"></circle>
-                                                </g>
-                                            </svg>
-                                        </Dropdown.Toggle>
-                                        <Dropdown.Menu className="dropdown-menu dropdown-menu-right">
-                                            <Dropdown.Item className="dropdown-item">
-                                                <i className="fa fa-user-circle text-primary me-2" />
-                                                View profile
-                                            </Dropdown.Item>
-                                            <Dropdown.Item className="dropdown-item">
-                                                <i className="fa fa-users text-primary me-2" />
-                                                Add to close friends
-                                            </Dropdown.Item>
-                                            <Dropdown.Item className="dropdown-item">
-                                                <i className="fa fa-plus text-primary me-2" />
-                                                Add to group
-                                            </Dropdown.Item>
-                                            <Dropdown.Item className="dropdown-item">
-                                                <i className="fa fa-ban text-primary me-2" />
-                                                Block
-                                            </Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    setLoading(true);
+    try {
+      const response = await axiosInstance.put(`/users/${user.id}`, formData);
+      setUser(response.data);
+      navigate("/my-profile"); // Redirect to profile page after successful update
+    } catch (err) {
+      setError("Error updating user data: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  if (loading) return <div className="text-center mt-5"><Spinner animation="border" variant="primary" /></div>;
+  if (error) return <p className="text-danger text-center">{error}</p>;
+
+  return (
+    <div className="page-wrapper">
+      <PageTitle activeMenu="Update Profile" motherMenu={<Link to="/my-profile">My Profile</Link>} />
+      
+      <Row className="justify-content-center">
+        <Col xl={8} lg={10} md={12}>
+          <Card className="shadow-sm border-0">
+            <Card.Body>
+
+              <div className="text-center mb-4">
+                <div className="position-relative d-inline-block">
+                  <img
+                    src={imagePreview || profilePlaceholder}
+                    alt="Profile"
+                    className="rounded-circle"
+                    width="150"
+                    height="150"
+                    style={{ objectFit: "cover", border: "4px solid #eee" }}
+                  />
+                  <Form.Label
+                    htmlFor="image"
+                    className="position-absolute bottom-0 end-0 bg-white rounded-circle p-2 cursor-pointer"
+                    style={{ cursor: "pointer" }}
+                  >
+                    <i className="fa fa-camera" style={{ fontSize: "18px", color: "#000" }}></i>
+                  </Form.Label>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col-xl-8">
-                    <div className="card">
-                        <div className="card-body">
-                            <div className="profile-tab">
-                                <div className="custom-tab-1">
-                                    <Tab.Container defaultActiveKey='Posts'>
-                                        <Nav as='ul' className="nav nav-tabs">
-                                            <Nav.Item as='li' className="nav-item">
-                                                <Nav.Link to="#my-posts" eventKey='Posts'>Posts</Nav.Link>
-                                            </Nav.Item>
-                                            <Nav.Item as='li' className="nav-item">
-                                                <Nav.Link to="#about-me" eventKey='About'>About Me</Nav.Link>
-                                            </Nav.Item>
-                                            <Nav.Item as='li' className="nav-item">
-                                                <Nav.Link to="#profile-settings" eventKey='Setting'>Setting</Nav.Link>
-                                            </Nav.Item>
-                                        </Nav>
-                                        <Tab.Content>
-                                            <Tab.Pane id="profile-settings" eventKey='Setting'>
-                                                <div className="pt-3">
-                                                    <div className="settings-form">
-                                                        <h4 className="text-primary">Account Setting</h4>
-                                                        <form onSubmit={handleSubmit}>
-                                                            <div className="row">
-                                                                <div className="form-group mb-3 col-md-6">
-                                                                    <label className="form-label">First Name</label>
-                                                                    <input type="text" name="firstName" placeholder="First Name" className="form-control" value={formData.firstName} onChange={handleChange} />
-                                                                </div>
-                                                                <div className="form-group mb-3 col-md-6">
-                                                                    <label className="form-label">Last Name</label>
-                                                                    <input type="text" name="lastName" placeholder="Last Name" className="form-control" value={formData.lastName} onChange={handleChange} />
-                                                                </div>
-                                                            </div>
-                                                            <div className="row">
-                                                                <div className="form-group mb-3 col-md-6">
-                                                                    <label className="form-label">Email</label>
-                                                                    <input type="email" name="email" placeholder="Email" className="form-control" value={formData.email} onChange={handleChange} />
-                                                                </div>
-                                                                <div className="form-group mb-3 col-md-6">
-                                                                    <label className="form-label">Password</label>
-                                                                    <input type="password" name="password" placeholder="Password" className="form-control" value={formData.password} onChange={handleChange} />
-                                                                </div>
-                                                            </div>
-                                                            <div className="form-group mb-3">
-                                                                <label className="form-label">Address</label>
-                                                                <input type="text" name="address" placeholder="1234 Main St" className="form-control" value={formData.address} onChange={handleChange} />
-                                                            </div>
-                                                            <div className="form-group mb-3">
-                                                                <label className="form-label">Phone</label>
-                                                                <input type="text" name="phone" placeholder="Phone" className="form-control" value={formData.phone} onChange={handleChange} />
-                                                            </div>
-                                                            <div className="form-group mb-3">
-                                                                <label className="form-label">Birthday</label>
-                                                                <input type="date" name="birthday" className="form-control" value={formData.birthday} onChange={handleChange} />
-                                                            </div>
-                                                            <div className="form-group mb-3">
-                                                                <label className="form-label">Image</label>
-                                                                <input type="file" name="image" className="form-control" onChange={handleImageChange} />
-                                                            </div>
-                                                            <div className="form-group mb-3">
-                                                                <label className="form-label">Role</label>
-                                                                <input type="text" name="role" className="form-control" value={formData.role} readOnly />
-                                                            </div>
-                                                            <div className="form-group mb-3">
-                                                                <label className="form-label">Status</label>
-                                                                <input type="text" name="status" className="form-control" value={formData.status} readOnly />
-                                                            </div>
-                                                            <button className="btn btn-primary" type="submit">Update</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </Tab.Pane>
-                                        </Tab.Content>
-                                    </Tab.Container>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
+                <Form.Control
+                  type="file"
+                  id="image"
+                  name="image"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="d-none"
+                />
+              </div>
+
+              <Form onSubmit={handleSubmit}>
+                <Row className="mb-3">
+                  {/* First Name */}
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label><User size={18} /> First Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  {/* Last Name */}
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label><User size={18} /> Last Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className="mb-3">
+                  {/* Email */}
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label><Mail size={18} /> Email</Form.Label>
+                      <Form.Control
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        disabled
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  {/* Phone */}
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label><Phone size={18} /> Phone</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className="mb-3">
+                  {/* Address */}
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label><Home size={18} /> Address</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  {/* Birthday */}
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label><Calendar size={18} /> Birthday</Form.Label>
+                      <Form.Control
+                        type="date"
+                        name="birthday"
+                        value={formData.birthday}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                {/* Submit Button */}
+                <div className="text-center mt-4">
+                  <Button variant="primary" type="submit" disabled={loading}>
+                    {loading ? <Spinner animation="border" size="sm" /> : "Update Profile"}
+                  </Button>
                 </div>
-            </div>
-        </Fragment>
-    );
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  );
 };
 
-export default Update_Profile;
+export default UpdateProfile;

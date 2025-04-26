@@ -438,7 +438,7 @@ const Header = ({ onNote }) => {
                     </svg>
                     <span className="ms-2">Profile </span>
                   </Link>*/}
-                  <Link to="/update-profile" className="dropdown-item ai-icon">
+                  <Link to="/my-profile" className="dropdown-item ai-icon">
                     <svg
                       id="icon-user1"
                       xmlns="http://www.w3.org/2000/svg"

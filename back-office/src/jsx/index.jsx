@@ -113,6 +113,7 @@ import ScrollToTop from './layouts/ScrollToTop';
 import Clients from './components/Dashboard/Clients';
 import Unauthorized from './pages/Unauthorized'; // Added Unauthorized import
 import UpdateProfile from './components/AppsMenu/AppProfile/UpdateProfile';
+import MyProfile from './components/AppsMenu/AppProfile/MyProfile';
 import Restaurant from './components/Dashboard/Restaurant';
 
 import Statics from './components/Dashboard/Statics';
@@ -151,6 +152,7 @@ const Markup = () => {
     /// Apps
     { url: 'app-profile', component: <AppProfile /> },
     { url: 'update-profile', component: <UpdateProfile /> },
+    { url: 'my-profile', component: <MyProfile /> },
     
     { url: 'post-details', component: <PostDetails /> },
     { url: 'email-compose', component: <Compose /> },
