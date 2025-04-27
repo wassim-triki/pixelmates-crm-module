@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import axiosInstance from '../services/AxiosInstance';
+import axiosInstance from '../config/axios';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -60,7 +60,29 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Update user profile
+  const updateUser = async (data, isMultipart = false) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('No token found in localStorage');
+        return;
+      }
 
+      const response = await axiosInstance.put('/auth/me/update', data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(isMultipart && { 'Content-Type': 'multipart/form-data' }),
+        },
+      });
+
+      setUser(response.data); // update context
+      return response.data;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
 
   useEffect(() => {
     console.log('User state changed:', user); // ✅ Debugging step

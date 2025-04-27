@@ -7,10 +7,10 @@ import { getCurrentUser } from '../../../services/AuthService'; // Import your a
 /// Image
 import profile from '../../../assets/images/profile/17.jpg';
 import avatar from '../../../assets/images/avatar/1.jpg';
+import { useAuth } from '../../../context/authContext';
 
 const Header = ({ onNote }) => {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
   const [error, setError] = useState(null);
   var path = window.location.pathname.split('/');
   var name = path[path.length - 1].split('-');
@@ -39,20 +39,6 @@ const Header = ({ onNote }) => {
     ? filterName.filter((f) => f !== 'editor')
     : filterName;
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await getCurrentUser();
-        setUserData(response.data);
-      } catch (err) {
-        setError('Failed to load profile');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
   return (
     <div className="header">
       <div className="header-content">
@@ -387,9 +373,8 @@ const Header = ({ onNote }) => {
                   variant=""
                   className="nav-link i-false p-0c-pointer pointr"
                 >
-                  {console.log(userData)}
                   <img
-                    src={userData?.image || profile}
+                    src={user?.image || profile}
                     width={30}
                     height={30}
                     alt="Profile"
@@ -408,12 +393,11 @@ const Header = ({ onNote }) => {
                     ) : (
                       <>
                         <span className="d-block text-dark fw-bold">
-                          {userData?.firstName} {userData?.lastName}
+                          {user?.firstName} {user?.lastName}
                         </span>
                         <small className="text-muted">
-                          {userData?.role?.name}
-                          {userData?.restaurant &&
-                            ` • ${userData.restaurant.name}`}
+                          {user?.role?.name}
+                          {user?.restaurant && ` • ${user.restaurant.name}`}
                         </small>
                       </>
                     )}

@@ -7,6 +7,7 @@ import {
 } from '../../store/actions/AuthActions';
 
 import logo from '../../assets/images/logo-officiel-menufy.png';
+import { useAuth } from '../../context/authContext';
 
 function Login(props) {
   const [email, setEmail] = useState('superadmin@themenufy.com');
@@ -15,13 +16,14 @@ function Login(props) {
   const [password, setPassword] = useState('superadmin');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { login } = useAuth();
   useEffect(() => {
     dispatch({
       type: 'CLEAR_MESSAGES',
     });
   }, [dispatch]);
 
-  function onLogin(e) {
+  async function onLogin(e) {
     e.preventDefault();
     let error = false;
     const errorObj = { ...errorsObj };
@@ -39,6 +41,7 @@ function Login(props) {
     }
     dispatch(loadingToggleAction(true));
     dispatch(loginAction(email, password, navigate));
+    await login(email, password);
   }
   const [showPassword, setShowPassword] = useState(false);
   return (
@@ -47,7 +50,7 @@ function Login(props) {
         <div className="row">
           <div className="col-lg-6 col-md-7 box-skew d-flex">
             <div className="authincation-content">
-            <div className="mb-4 text-center">
+              <div className="mb-4 text-center">
                 <h1 className="mb-1 font-w800">Sign In</h1>
                 <p>Enter your email and password to access your account.</p>
               </div>
@@ -105,12 +108,12 @@ function Login(props) {
                   )}
                 </div>
                 <div className="new-account mt-2">
-                <p className="mb-0">
-                   Forgot password?{' '}
-                <Link className="text-primary" to="/forgot-password">
-                   Reset it here
-                </Link>
-                </p>
+                  <p className="mb-0">
+                    Forgot password?{' '}
+                    <Link className="text-primary" to="/forgot-password">
+                      Reset it here
+                    </Link>
+                  </p>
                 </div>
 
                 <div className="form-row d-flex justify-content-between mt-4 mb-2">

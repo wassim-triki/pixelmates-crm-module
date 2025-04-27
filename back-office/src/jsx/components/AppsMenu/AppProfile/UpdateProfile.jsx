@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Button, Form, Spinner, Alert } from 'react-bootstrap';
 import { getCurrentUser } from '../../../../services/AuthService';
 import profilePlaceholder from '../../../../assets/images/profile/profile.png';
-import axiosInstance from '../../../../services/AxiosInstance';
 import PageTitle from '../../../layouts/PageTitle';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Mail, Phone, Home, Calendar, Camera } from 'lucide-react';
 import styled from 'styled-components';
+import { useAuth } from '../../../../context/authContext';
 
 // Styled Components
 const ProfileCard = styled(Card)`
@@ -104,7 +104,6 @@ const FormCard = styled.div`
 `;
 
 const UpdateProfile = () => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
@@ -118,12 +117,11 @@ const UpdateProfile = () => {
   });
   const [imagePreview, setImagePreview] = useState('');
   const navigate = useNavigate();
-
+  const { updateUser } = useAuth();
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await getCurrentUser();
-        setUser(response.data);
         setFormData({
           firstName: response.data.firstName || '',
           lastName: response.data.lastName || '',
@@ -176,19 +174,7 @@ const UpdateProfile = () => {
       if (formData.image instanceof File) {
         form.append('image', formData.image);
       }
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        setError('No token found in localStorage');
-        setLoading(false);
-        return;
-      }
-      const response = await axiosInstance.put('/auth/me/update', form, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      setUser(response.data);
+      await updateUser(form, true);
       navigate('/my-profile');
     } catch (err) {
       setError('Error updating profile: ' + err.message);
