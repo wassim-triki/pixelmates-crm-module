@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
 import { FaSearch } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 // Animations
 const fadeIn = keyframes`
@@ -56,6 +58,7 @@ const Title = styled.h1`
   font-weight: 700;
   color: white;
   text-align: center;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   font-family: 'Playfair Display', serif;
@@ -277,6 +280,7 @@ const RestaurantList = () => {
   const indexOfLast = currentPage * restaurantsPerPage;
   const indexOfFirst = indexOfLast - restaurantsPerPage;
   const currentRestaurants = filteredRestaurants.slice(indexOfFirst, indexOfLast);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const getRestaurants = async () => {
@@ -319,11 +323,21 @@ const RestaurantList = () => {
 
   const cuisines = [...new Set(restaurants.map((r) => r.cuisineType))];
 
+  const handleBackToHome = () => {
+    navigate('/'); }
+
   return (
     <Container>
       <BackgroundOverlay />
-      
       <ContentWrapper>
+                    <div className="absolute top-10 left-0 z-10">
+                      <button
+                         onClick={handleBackToHome}
+                         className="text-white bg-transparent p-2 rounded-full hover:bg-gray-500 transition-all duration-300"
+                      >
+                      <FaArrowLeft className="text-2xl" />
+                     </button>
+                      </div>
         <Title>🍽️ Our Partnered Restaurants</Title>
 
         <div className="flex flex-wrap gap-4 justify-center items-center mb-8">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-
+import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 const BlurContainer = ({ children, className }) => (
   <motion.div
     className={`${className} backdrop-blur-xl bg-black/30 border border-white/10`}
@@ -16,6 +17,7 @@ const AboutUs = () => {
   const { scrollYProgress } = useScroll();
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
+  const navigate = useNavigate()
   const featureVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: (i) => ({
@@ -23,7 +25,10 @@ const AboutUs = () => {
       y: 0,
       transition: { delay: i * 0.2, duration: 0.6 }
     })
-  };
+  }; 
+  
+  const handleBackToHome = () => {
+    navigate('/'); }
 
   return (
     <div className="relative overflow-hidden">
@@ -48,6 +53,14 @@ const AboutUs = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
+            <div className="absolute top-4 left-4 z-10">
+              <button
+                 onClick={handleBackToHome}
+                 className="text-white bg-transparent p-2 rounded-full hover:bg-gray-500 transition-all duration-300"
+              >
+              <FaArrowLeft className="text-2xl" />
+             </button>
+              </div>
               <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-[#FA8072] to-orange-400 bg-clip-text text-transparent mb-6">
                 Redefining Culinary Tech
               </h1>
