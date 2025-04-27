@@ -55,7 +55,7 @@ const seedAll = async () => {
         lastName: 'Triki',
         email: 'superadmin@themenufy.com',
         image:
-          'https://scontent.ftun10-1.fna.fbcdn.net/v/t39.30808-1/473589161_2907329856110906_6008752793987387852_n.jpg?stp=dst-jpg_s160x160_tt6&_nc_cat=104&ccb=1-7&_nc_sid=e99d92&_nc_ohc=xX8MlThNGH8Q7kNvgEHodGv&_nc_oc=AdgehEQg7jSEgr9UgKTl2kTFDO2zGxCwUo_VMur9C-vh43sjsW8yd-GjWzLVwKThH-E&_nc_zt=24&_nc_ht=scontent.ftun10-1.fna&_nc_gid=AF6buVRsa9HmptAACq9FCNJ&oh=00_AYHhNjY7njCkoAmqS-qMYX9_x0tg0QciXuKV_Qa35pINQQ&oe=67D731E2',
+          'https://pnghq.com/wp-content/uploads/admin-icons-png-image-768x768.png',
         password: 'superadmin',
         role: superAdminRole._id,
         isVerified: true,

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Spinner, Alert, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { Mail, Phone, Calendar, Home, User, Edit3 } from "lucide-react";
-import styled, { keyframes } from "styled-components";
-import PageTitle from "../../../layouts/PageTitle";
-import { getCurrentUser } from "../../../../services/AuthService";
-import profile from "../../../../assets/images/profile/profile.png";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
+import React, { useEffect, useState } from 'react';
+import { Card, Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { Mail, Phone, Calendar, Home, User, Edit3 } from 'lucide-react';
+import styled, { keyframes } from 'styled-components';
+import PageTitle from '../../../layouts/PageTitle';
+import { getCurrentUser } from '../../../../services/AuthService';
+import profile from '../../../../assets/images/profile/profile.png';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 // Animations
 const float = keyframes`
@@ -124,7 +124,7 @@ const MyProfile = () => {
         const response = await getCurrentUser();
         setUser(response.data);
       } catch (err) {
-        setError("Error fetching user data: " + err.message);
+        setError('Error fetching user data: ' + err.message);
       } finally {
         setLoading(false);
       }
@@ -153,29 +153,34 @@ const MyProfile = () => {
 
   if (loading) return <ProfileSkeleton />;
 
-  if (error) return (
-    <div className="text-center mt-5">
-      <Alert variant="danger" className="d-inline-block border-0" style={{
-        background: 'linear-gradient(145deg, #fff5f7, white)',
-        boxShadow: '0 10px 30px rgba(250, 128, 114, 0.15)',
-        borderRadius: '15px'
-      }}>
-        <h5 className="text-danger mb-3">⚠️ Loading Error</h5>
-        <p className="mb-3">{error}</p>
-        <Button 
-          variant="outline-danger"
-          onClick={() => window.location.reload()}
+  if (error)
+    return (
+      <div className="text-center mt-5">
+        <Alert
+          variant="danger"
+          className="d-inline-block border-0"
           style={{
-            border: '2px solid #fa8072',
-            color: '#fa8072',
-            fontWeight: 600
+            background: 'linear-gradient(145deg, #fff5f7, white)',
+            boxShadow: '0 10px 30px rgba(250, 128, 114, 0.15)',
+            borderRadius: '15px',
           }}
         >
-          Retry
-        </Button>
-      </Alert>
-    </div>
-  );
+          <h5 className="text-danger mb-3">⚠️ Loading Error</h5>
+          <p className="mb-3">{error}</p>
+          <Button
+            variant="outline-danger"
+            onClick={() => window.location.reload()}
+            style={{
+              border: '2px solid #fa8072',
+              color: '#fa8072',
+              fontWeight: 600,
+            }}
+          >
+            Retry
+          </Button>
+        </Alert>
+      </div>
+    );
 
   return (
     <div className="page-wrapper">
@@ -186,10 +191,7 @@ const MyProfile = () => {
           <ProfileCard>
             <ProfileHeader>
               <ProfileImage>
-                <img
-                  src={user?.image || profile}
-                  alt="Profile"
-                />
+                <img src={user?.image || profile} alt="Profile" />
               </ProfileImage>
             </ProfileHeader>
 
@@ -199,7 +201,11 @@ const MyProfile = () => {
                   {user?.firstName} {user?.lastName}
                 </h2>
                 <p className="text-muted mb-0 d-flex justify-content-center align-items-center">
-                  <Mail size={18} className="me-2" style={{ color: '#fa8072' }} />
+                  <Mail
+                    size={18}
+                    className="me-2"
+                    style={{ color: '#fa8072' }}
+                  />
                   {user?.email || 'Not provided'}
                 </p>
               </div>
@@ -208,9 +214,15 @@ const MyProfile = () => {
                 <Col md={6}>
                   <InfoCard>
                     <div className="d-flex align-items-center ps-3">
-                      <Phone size={20} className="me-3" style={{ color: '#fa8072' }} />
+                      <Phone
+                        size={20}
+                        className="me-3"
+                        style={{ color: '#fa8072' }}
+                      />
                       <div>
-                        <h6 className="fw-bold mb-1 text-uppercase small">Phone</h6>
+                        <h6 className="fw-bold mb-1 text-uppercase small">
+                          Phone
+                        </h6>
                         <p className="mb-0">{user?.phone || 'Not provided'}</p>
                       </div>
                     </div>
@@ -220,23 +232,17 @@ const MyProfile = () => {
                 <Col md={6}>
                   <InfoCard>
                     <div className="d-flex align-items-center ps-3">
-                      <Home size={20} className="me-3" style={{ color: '#fa8072' }} />
+                      <Home
+                        size={20}
+                        className="me-3"
+                        style={{ color: '#fa8072' }}
+                      />
                       <div>
-                        <h6 className="fw-bold mb-1 text-uppercase small">Address</h6>
-                        <p className="mb-0">{user?.address || 'Not provided'}</p>
-                      </div>
-                    </div>
-                  </InfoCard>
-                </Col>
-
-                <Col md={6}>
-                  <InfoCard>
-                    <div className="d-flex align-items-center ps-3">
-                      <Calendar size={20} className="me-3" style={{ color: '#fa8072' }} />
-                      <div>
-                        <h6 className="fw-bold mb-1 text-uppercase small">Birthday</h6>
+                        <h6 className="fw-bold mb-1 text-uppercase small">
+                          Address
+                        </h6>
                         <p className="mb-0">
-                          {user?.birthday ? new Date(user.birthday).toLocaleDateString() : 'Not provided'}
+                          {user?.address || 'Not provided'}
                         </p>
                       </div>
                     </div>
@@ -246,10 +252,40 @@ const MyProfile = () => {
                 <Col md={6}>
                   <InfoCard>
                     <div className="d-flex align-items-center ps-3">
-                      <User size={20} className="me-3" style={{ color: '#fa8072' }} />
+                      <Calendar
+                        size={20}
+                        className="me-3"
+                        style={{ color: '#fa8072' }}
+                      />
                       <div>
-                        <h6 className="fw-bold mb-1 text-uppercase small">Role</h6>
-                        <p className="mb-0">{user?.role?.name || 'Not assigned'}</p>
+                        <h6 className="fw-bold mb-1 text-uppercase small">
+                          Birthday
+                        </h6>
+                        <p className="mb-0">
+                          {user?.birthday
+                            ? new Date(user.birthday).toLocaleDateString()
+                            : 'Not provided'}
+                        </p>
+                      </div>
+                    </div>
+                  </InfoCard>
+                </Col>
+
+                <Col md={6}>
+                  <InfoCard>
+                    <div className="d-flex align-items-center ps-3">
+                      <User
+                        size={20}
+                        className="me-3"
+                        style={{ color: '#fa8072' }}
+                      />
+                      <div>
+                        <h6 className="fw-bold mb-1 text-uppercase small">
+                          Role
+                        </h6>
+                        <p className="mb-0">
+                          {user?.role?.name || 'Not assigned'}
+                        </p>
                       </div>
                     </div>
                   </InfoCard>
@@ -257,8 +293,8 @@ const MyProfile = () => {
               </Row>
 
               <div className="text-center mt-4">
-                <Link 
-                  to="/update-profile" 
+                <Link
+                  to="/update-profile"
                   className="btn btn-lg"
                   style={{
                     background: 'linear-gradient(135deg, #ff7f7f, #fa8072)',
@@ -267,7 +303,7 @@ const MyProfile = () => {
                     padding: '0.8rem 2.5rem',
                     fontWeight: 600,
                     boxShadow: '0 5px 15px rgba(250, 128, 114, 0.3)',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
                   }}
                 >
                   <Edit3 size={18} className="me-2" />

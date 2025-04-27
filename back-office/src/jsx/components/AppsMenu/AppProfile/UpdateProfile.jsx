@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Button, Form, Spinner, Alert } from "react-bootstrap";
-import { getCurrentUser } from "../../../../services/AuthService";
-import profilePlaceholder from "../../../../assets/images/profile/profile.png";
-import axiosInstance from "../../../../services/AxiosInstance";
-import PageTitle from "../../../layouts/PageTitle";
-import { useNavigate, Link } from "react-router-dom";
-import { User, Mail, Phone, Home, Calendar, Camera } from "lucide-react";
-import styled from "styled-components";
+import React, { useEffect, useState } from 'react';
+import { Card, Row, Col, Button, Form, Spinner, Alert } from 'react-bootstrap';
+import { getCurrentUser } from '../../../../services/AuthService';
+import profilePlaceholder from '../../../../assets/images/profile/profile.png';
+import axiosInstance from '../../../../services/AxiosInstance';
+import PageTitle from '../../../layouts/PageTitle';
+import { useNavigate, Link } from 'react-router-dom';
+import { User, Mail, Phone, Home, Calendar, Camera } from 'lucide-react';
+import styled from 'styled-components';
 
 // Styled Components
 const ProfileCard = styled(Card)`
@@ -108,15 +108,15 @@ const UpdateProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    birthday: "",
-    image: "",
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    birthday: '',
+    image: '',
   });
-  const [imagePreview, setImagePreview] = useState("");
+  const [imagePreview, setImagePreview] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -125,83 +125,107 @@ const UpdateProfile = () => {
         const response = await getCurrentUser();
         setUser(response.data);
         setFormData({
-          firstName: response.data.firstName,
-          lastName: response.data.lastName,
-          email: response.data.email,
+          firstName: response.data.firstName || '',
+          lastName: response.data.lastName || '',
+          email: response.data.email || '',
           phone: response.data.phone || '',
           address: response.data.address || '',
-          birthday: response.data.birthday ? new Date(response.data.birthday).toISOString().split('T')[0] : '',
+          birthday: response.data.birthday
+            ? new Date(response.data.birthday).toISOString().split('T')[0]
+            : '',
           image: response.data.image || '',
         });
         setImagePreview(response.data.image || '');
       } catch (err) {
-        setError("Error fetching user data: " + err.message);
+        setError('Error fetching user data: ' + err.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        image: file,
-      }));
-
+      setFormData((prev) => ({ ...prev, image: file }));
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
+      reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const isConfirmed = window.confirm("Are you sure you want to update your profile?");
-    if (!isConfirmed) return;
-
+    if (!window.confirm('Are you sure you want to update your profile?'))
+      return;
     setLoading(true);
     try {
-      const response = await axiosInstance.put(`/users/${user.id}`, formData);
+      const form = new FormData();
+      form.append('firstName', formData.firstName);
+      form.append('lastName', formData.lastName);
+      form.append('email', formData.email);
+      form.append('phone', formData.phone);
+      form.append('address', formData.address);
+      form.append('birthday', formData.birthday);
+      if (formData.image instanceof File) {
+        form.append('image', formData.image);
+      }
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        setError('No token found in localStorage');
+        setLoading(false);
+        return;
+      }
+      const response = await axiosInstance.put('/auth/me/update', form, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       setUser(response.data);
-      navigate("/my-profile");
+      navigate('/my-profile');
     } catch (err) {
-      setError("Error updating user data: " + err.message);
+      setError('Error updating profile: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="text-center mt-5 py-5"><Spinner animation="border" variant="primary" /></div>;
-  if (error) return (
-    <div className="text-center mt-5">
-      <Alert variant="danger" className="d-inline-block border-0">
-        <h5 className="text-danger mb-3">⚠️ Loading Error</h5>
-        <p className="mb-3">{error}</p>
-        <Button variant="outline-danger" onClick={() => window.location.reload()}>
-          Retry
-        </Button>
-      </Alert>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="text-center mt-5 py-5">
+        <Spinner animation="border" variant="primary" />
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="text-center mt-5">
+        <Alert variant="danger" className="d-inline-block border-0">
+          <h5 className="text-danger mb-3">⚠️ Error</h5>
+          <p className="mb-3">{error}</p>
+          <Button
+            variant="outline-danger"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </Button>
+        </Alert>
+      </div>
+    );
 
   return (
     <div className="page-wrapper">
-      <PageTitle activeMenu="Update Profile" motherMenu={<Link to="/my-profile">My Profile</Link>} />
-
+      <PageTitle
+        activeMenu="Update Profile"
+        motherMenu={<Link to="/my-profile">My Profile</Link>}
+      />
       <Row className="justify-content-center py-4">
         <Col xl={10} lg={12} md={12}>
           <ProfileCard>
@@ -218,11 +242,10 @@ const UpdateProfile = () => {
                   id="upload-photo"
                   accept="image/*"
                   onChange={handleImageChange}
-                  style={{ display: "none" }}
+                  style={{ display: 'none' }}
                 />
               </ProfileImageWrapper>
             </ProfileHeader>
-
             <Card.Body className="pt-4 pb-4 px-4">
               <Form onSubmit={handleSubmit}>
                 <Row className="g-4">
@@ -230,8 +253,14 @@ const UpdateProfile = () => {
                     <FormCard>
                       <Form.Group>
                         <div className="d-flex align-items-center ps-3">
-                          <User size={20} className="me-3" style={{ color: '#fa8072' }} />
-                          <Form.Label className="fw-bold">FIRST NAME</Form.Label>
+                          <User
+                            size={20}
+                            className="me-3"
+                            style={{ color: '#fa8072' }}
+                          />
+                          <Form.Label className="fw-bold">
+                            FIRST NAME
+                          </Form.Label>
                         </div>
                         <Form.Control
                           type="text"
@@ -244,12 +273,15 @@ const UpdateProfile = () => {
                       </Form.Group>
                     </FormCard>
                   </Col>
-
                   <Col md={6}>
                     <FormCard>
                       <Form.Group>
                         <div className="d-flex align-items-center ps-3">
-                          <User size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <User
+                            size={20}
+                            className="me-3"
+                            style={{ color: '#fa8072' }}
+                          />
                           <Form.Label className="fw-bold">LAST NAME</Form.Label>
                         </div>
                         <Form.Control
@@ -263,12 +295,15 @@ const UpdateProfile = () => {
                       </Form.Group>
                     </FormCard>
                   </Col>
-
                   <Col md={6}>
                     <FormCard>
                       <Form.Group>
                         <div className="d-flex align-items-center ps-3">
-                          <Mail size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Mail
+                            size={20}
+                            className="me-3"
+                            style={{ color: '#fa8072' }}
+                          />
                           <Form.Label className="fw-bold">EMAIL</Form.Label>
                         </div>
                         <Form.Control
@@ -282,12 +317,15 @@ const UpdateProfile = () => {
                       </Form.Group>
                     </FormCard>
                   </Col>
-
                   <Col md={6}>
                     <FormCard>
                       <Form.Group>
                         <div className="d-flex align-items-center ps-3">
-                          <Phone size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Phone
+                            size={20}
+                            className="me-3"
+                            style={{ color: '#fa8072' }}
+                          />
                           <Form.Label className="fw-bold">PHONE</Form.Label>
                         </div>
                         <Form.Control
@@ -300,12 +338,15 @@ const UpdateProfile = () => {
                       </Form.Group>
                     </FormCard>
                   </Col>
-
                   <Col md={6}>
                     <FormCard>
                       <Form.Group>
                         <div className="d-flex align-items-center ps-3">
-                          <Home size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Home
+                            size={20}
+                            className="me-3"
+                            style={{ color: '#fa8072' }}
+                          />
                           <Form.Label className="fw-bold">ADDRESS</Form.Label>
                         </div>
                         <Form.Control
@@ -318,12 +359,15 @@ const UpdateProfile = () => {
                       </Form.Group>
                     </FormCard>
                   </Col>
-
                   <Col md={6}>
                     <FormCard>
                       <Form.Group>
                         <div className="d-flex align-items-center ps-3">
-                          <Calendar size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Calendar
+                            size={20}
+                            className="me-3"
+                            style={{ color: '#fa8072' }}
+                          />
                           <Form.Label className="fw-bold">BIRTHDAY</Form.Label>
                         </div>
                         <Form.Control
@@ -337,7 +381,6 @@ const UpdateProfile = () => {
                     </FormCard>
                   </Col>
                 </Row>
-
                 <div className="text-center mt-4">
                   <Button
                     type="submit"
@@ -351,7 +394,7 @@ const UpdateProfile = () => {
                       border: 'none',
                     }}
                   >
-                    Update Profile
+                    {loading ? 'Updating...' : 'Update Profile'}
                   </Button>
                 </div>
               </Form>

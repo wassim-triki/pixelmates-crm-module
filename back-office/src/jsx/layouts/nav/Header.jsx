@@ -94,7 +94,7 @@ const Header = ({ onNote }) => {
                   </div>
                 </div>
               </li>
-{/*
+              {/*
               <Dropdown
                 className="nav-item dropdown notification_dropdown"
                 as="li"
@@ -387,6 +387,7 @@ const Header = ({ onNote }) => {
                   variant=""
                   className="nav-link i-false p-0c-pointer pointr"
                 >
+                  {console.log(userData)}
                   <img
                     src={userData?.image || profile}
                     width={30}
@@ -419,7 +420,7 @@ const Header = ({ onNote }) => {
                   </div>
                 </Dropdown.Toggle>
                 <Dropdown.Menu align="end" className="mt-2">
-               {/*   <Link to="/app-profile" className="dropdown-item ai-icon">
+                  {/*   <Link to="/app-profile" className="dropdown-item ai-icon">
                     <svg
                       id="icon-user1"
                       xmlns="http://www.w3.org/2000/svg"
@@ -457,7 +458,7 @@ const Header = ({ onNote }) => {
                     </svg>
                     <span className="ms-2">My Profile </span>
                   </Link>
-         {/*         <Link to="/email-inbox" className="dropdown-item ai-icon">
+                  {/*         <Link to="/email-inbox" className="dropdown-item ai-icon">
                     <svg
                       id="icon-inbox"
                       xmlns="http://www.w3.org/2000/svg"
@@ -479,7 +480,6 @@ const Header = ({ onNote }) => {
                   <Logout />
                 </Dropdown.Menu>
               </Dropdown>
-              
             </ul>
           </div>
         </nav>
