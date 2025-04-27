@@ -16,7 +16,7 @@ import VerifyCode from './pages/VerifyCode';
 import AboutUs from './pages/aboutUs';
 import OAuthCallback from './pages/OAuthCallback';
 import Footer from './components/footer';
-import Restaurant from './components/Restaurant';
+import Restaurant from './pages/Restaurant';
 import ReservationPage from './pages/ReservationPage';
 import ReservationForm from './pages/ReservationForm';
 import ComplaintForm from './pages/ComplaintForm';
