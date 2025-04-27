@@ -1,12 +1,107 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Button, Form, Spinner } from "react-bootstrap";
+import { Card, Row, Col, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { getCurrentUser } from "../../../../services/AuthService";
-import profilePlaceholder from "../../../../assets/images/profile/profile.png"; 
+import profilePlaceholder from "../../../../assets/images/profile/profile.png";
 import axiosInstance from "../../../../services/AxiosInstance";
 import PageTitle from "../../../layouts/PageTitle";
-import { useNavigate } from 'react-router-dom';
-import { Link } from "react-router-dom";
-import { User, Mail, Phone, Home, Calendar } from "lucide-react"; // Icons for form fields
+import { useNavigate, Link } from "react-router-dom";
+import { User, Mail, Phone, Home, Calendar, Camera } from "lucide-react";
+import styled from "styled-components";
+
+// Styled Components
+const ProfileCard = styled(Card)`
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+`;
+
+const ProfileHeader = styled.div`
+  background: linear-gradient(135deg, #ff7f7f, #fa8072);
+  padding: 2.5rem;
+  text-align: center;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -25px;
+    left: -5%;
+    width: 110%;
+    height: 50px;
+    background: white;
+    transform: rotate(-2deg);
+  }
+`;
+
+const ProfileImageWrapper = styled.div`
+  position: relative;
+  margin: 0 auto 2rem;
+  width: fit-content;
+`;
+
+const ProfileImage = styled.div`
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 4px solid white;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+`;
+
+const CameraIcon = styled.label`
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: white;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+
+  svg {
+    color: #fa8072;
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const FormCard = styled.div`
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  position: relative;
+  border: 1px solid #ffecef;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: #fa8072;
+  }
+
+  input {
+    height: 15px;
+    font-size: 14px;
+  }
+`;
 
 const UpdateProfile = () => {
   const [user, setUser] = useState(null);
@@ -19,12 +114,11 @@ const UpdateProfile = () => {
     phone: "",
     address: "",
     birthday: "",
-    image: "", // Add image field
+    image: "",
   });
-  const [imagePreview, setImagePreview] = useState(""); // For image preview
+  const [imagePreview, setImagePreview] = useState("");
   const navigate = useNavigate();
 
-  // Fetch current user data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -37,9 +131,9 @@ const UpdateProfile = () => {
           phone: response.data.phone || '',
           address: response.data.address || '',
           birthday: response.data.birthday ? new Date(response.data.birthday).toISOString().split('T')[0] : '',
-          image: response.data.image || '', // Set image
+          image: response.data.image || '',
         });
-        setImagePreview(response.data.image || ''); // Set image preview if exists
+        setImagePreview(response.data.image || '');
       } catch (err) {
         setError("Error fetching user data: " + err.message);
       } finally {
@@ -76,162 +170,193 @@ const UpdateProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Prompt user for confirmation before updating
     const isConfirmed = window.confirm("Are you sure you want to update your profile?");
-    if (!isConfirmed) return; // Do nothing if user clicks "Cancel"
+    if (!isConfirmed) return;
 
     setLoading(true);
     try {
       const response = await axiosInstance.put(`/users/${user.id}`, formData);
       setUser(response.data);
-      navigate("/my-profile"); // Redirect to profile page after successful update
+      navigate("/my-profile");
     } catch (err) {
       setError("Error updating user data: " + err.message);
     } finally {
       setLoading(false);
     }
   };
-  
-  if (loading) return <div className="text-center mt-5"><Spinner animation="border" variant="primary" /></div>;
-  if (error) return <p className="text-danger text-center">{error}</p>;
+
+  if (loading) return <div className="text-center mt-5 py-5"><Spinner animation="border" variant="primary" /></div>;
+  if (error) return (
+    <div className="text-center mt-5">
+      <Alert variant="danger" className="d-inline-block border-0">
+        <h5 className="text-danger mb-3">⚠️ Loading Error</h5>
+        <p className="mb-3">{error}</p>
+        <Button variant="outline-danger" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </Alert>
+    </div>
+  );
 
   return (
     <div className="page-wrapper">
       <PageTitle activeMenu="Update Profile" motherMenu={<Link to="/my-profile">My Profile</Link>} />
-      
-      <Row className="justify-content-center">
-        <Col xl={8} lg={10} md={12}>
-          <Card className="shadow-sm border-0">
-            <Card.Body>
 
-              <div className="text-center mb-4">
-                <div className="position-relative d-inline-block">
-                  <img
-                    src={imagePreview || profilePlaceholder}
-                    alt="Profile"
-                    className="rounded-circle"
-                    width="150"
-                    height="150"
-                    style={{ objectFit: "cover", border: "4px solid #eee" }}
-                  />
-                  <Form.Label
-                    htmlFor="image"
-                    className="position-absolute bottom-0 end-0 bg-white rounded-circle p-2 cursor-pointer"
-                    style={{ cursor: "pointer" }}
-                  >
-                    <i className="fa fa-camera" style={{ fontSize: "18px", color: "#000" }}></i>
-                  </Form.Label>
-                </div>
-
-                <Form.Control
+      <Row className="justify-content-center py-4">
+        <Col xl={10} lg={12} md={12}>
+          <ProfileCard>
+            <ProfileHeader>
+              <ProfileImageWrapper>
+                <ProfileImage>
+                  <img src={imagePreview || profilePlaceholder} alt="Profile" />
+                </ProfileImage>
+                <CameraIcon htmlFor="upload-photo">
+                  <Camera />
+                </CameraIcon>
+                <input
                   type="file"
-                  id="image"
-                  name="image"
-                  onChange={handleImageChange}
+                  id="upload-photo"
                   accept="image/*"
-                  className="d-none"
+                  onChange={handleImageChange}
+                  style={{ display: "none" }}
                 />
-              </div>
+              </ProfileImageWrapper>
+            </ProfileHeader>
 
+            <Card.Body className="pt-4 pb-4 px-4">
               <Form onSubmit={handleSubmit}>
-                <Row className="mb-3">
-                  {/* First Name */}
+                <Row className="g-4">
                   <Col md={6}>
-                    <Form.Group>
-                      <Form.Label><User size={18} /> First Name</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Form.Group>
+                    <FormCard>
+                      <Form.Group>
+                        <div className="d-flex align-items-center ps-3">
+                          <User size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Form.Label className="fw-bold">FIRST NAME</Form.Label>
+                        </div>
+                        <Form.Control
+                          type="text"
+                          name="firstName"
+                          value={formData.firstName}
+                          onChange={handleChange}
+                          required
+                          className="border-0 ps-5"
+                        />
+                      </Form.Group>
+                    </FormCard>
                   </Col>
 
-                  {/* Last Name */}
                   <Col md={6}>
-                    <Form.Group>
-                      <Form.Label><User size={18} /> Last Name</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </Form.Group>
+                    <FormCard>
+                      <Form.Group>
+                        <div className="d-flex align-items-center ps-3">
+                          <User size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Form.Label className="fw-bold">LAST NAME</Form.Label>
+                        </div>
+                        <Form.Control
+                          type="text"
+                          name="lastName"
+                          value={formData.lastName}
+                          onChange={handleChange}
+                          required
+                          className="border-0 ps-5"
+                        />
+                      </Form.Group>
+                    </FormCard>
+                  </Col>
+
+                  <Col md={6}>
+                    <FormCard>
+                      <Form.Group>
+                        <div className="d-flex align-items-center ps-3">
+                          <Mail size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Form.Label className="fw-bold">EMAIL</Form.Label>
+                        </div>
+                        <Form.Control
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
+                          className="border-0 ps-5"
+                        />
+                      </Form.Group>
+                    </FormCard>
+                  </Col>
+
+                  <Col md={6}>
+                    <FormCard>
+                      <Form.Group>
+                        <div className="d-flex align-items-center ps-3">
+                          <Phone size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Form.Label className="fw-bold">PHONE</Form.Label>
+                        </div>
+                        <Form.Control
+                          type="text"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className="border-0 ps-5"
+                        />
+                      </Form.Group>
+                    </FormCard>
+                  </Col>
+
+                  <Col md={6}>
+                    <FormCard>
+                      <Form.Group>
+                        <div className="d-flex align-items-center ps-3">
+                          <Home size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Form.Label className="fw-bold">ADDRESS</Form.Label>
+                        </div>
+                        <Form.Control
+                          type="text"
+                          name="address"
+                          value={formData.address}
+                          onChange={handleChange}
+                          className="border-0 ps-5"
+                        />
+                      </Form.Group>
+                    </FormCard>
+                  </Col>
+
+                  <Col md={6}>
+                    <FormCard>
+                      <Form.Group>
+                        <div className="d-flex align-items-center ps-3">
+                          <Calendar size={20} className="me-3" style={{ color: '#fa8072' }} />
+                          <Form.Label className="fw-bold">BIRTHDAY</Form.Label>
+                        </div>
+                        <Form.Control
+                          type="date"
+                          name="birthday"
+                          value={formData.birthday}
+                          onChange={handleChange}
+                          className="border-0 ps-5"
+                        />
+                      </Form.Group>
+                    </FormCard>
                   </Col>
                 </Row>
 
-                <Row className="mb-3">
-                  {/* Email */}
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label><Mail size={18} /> Email</Form.Label>
-                      <Form.Control
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        disabled
-                      />
-                    </Form.Group>
-                  </Col>
-
-                  {/* Phone */}
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label><Phone size={18} /> Phone</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                <Row className="mb-3">
-                  {/* Address */}
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label><Home size={18} /> Address</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                  </Col>
-
-                  {/* Birthday */}
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label><Calendar size={18} /> Birthday</Form.Label>
-                      <Form.Control
-                        type="date"
-                        name="birthday"
-                        value={formData.birthday}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                {/* Submit Button */}
                 <div className="text-center mt-4">
-                  <Button variant="primary" type="submit" disabled={loading}>
-                    {loading ? <Spinner animation="border" size="sm" /> : "Update Profile"}
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                      backgroundColor: '#fa8072',
+                      color: 'white',
+                      borderRadius: '8px',
+                      padding: '0.7rem 2rem',
+                      fontWeight: 'bold',
+                      border: 'none',
+                    }}
+                  >
+                    Update Profile
                   </Button>
                 </div>
               </Form>
             </Card.Body>
-          </Card>
+          </ProfileCard>
         </Col>
       </Row>
     </div>
