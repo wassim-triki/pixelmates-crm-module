@@ -66,9 +66,7 @@ const Navbar = () => {
         </button>
 
         <div className="hidden md:flex space-x-8">
-          <Link to="/" className="text-white font-bold hover:text-[#FA8072] transition">
-            Home
-          </Link>
+
           <Link to="/about-us" className="text-white font-bold hover:text-[#FA8072] transition">
             About Us
           </Link>

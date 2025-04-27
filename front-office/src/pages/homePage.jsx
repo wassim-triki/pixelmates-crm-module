@@ -6,7 +6,8 @@ import Chatbot from '../components/Chatbot';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useAuth } from '../context/authContext';
-const HomePageAfterLogin = () => {
+import { useNavigate } from 'react-router-dom';
+const HomePage = () => {
   const menuItems = [
     { id: 1, name: 'Must Explain', price: '$15.00', image: '/test.png' },
     { id: 2, name: 'Must Explain', price: '$25.00', image: '/1.png' },
@@ -16,7 +17,8 @@ const HomePageAfterLogin = () => {
 
   const [mainImage, setMainImage] = useState(menuItems[0].image);
   const [direction, setDirection] = useState(1);
-  const { user } = useAuth();
+  const { user } = useAuth(); // Assuming `useAuth` is managing user state
+  const navigate = useNavigate();
   const handleHover = (newImage) => {
     if (newImage !== mainImage) {
       setDirection(newImage > mainImage ? 1 : -1);
@@ -30,10 +32,6 @@ const HomePageAfterLogin = () => {
     if (!mapContainer) {
       console.warn('Map container not found');
       return;
-    }
-
-    if (mapContainer._leaflet_id) {
-      mapContainer._leaflet_id = null;
     }
 
     const map = L.map(mapContainer).setView([36.8065, 10.1815], 6);
@@ -110,40 +108,85 @@ const HomePageAfterLogin = () => {
             className="w-full mx-auto p-6"
           >
             <div className="flex flex-col space-y-20">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8 px-4">
-                <div className="flex flex-col space-y-6 md:w-1/2 text-center md:text-left">
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
-                    {user
-                      ? `Welcome back to TheMenuFy, ${user.lastName} ${user.firstName}!`
-                      : 'Welcome back to TheMenuFy!'}
-                  </h1>
-
-                  <p className="text-lg sm:text-xl text-white">
-                    Manage your restaurant menus with ease and style. Customize,
-                    update in real-time and enhance customer experiences.{' '}
-                  </p>
-                  <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-                    <Button className="bg-[#FA8072] hover:bg-black text-white font-semibold py-3 px-6 rounded-full transition-all">
-                      Manage Menu
-                    </Button>
-                    <Button className="!bg-transparent hover:!bg-[#FA8072] text-black hover:text-white border-2 border-black font-semibold py-3 px-6 rounded-full transition-all duration-300">
-                      Reserve Table
-                    </Button>
+              {/* Header and Buttons Before Login */}
+              {!user ? (
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8 px-4">
+                  <div className="flex flex-col space-y-6 md:w-1/2 text-center md:text-left">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black">
+                      Welcome to The MenuFy!
+                    </h1>
+                    <p className="text-lg sm:text-xl text-white">
+                    Elevating restaurant experiences with seamless menu management, effortless reservations, 
+                    smart complaint handling and personalized loyalty rewards.
+                    </p>
+                    <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+                    <Button
+                        onClick={() => navigate('/login')} 
+                        className="bg-[#FA8072] hover:bg-black text-white font-semibold py-3 px-6 rounded-full transition-all"
+                      >
+                       👤 Get Started
+                      </Button>
+                      <Button
+                        onClick={() => navigate('/about-us')} 
+                        className="!bg-transparent hover:!bg-[#FA8072] text-black hover:text-white border-2 border-black font-semibold py-3 px-6 rounded-full transition-all duration-300"
+                      >
+                        📚 Learn More
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="md:w-1/2 flex justify-center overflow-hidden mt-8 md:mt-0">
+                    <motion.img
+                      key={mainImage}
+                      src={mainImage}
+                      alt="MenuFy Preview"
+                      className="w-3/4 max-w-sm rounded-xl object-contain"
+                      initial={{ x: direction * 100, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -direction * 100, opacity: 0 }}
+                      transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    />
                   </div>
                 </div>
-                <div className="md:w-1/2 flex justify-center overflow-hidden mt-8 md:mt-0">
-                  <motion.img
-                    key={mainImage}
-                    src={mainImage}
-                    alt="MenuFy Preview"
-                    className="w-3/4 max-w-sm rounded-xl object-contain"
-                    initial={{ x: direction * 100, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: -direction * 100, opacity: 0 }}
-                    transition={{ duration: 0.5, ease: 'easeInOut' }}
-                  />
+              ) : (
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8 px-4">
+                  <div className="flex flex-col space-y-6 md:w-1/2 text-center md:text-left">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black">
+                      Welcome back to The MenuFy, {user.lastName} {user.firstName}!
+                    </h1>
+                    <p className="text-lg sm:text-xl text-white">
+                    Elevate your restaurant's operations with real-time menu management, smart reservations
+                     and seamless customer service. Empower your team and delight your customers!
+
+                    </p>
+                    <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+                    <Button
+                        onClick={() => navigate('/restaurant')} 
+                        className="bg-[#FA8072] hover:bg-black text-white font-semibold py-3 px-6 rounded-full transition-all"
+                      >
+                        🍽️ Manage Menu
+                      </Button>
+                      <Button
+                        onClick={() => navigate('/reservation')} 
+                        className="!bg-transparent hover:!bg-[#FA8072] text-black hover:text-white border-2 border-black font-semibold py-3 px-6 rounded-full transition-all duration-300"
+                      >
+                        📅 Reserve Now
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="md:w-1/2 flex justify-center overflow-hidden mt-8 md:mt-0">
+                    <motion.img
+                      key={mainImage}
+                      src={mainImage}
+                      alt="MenuFy Preview"
+                      className="w-3/4 max-w-sm rounded-xl object-contain"
+                      initial={{ x: direction * 100, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -direction * 100, opacity: 0 }}
+                      transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Menu Items Section */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-4">
@@ -161,10 +204,8 @@ const HomePageAfterLogin = () => {
                       />
                     </div>
                     <div className="mt-4">
-                      <p className="text-sm font-medium text-white">
-                        {item.name}
-                      </p>
-                      <p className="text-sm text-white">{item.price}</p>
+                      <p className="text-sm font-medium text-white">{item.name}</p>
+                      <p className="text-lg font-bold text-white">{item.price}</p>
                     </div>
                   </div>
                 ))}
@@ -173,7 +214,7 @@ const HomePageAfterLogin = () => {
               <div className="bg-black/10 py-16 px-2 sm:px-6 lg:px-16 backdrop-blur-md">
                 <div className="max-w-7xl mx-auto text-center">
                   <h2 className="text-3xl sm:text-4xl font-bold text-white mb-8">
-                    What Our Customers Say
+                    What Our Customers Say 🌟
                   </h2>
                   <div className="grid gap-8 md:grid-cols-3">
                     {[
@@ -274,7 +315,7 @@ const HomePageAfterLogin = () => {
                     onClick={() => (window.location.href = '/about-us')} //
                     className="bg-[#FA8072] hover:bg-black text-white font-semibold py-3 px-6 rounded-full transition-all"
                   >
-                    Learn More About Us
+                    More Details 
                   </Button>
                 </div>
               </div>
@@ -330,4 +371,4 @@ const HomePageAfterLogin = () => {
   );
 };
 
-export default HomePageAfterLogin;
+export default HomePage;
