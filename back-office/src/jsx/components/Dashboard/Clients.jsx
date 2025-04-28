@@ -14,7 +14,7 @@ const UserList = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);

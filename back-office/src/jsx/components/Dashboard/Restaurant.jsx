@@ -17,12 +17,11 @@ import {
 const RestaurantList = () => {
   // State Management
   const [restaurants, setRestaurants] = useState([]);
-  const [allRestaurants, setAllRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -48,7 +47,7 @@ const RestaurantList = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [tableValidationErrors, setTableValidationErrors] = useState({});
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   // Authentication Check
   useEffect(() => {
@@ -105,7 +104,7 @@ const RestaurantList = () => {
       });
   
       setRestaurants(filteredRestaurants);
-      setCurrentPage(1);
+      setCurrentPage(0);
     } catch (err) {
       setError(formatError(err) || 'Search failed');
     }
@@ -379,7 +378,7 @@ const RestaurantList = () => {
   }, [restaurants, sortConfig]);
 
   const paginatedRestaurants = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
+    const start = currentPage * itemsPerPage;
     return sortedRestaurants.slice(start, start + itemsPerPage);
   }, [sortedRestaurants, currentPage]);
 
@@ -577,31 +576,44 @@ const RestaurantList = () => {
             </table>
           </div>
           {/* Pagination */}
-          {totalPages > 1 && (
-            <Pagination className="justify-content-center mt-3">
-              <Pagination.Prev
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1 || loading}
-              />
-              {[...Array(totalPages)].map((_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === currentPage}
-                  onClick={() => setCurrentPage(i + 1)}
-                   disabled={loading}
+          <div className="d-sm-flex text-center justify-content-between align-items-center mt-4">
+              <div className="dataTables_info mb-2 mb-sm-0">
+                Showing {currentPage * itemsPerPage + 1} to{' '}
+                {Math.min((currentPage + 1) * itemsPerPage, restaurants.length)} of{' '}
+                {restaurants.length} entries
+              </div>
+              
+              <div className="dataTables_paginate paging_simple_numbers">
+                <button
+                  className="btn btn-outline-primary btn-sm me-2"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
+                  disabled={currentPage === 0}
                 >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-              <Pagination.Next
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages || loading}
-              />
-            </Pagination>
-          )}
-          <div className="text-muted mt-2">
-            Showing {paginatedRestaurants.length} of {restaurants.length} restaurants
-          </div>
+                  Previous
+                </button>
+
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    className={`btn btn-sm me-1 ${
+                      currentPage === i ? 'btn-primary text-white' : 'btn-outline-primary'
+                    }`}
+                    onClick={() => setCurrentPage(i)}
+                    disabled={loading}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                <button
+                  className="btn btn-outline-primary btn-sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
+                  disabled={currentPage === totalPages - 1}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
         </>
       )}
 
