@@ -9,7 +9,7 @@ import { Collapse } from 'react-bootstrap';
 import { Modal } from 'react-bootstrap';
 /// Link
 import { Link } from 'react-router-dom';
-import { SuperAdminMenuList } from './Menu';
+import { AdminMenuList, SuperAdminMenuList } from './Menu';
 import foodServing from '../../../assets/images/food-serving.png';
 import { useScrollPosition } from '@n8tb1t/use-scroll-position';
 import { useAuth } from '../../../context/authContext';
@@ -26,14 +26,14 @@ const initialState = {
 
 const SideBar = () => {
   const { user } = useAuth();
-  const [MenuList, setMenuList] = useState([]);
+  const [menuList, setMenuList] = useState([]);
   useEffect(() => {
     switch (user?.role?.name) {
       case 'SuperAdmin':
         setMenuList(SuperAdminMenuList);
         break;
       case 'Admin':
-        setMenuList([]);
+        setMenuList(AdminMenuList);
         break;
       case 'Client':
         setMenuList([]);
@@ -78,7 +78,7 @@ const SideBar = () => {
   path = path.split('/');
   path = path[path.length - 1];
   useEffect(() => {
-    MenuList.forEach((data) => {
+    menuList.forEach((data) => {
       data.content?.forEach((item) => {
         if (path === item.to) {
           setState({ active: data.title });
@@ -90,13 +90,13 @@ const SideBar = () => {
         });
       });
     });
-  }, [path]);
+  }, [path, menuList]);
 
   return (
     <div className="deznav">
       <div className="deznav-scroll dz-scroll">
         <ul className="metismenu" id="menu">
-          {MenuList.map((data, index) => {
+          {menuList.map((data, index) => {
             let menuClass = data.classsChange;
             if (menuClass === 'menu-title') {
               return (

@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 
 const restaurantSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  address: { type: String, required: true },
-  cuisineType: { type: String, required: true },
-  taxeTPS: { type: Number, required: true },
-  taxeTVQ: { type: Number, required: true },
+  address: { type: String },
+  cuisineType: { type: String },
+  taxeTPS: { type: Number },
+  taxeTVQ: { type: Number },
   color: { type: String },
   logo: { type: String },
   promotion: { type: String },

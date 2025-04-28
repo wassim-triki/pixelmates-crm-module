@@ -255,6 +255,14 @@ const Markup = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <Home />
+              </ProtectedRoute>
+            }
+          />
 
           {allroutes.map((data, i) => (
             <Route

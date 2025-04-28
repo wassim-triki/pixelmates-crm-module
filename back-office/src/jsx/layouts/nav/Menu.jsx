@@ -1,3 +1,21 @@
+export const AdminMenuList = [
+  {
+    title: 'Dashboard',
+    classsChange: 'mm-collapse',
+    iconStyle: <i className="flaticon-381-networking" />,
+    content: [
+      {
+        title: 'Dashboard',
+        to: '/admin/dashboard',
+      },
+      {
+        title: 'My Restaurant',
+        to: '/admin/restaurant',
+      },
+    ],
+  },
+];
+
 export const SuperAdminMenuList = [
   //Dashboard
   {
@@ -7,7 +25,7 @@ export const SuperAdminMenuList = [
     content: [
       {
         title: 'Dashboard',
-        to: 'dashboard',
+        to: '/superadmin/dashboard',
       },
       {
         title: 'Clients',
