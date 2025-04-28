@@ -17,6 +17,7 @@ import {
 const RestaurantList = () => {
   // State Management
   const [restaurants, setRestaurants] = useState([]);
+  const [allRestaurants, setAllRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -76,7 +77,7 @@ const RestaurantList = () => {
     try {
       const response = await getRestaurants();
       setRestaurants(response.data.restaurants || []);
-    } catch (err) {
+        } catch (err) {
       setError(formatError(err) || 'Failed to fetch restaurants');
     } finally {
       setLoading(false);
@@ -84,24 +85,32 @@ const RestaurantList = () => {
   };
 
   // Search Restaurants
-  const handleSearch = async () => {
-    setLoading(true);
-    setError(null);
+  const handleSearch = async (term) => {
     try {
-      if (!searchTerm.trim()) {
-        await fetchRestaurants();
-      } else {
-        const response = await searchRestaurants(searchTerm);
-        setRestaurants(response.data || []);
-        setCurrentPage(1);
-      }
+      const response = await getRestaurants();
+      const allRestaurants = response.data.restaurants || [];
+  
+      const filteredRestaurants = allRestaurants.filter((r) => {
+        const lowerTerm = term.toLowerCase();
+        return (
+          (r.name && r.name.toLowerCase().includes(lowerTerm)) ||
+          (r.address && r.address.toLowerCase().includes(lowerTerm)) ||
+          (r.cuisineType && r.cuisineType.toLowerCase().includes(lowerTerm)) ||
+          (r.color && r.color.toLowerCase().includes(lowerTerm)) ||
+          (r.payCashMethod && r.payCashMethod.toLowerCase().includes(lowerTerm)) ||
+          (r.taxeTPS && String(r.taxeTPS).toLowerCase().includes(lowerTerm)) ||
+          (r.taxeTVQ && String(r.taxeTVQ).toLowerCase().includes(lowerTerm)) ||
+          (r.promotion && r.promotion.toLowerCase().includes(lowerTerm))
+        );
+      });
+  
+      setRestaurants(filteredRestaurants);
+      setCurrentPage(1);
     } catch (err) {
       setError(formatError(err) || 'Search failed');
-    } finally {
-      setLoading(false);
     }
   };
-
+  
   // Delete Restaurant
   const handleDeleteRestaurant = async (id) => {
     if (!window.confirm('Are you sure you want to delete this restaurant?')) return;
@@ -407,46 +416,69 @@ const RestaurantList = () => {
       )}
   
       {/* Header Section */}
-      <div className="d-flex justify-content-between align-items-center mb-4 px-3 flex-wrap gap-3">
-        
-        {/* Add Button */}
-        <Button variant="success" onClick={handleShowCreateModal}>
-          Add Restaurant
-        </Button>
-  
-        {/* Search Bar */}
-        <div className="flex-grow-1 mx-3" style={{ maxWidth: '500px' }}>
-          <div className="input-group">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button variant="primary" onClick={handleSearch}>
-              Search
-            </Button>
-          </div>
-        </div>
-  
-        {/* Sort Dropdown */}
-        <Dropdown>
-          <Dropdown.Toggle variant="outline-primary" disabled={loading} className="shadow-sm">
-            Sort By: {sortConfig.key.charAt(0).toUpperCase() + sortConfig.key.slice(1)} ({sortConfig.direction})
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={() => requestSort('name')}>Name</Dropdown.Item>
-            <Dropdown.Item onClick={() => requestSort('address')}>Address</Dropdown.Item>
-            <Dropdown.Item onClick={() => requestSort('cuisineType')}>Cuisine Type</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-  
-      </div>
-  
-      <h1 className="text-center fw-bold">Restaurants List</h1>
-      <br />
+      <div className="d-flex justify-content-between align-items-center mb-4 px-3 flex-nowrap gap-2">
 
+{/* Add Button */}
+<Button 
+  variant="success" 
+  onClick={handleShowCreateModal} 
+  style={{ height: '52px' }}
+  className="flex-shrink-0 "
+>
+  Add Restaurant
+</Button>
+
+{/* Search Bar */}
+<div className="flex-grow-1 mx-3" style={{ maxWidth: '300px', minWidth: '200px' }}>
+  <div className="input-group">
+    <input
+      type="text"
+      className="form-control"
+      placeholder="Search Restaurant..."
+      value={searchTerm}
+      style={{ height: '52px' }}
+      onChange={async (e) => {
+        const term = e.target.value;
+        setSearchTerm(term);
+
+        if (!term.trim()) {
+          await fetchRestaurants();
+        } else {
+          await handleSearch(term);
+        }
+      }}
+    />
+  </div>
+</div>
+
+{/* Sort Dropdown */}
+<Dropdown className="flex-shrink-0">
+  <Dropdown.Toggle 
+    variant="outline-primary" 
+    disabled={loading}
+    className="shadow-sm"
+    style={{
+      fontSize: '0.9rem',
+      padding: '6px 12px',
+      height: '52px', 
+      maxWidth: '200px',
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+    }}
+  >
+    {sortConfig.key ? `Sort By: ${sortConfig.key.charAt(0).toUpperCase() + sortConfig.key.slice(1)}` : "Sort By:"}
+  </Dropdown.Toggle>
+
+  <Dropdown.Menu>
+    <Dropdown.Item onClick={() => requestSort('name')}>Name</Dropdown.Item>
+    <Dropdown.Item onClick={() => requestSort('address')}>Address</Dropdown.Item>
+    <Dropdown.Item onClick={() => requestSort('cuisineType')}>Cuisine Type</Dropdown.Item>
+  </Dropdown.Menu>
+</Dropdown>
+
+</div>
+
+<h1 className="text-center fw-bold pt-4 mb-4">Restaurants List</h1>
       {/* Restaurant Table */}
       {loading ? (
         <div className="text-center my-5">
