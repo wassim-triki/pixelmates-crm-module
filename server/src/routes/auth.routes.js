@@ -38,7 +38,7 @@ router.post('/verify-email', validateSchema(verifyEmailSchema), verifyEmail);
 router.post('/resend-verification', resendVerificationEmail);
 
 // Authenticated routes
-router.post('/logout', protect, logout);
+router.post('/logout', logout);
 router.get('/me', protect, getMe);
 
 // ✅ Profile update with file upload via Cloudinary

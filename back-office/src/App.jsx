@@ -13,10 +13,14 @@ import {
   useParams,
 } from 'react-router-dom';
 // action
-import { checkAutoLogin } from './services/AuthService';
+
 import { isAuthenticated } from './store/selectors/AuthSelectors';
 /// Style
 import './assets/css/style.css';
+import { checkAuth } from './services/AuthService';
+import { useAuth } from './context/authContext';
+import ProtectedRoute from './jsx/components/ProtectedRoute';
+import Home from './jsx/components/Dashboard/Home';
 
 // const SignUp = lazy(() => import('./jsx/pages/Registration'));
 const ClientSignUp = lazy(() => import('./jsx/pages/ClientRegister'));
@@ -30,92 +34,51 @@ const Login = lazy(() => {
   });
 });
 
-function withRouter(Component) {
-  function ComponentWithRouterProp(props) {
-    let location = useLocation();
-    let navigate = useNavigate();
-    let params = useParams();
-
-    return <Component {...props} router={{ location, navigate, params }} />;
-  }
-
-  return ComponentWithRouterProp;
-}
-
 function App(props) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { user, setUser } = useAuth();
+  let navigate = useNavigate();
   useEffect(() => {
-    checkAutoLogin(dispatch, navigate);
+    checkAuth().then((user) => {
+      setUser(user);
+    });
   }, []);
 
-  let routeblog = (
-    <Routes>
-      <Route
-        element={
-          <>
-            <nav className="px-4 py-2 bg-white shadow-sm d-flex justify-content-end">
-              <Link className="text-primary" to="/restaurant/register">
-                For restaurants
-              </Link>
-            </nav>
-            <Outlet />
-          </>
+  useEffect(() => {
+    if (user) {
+      switch (user?.role?.name) {
+        case 'SuperAdmin':
+          navigate('/superadmin/dashboard');
+          break;
+        case 'Admin':
+          navigate('/admin/dashboard');
+          break;
+        // case 'client':
+        //   navigate('/client/dashboard');
+        //   break;
+        default:
+          navigate('/login');
+      }
+    } else {
+      navigate('/login');
+    }
+  }, [user]);
+  return (
+    <>
+      <Suspense
+        fallback={
+          <div id="preloader">
+            <div className="sk-three-bounce">
+              <div className="sk-child sk-bounce1"></div>
+              <div className="sk-child sk-bounce2"></div>
+              <div className="sk-child sk-bounce3"></div>
+            </div>
+          </div>
         }
       >
-        <Route path="/login" element={<Login />} />
-        {/* <Route path="/client/register" element={<ClientSignUp />} /> */}
-        <Route path="/restaurant/register" element={<RestaurantSignUp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />{' '}
-        {/* Added Unauthorized route */}
-      </Route>
-    </Routes>
+        <Index />
+      </Suspense>
+    </>
   );
-  if (props.isAuthenticated) {
-    return (
-      <>
-        <Suspense
-          fallback={
-            <div id="preloader">
-              <div className="sk-three-bounce">
-                <div className="sk-child sk-bounce1"></div>
-                <div className="sk-child sk-bounce2"></div>
-                <div className="sk-child sk-bounce3"></div>
-              </div>
-            </div>
-          }
-        >
-          <Index />
-        </Suspense>
-      </>
-    );
-  } else {
-    return (
-      <div className="vh-100">
-        <Suspense
-          fallback={
-            <div id="preloader">
-              <div className="sk-three-bounce">
-                <div className="sk-child sk-bounce1"></div>
-                <div className="sk-child sk-bounce2"></div>
-                <div className="sk-child sk-bounce3"></div>
-              </div>
-            </div>
-          }
-        >
-          {routeblog}
-        </Suspense>
-      </div>
-    );
-  }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    isAuthenticated: isAuthenticated(state),
-  };
-};
-
-export default withRouter(connect(mapStateToProps)(App));
+export default App;

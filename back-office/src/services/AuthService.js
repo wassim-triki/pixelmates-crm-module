@@ -66,28 +66,30 @@ export const refreshToken = () => {
   return axios.post('/auth/refresh');
 };
 
-export function checkAutoLogin(dispatch, navigate) {
+export async function checkAuth() {
   const token = localStorage.getItem('accessToken');
 
   if (!token) {
-    dispatch(logoutAction(navigate));
-    console.log('logout dipsatched from checkautologin');
-    return;
+    return false;
   }
 
-  const decodedToken = jwtDecode(token);
-  const currentTime = Date.now() / 1000;
+  const response = await axios.get('/auth/me');
+  const user = response.data;
+  return user;
 
-  if (decodedToken.exp > currentTime) {
-    // If the token is still valid, restore user session
-    dispatch({
-      type: LOGIN_CONFIRMED_ACTION,
-      payload: decodedToken,
-    });
-  } else {
-    // If the token has expired, refresh it
-    dispatch(refreshTokenAction(navigate));
-  }
+  // const decodedToken = jwtDecode(token);
+  // const currentTime = Date.now() / 1000;
+
+  // if (decodedToken.exp > currentTime) {
+  //   // If the token is still valid, restore user session
+  //   dispatch({
+  //     type: LOGIN_CONFIRMED_ACTION,
+  //     payload: decodedToken,
+  //   });
+  // } else {
+  //   // If the token has expired, refresh it
+  //   dispatch(refreshTokenAction(navigate));
+  // }
 }
 export function isLogin() {
   const tokenString = localStorage.getItem('accessToken');
@@ -98,8 +100,8 @@ export function isLogin() {
     return false;
   }
 }
-export const getCurrentUser = async () => {
-  const token = localStorage.getItem('accessToken');
+export const getCurrentUser = async (token) => {
+  token = token || localStorage.getItem('accessToken');
 
   if (!token) {
     throw new Error('No authentication token found');

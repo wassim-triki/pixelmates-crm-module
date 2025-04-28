@@ -1,12 +1,18 @@
-import React, { Fragment, useContext, useEffect,useReducer, useState } from "react";
-import {Collapse} from 'react-bootstrap';
-import { Modal } from "react-bootstrap";
+import React, {
+  Fragment,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
+import { Collapse } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 /// Link
-import { Link } from "react-router-dom";
-import { MenuList } from "./Menu";
-import foodServing from "../../../assets/images/food-serving.png";
-import {useScrollPosition} from "@n8tb1t/use-scroll-position";
-
+import { Link } from 'react-router-dom';
+import { SuperAdminMenuList } from './Menu';
+import foodServing from '../../../assets/images/food-serving.png';
+import { useScrollPosition } from '@n8tb1t/use-scroll-position';
+import { useAuth } from '../../../context/authContext';
 
 const reducer = (previousState, updatedState) => ({
   ...previousState,
@@ -14,143 +20,204 @@ const reducer = (previousState, updatedState) => ({
 });
 
 const initialState = {
-  active : "",
-  activeSubmenu : "",
-}
+  active: '',
+  activeSubmenu: '',
+};
 
 const SideBar = () => {
-	var d = new Date();
+  const { user } = useAuth();
+  const [MenuList, setMenuList] = useState([]);
+  useEffect(() => {
+    switch (user?.role?.name) {
+      case 'SuperAdmin':
+        setMenuList(SuperAdminMenuList);
+        break;
+      case 'Admin':
+        setMenuList([]);
+        break;
+      case 'Client':
+        setMenuList([]);
+        break;
+      default:
+        setMenuList([]);
+        break;
+    }
+  }, [user]);
+  var d = new Date();
   const [addMenus, setAddMenus] = useState(false);
-  const [state, setState] = useReducer(reducer, initialState);	
+  const [state, setState] = useReducer(reducer, initialState);
   let handleheartBlast = document.querySelector('.heart');
-  function heartBlast(){
-    return handleheartBlast.classList.toggle("heart-blast");
+  function heartBlast() {
+    return handleheartBlast.classList.toggle('heart-blast');
   }
-  
- 	const [hideOnScroll, setHideOnScroll] = useState(true)
-	useScrollPosition(
-		({ prevPos, currPos }) => {
-		  const isShow = currPos.y > prevPos.y
-		  if (isShow !== hideOnScroll) setHideOnScroll(isShow)
-		},
-		[hideOnScroll]
-	)
 
- 
-	const handleMenuActive = status => {		
-		setState({active : status});			
-		if(state.active === status){				
-			setState({active : ""});
-		}   
-	}
-	const handleSubmenuActive = (status) => {		
-		setState({activeSubmenu : status})
-		if(state.activeSubmenu === status){
-			setState({activeSubmenu : ""})			
-		}    
-	}
- 
+  const [hideOnScroll, setHideOnScroll] = useState(true);
+  useScrollPosition(
+    ({ prevPos, currPos }) => {
+      const isShow = currPos.y > prevPos.y;
+      if (isShow !== hideOnScroll) setHideOnScroll(isShow);
+    },
+    [hideOnScroll]
+  );
+
+  const handleMenuActive = (status) => {
+    setState({ active: status });
+    if (state.active === status) {
+      setState({ active: '' });
+    }
+  };
+  const handleSubmenuActive = (status) => {
+    setState({ activeSubmenu: status });
+    if (state.activeSubmenu === status) {
+      setState({ activeSubmenu: '' });
+    }
+  };
 
   /// Path
   let path = window.location.pathname;
-  path = path.split("/");
+  path = path.split('/');
   path = path[path.length - 1];
   useEffect(() => {
     MenuList.forEach((data) => {
       data.content?.forEach((item) => {
         if (path === item.to) {
-          setState({ active: data.title })
+          setState({ active: data.title });
         }
-        item.content?.forEach(ele => {
+        item.content?.forEach((ele) => {
           if (path === ele.to) {
-            setState({ activeSubmenu: item.title, active: data.title })
+            setState({ activeSubmenu: item.title, active: data.title });
           }
-        })
-      })
-    })
+        });
+      });
+    });
   }, [path]);
 
   return (
     <div className="deznav">
       <div className="deznav-scroll dz-scroll">
-          <ul className="metismenu" id="menu">              
-          {MenuList
-  .filter((data) => data.title === "Dashboard") // 👈 filtrer uniquement "Dashboard"
-  .map((data, index) => {
-              let menuClass = data.classsChange;
-                if(menuClass === "menu-title"){
-                  return(
-                      <li className={menuClass}  key={index} >{data.title}</li>
-                  )
-                }else{
-                  return(				
-                    <li className={` ${ state.active === data.title ? 'mm-active' : ''} ${data.to === path ? 'mm-active' : ''}`}
-                      key={index} 
-                    >                        
-                      {data.content && data.content.length > 0 ?
-                      <Fragment>
-                          <Link to={"#"} 
-                            className="has-arrow"
-                            onClick={() => {handleMenuActive(data.title)}}
-                          >								
-                              {data.iconStyle}{" "}
-                              <span className="nav-text">{data.title}</span>
-                          </Link>
-                          <Collapse in={state.active === data.title ? true :false}>
-                            <ul className={`${menuClass === "mm-collapse" ? "mm-show" : ""}`}>
-                              {data.content && data.content.map((data,index) => {									
-                                return(	
-                                    <li key={index}
-                                      className={`${ state.activeSubmenu === data.title ? "mm-active" : ""} ${data.to === path ? 'mm-active' : ''}`}                                    
+        <ul className="metismenu" id="menu">
+          {MenuList.map((data, index) => {
+            let menuClass = data.classsChange;
+            if (menuClass === 'menu-title') {
+              return (
+                <li className={menuClass} key={index}>
+                  {data.title}
+                </li>
+              );
+            } else {
+              return (
+                <li
+                  className={` ${
+                    state.active === data.title ? 'mm-active' : ''
+                  } ${data.to === path ? 'mm-active' : ''}`}
+                  key={index}
+                >
+                  {data.content && data.content.length > 0 ? (
+                    <Fragment>
+                      <Link
+                        to={'#'}
+                        className="has-arrow"
+                        onClick={() => {
+                          handleMenuActive(data.title);
+                        }}
+                      >
+                        {data.iconStyle}{' '}
+                        <span className="nav-text">{data.title}</span>
+                      </Link>
+                      <Collapse in={state.active === data.title ? true : false}>
+                        <ul
+                          className={`${
+                            menuClass === 'mm-collapse' ? 'mm-show' : ''
+                          }`}
+                        >
+                          {data.content &&
+                            data.content.map((data, index) => {
+                              return (
+                                <li
+                                  key={index}
+                                  className={`${
+                                    state.activeSubmenu === data.title
+                                      ? 'mm-active'
+                                      : ''
+                                  } ${data.to === path ? 'mm-active' : ''}`}
+                                >
+                                  {data.content && data.content.length > 0 ? (
+                                    <>
+                                      <Link
+                                        to={data.to}
+                                        className={
+                                          data.hasMenu ? 'has-arrow' : ''
+                                        }
+                                        onClick={() => {
+                                          handleSubmenuActive(data.title);
+                                        }}
+                                      >
+                                        {data.title}
+                                      </Link>
+                                      <Collapse
+                                        in={
+                                          state.activeSubmenu === data.title
+                                            ? true
+                                            : false
+                                        }
+                                      >
+                                        <ul
+                                          className={`${
+                                            menuClass === 'mm-collapse'
+                                              ? 'mm-show'
+                                              : ''
+                                          }`}
+                                        >
+                                          {data.content &&
+                                            data.content.map((data, index) => {
+                                              return (
+                                                <Fragment key={index}>
+                                                  <li>
+                                                    <Link
+                                                      className={`${
+                                                        path === data.to
+                                                          ? 'mm-active'
+                                                          : ''
+                                                      }`}
+                                                      to={data.to}
+                                                    >
+                                                      {data.title}
+                                                    </Link>
+                                                  </li>
+                                                </Fragment>
+                                              );
+                                            })}
+                                        </ul>
+                                      </Collapse>
+                                    </>
+                                  ) : (
+                                    <Link
+                                      to={data.to}
+                                      className={`${
+                                        data.to === path ? 'mm-active' : ''
+                                      }`}
                                     >
-                                      {data.content && data.content.length > 0 ?
-                                          <>
-                                            <Link to={data.to} className={data.hasMenu ? 'has-arrow' : ''}
-                                              onClick={() => { handleSubmenuActive(data.title)}}
-                                            >
-                                              {data.title}
-                                            </Link>
-                                            <Collapse in={state.activeSubmenu === data.title ? true :false}>
-                                                <ul className={`${menuClass === "mm-collapse" ? "mm-show" : ""}`}>
-                                                  {data.content && data.content.map((data,index) => {
-                                                    return(	
-                                                      <Fragment key={index}>
-                                                        <li>
-                                                          <Link className={`${path === data.to ? "mm-active" : ""}`} to={data.to}>{data.title}</Link>
-                                                        </li>
-                                                      </Fragment>
-                                                    )
-                                                  })}
-                                                </ul>
-                                            </Collapse>
-                                          </>
-                                        :
-                                        <Link to={data.to} className={`${data.to === path ? 'mm-active' : ''}`}>
-                                          {data.title}
-                                        </Link>
-                                      }
-                                      
-                                    </li>
-                                  
-                                )
-                              })}
-                            </ul>
-                          </Collapse>
-
-                      </Fragment>
-                      :
-                        <Link  to={data.to} >
-                            {data.iconStyle}
-                            <span className="nav-text">{data.title}</span>
-                        </Link>
-                      }
-                      
-                    </li>	
-                  )
-              }
-            })}          
-          </ul>	
-          {/* 
+                                      {data.title}
+                                    </Link>
+                                  )}
+                                </li>
+                              );
+                            })}
+                        </ul>
+                      </Collapse>
+                    </Fragment>
+                  ) : (
+                    <Link to={data.to}>
+                      {data.iconStyle}
+                      <span className="nav-text">{data.title}</span>
+                    </Link>
+                  )}
+                </li>
+              );
+            }
+          })}
+        </ul>
+        {/* 
           <div className="add-menu-sidebar">
             <img src={foodServing} alt="foodServing" />
             <p className="mb-3">Organize your menus through button bellow</p>
@@ -186,18 +253,20 @@ const SideBar = () => {
               </form>
             </Modal.Body>
           </Modal>*/}
-          <div className="copyright">
-            <p>
-              <strong>The MenuFy Admin Dashboard</strong> © {d.getFullYear()} All Rights Reserved
-            </p>
-            <p>
-              Made with{" "}
-              <span className="heart" onClick={()=>heartBlast()}></span>{" "}by Pixelmates
-            </p>
-          </div>
+        <div className="copyright">
+          <p>
+            <strong>The MenuFy Admin Dashboard</strong> © {d.getFullYear()} All
+            Rights Reserved
+          </p>
+          <p>
+            Made with{' '}
+            <span className="heart" onClick={() => heartBlast()}></span> by
+            Pixelmates
+          </p>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default SideBar;

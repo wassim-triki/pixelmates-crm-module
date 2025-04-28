@@ -117,14 +117,12 @@ import MyProfile from './components/AppsMenu/AppProfile/MyProfile';
 import Restaurant from './components/Dashboard/Restaurant';
 
 import Statics from './components/Dashboard/Statics';
-
-
+import ProtectedRoute from './components/ProtectedRoute';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import RestaurantRegister from './pages/RestaurantRegister';
 
 const Markup = () => {
-  const routes = {
-    admin: [{ url: 'admin/dashboard', component: <Home /> }],
-    client: [{ url: 'profile', component: <Home /> }],
-  };
   const allroutes = [
     /// Dashboard
     { url: '', component: <Home /> },
@@ -153,7 +151,7 @@ const Markup = () => {
     { url: 'app-profile', component: <AppProfile /> },
     { url: 'update-profile', component: <UpdateProfile /> },
     { url: 'my-profile', component: <MyProfile /> },
-    
+
     { url: 'post-details', component: <PostDetails /> },
     { url: 'email-compose', component: <Compose /> },
     { url: 'email-inbox', component: <Inbox /> },
@@ -230,17 +228,22 @@ const Markup = () => {
         <Route path="page-error-404" element={<Error404 />} />
         <Route path="page-error-500" element={<Error500 />} />
         <Route path="page-error-503" element={<Error503 />} />
-        <Route path="unauthorized" element={<Unauthorized />} /> {/* Added Unauthorized route */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin/register" element={<RestaurantRegister />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
         <Route element={<MainLayout />}>
+          <Route
+            path="/superadmin/dashboard"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+
           {allroutes.map((data, i) => (
-            <Route
-              key={i}
-              exact
-              path={`${data.url}`}
-              element={data.component}
-            />
-          ))}
-          {routes.admin.map((data, i) => (
             <Route
               key={i}
               exact

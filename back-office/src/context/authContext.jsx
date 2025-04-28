@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import axiosInstance from '../config/axios';
-import axios from 'axios';
-
+import { logout as logoutService } from '../services/AuthService';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -51,12 +50,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    try {
-      await axiosInstance.post('/auth/logout'); // Ensure server clears cookies
-    } catch (error) {
-      console.error('Logout request failed:', error);
-    }
+    await logoutService();
     localStorage.removeItem('accessToken');
+    console.log('User logged out successfully'); // ✅ Debugging step
     setUser(null);
   };
 
@@ -141,7 +137,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, fetchUser, loading, updateUser }}
+      value={{ user, login, setUser, logout, fetchUser, loading, updateUser }}
     >
       {children}
     </AuthContext.Provider>

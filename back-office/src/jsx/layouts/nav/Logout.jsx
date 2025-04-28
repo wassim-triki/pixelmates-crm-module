@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { isAuthenticated } from '../../../store/selectors/AuthSelectors';
 import { logoutAction } from '../../../store/actions/AuthActions';
+import { useAuth } from '../../../context/authContext';
 
 function withRouter(Component) {
   function ComponentWithRouterProp(props) {
@@ -17,10 +18,9 @@ function withRouter(Component) {
 }
 
 function LogoutPage(props) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  function onLogout() {
-    dispatch(logoutAction(navigate));
+  const { logout } = useAuth();
+  async function onLogout() {
+    await logout();
   }
   return (
     <>
