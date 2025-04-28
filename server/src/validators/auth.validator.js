@@ -1,6 +1,7 @@
 const { z } = require('zod');
 
-const baseSignupSchema = z.object({
+// Base schema
+const SignupSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   email: z.string().email('Invalid email format'),
@@ -8,15 +9,15 @@ const baseSignupSchema = z.object({
   phone: z.string().optional(),
 });
 
-const clientSignupSchema = baseSignupSchema.extend({
+// Client schema: extends base + fixed role 'Client'
+const clientSignupSchema = SignupSchema.extend({
   role: z.literal('Client'),
 });
 
-const adminSignupSchema = baseSignupSchema.extend({
-  role: z.literal('Admin'),
+// Admin schema: extends base + fixed role 'Admin'
+const adminSignupSchema = SignupSchema.extend({
+  restaurantName: z.string().min(1, 'Restaurant name is required'),
 });
-
-const signupSchema = z.union([clientSignupSchema, adminSignupSchema]);
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -46,7 +47,9 @@ const resendVerificationSchema = z.object({
 });
 
 module.exports = {
-  signupSchema,
+  clientSignupSchema,
+  adminSignupSchema,
+  SignupSchema,
   loginSchema,
   resetPasswordSchema,
   forgotPasswordSchema,

@@ -2910,8 +2910,8 @@ textarea.form-control-lg {
 }
 .input-group > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
   margin-left: calc(var(--bs-border-width) * -1);
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  /* border-top-left-radius: 0; */
+  /* border-bottom-left-radius: 0; */
 }
 .input-group > .form-floating:not(:first-child) > .form-control,
 .input-group > .form-floating:not(:first-child) > .form-select {
@@ -36173,7 +36173,7 @@ table.dataTable.display > tbody > tr > td {
 }
 
 .auth-form {
-  padding: 50px 50px;
+  padding: 35px;
   /* .btn{
       font-weight: 700;
   } */

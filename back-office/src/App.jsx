@@ -64,11 +64,12 @@ function App(props) {
         }
       >
         <Route path="/login" element={<Login />} />
-        <Route path="/client/register" element={<ClientSignUp />} />
+        {/* <Route path="/client/register" element={<ClientSignUp />} /> */}
         <Route path="/restaurant/register" element={<RestaurantSignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/unauthorized" element={<Unauthorized />} /> {/* Added Unauthorized route */}
+        <Route path="/unauthorized" element={<Unauthorized />} />{' '}
+        {/* Added Unauthorized route */}
       </Route>
     </Routes>
   );

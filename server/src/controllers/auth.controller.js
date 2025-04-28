@@ -10,6 +10,7 @@ const {
 } = require('../utils/token');
 const sendEmail = require('../utils/sendEmail');
 const { ROLES } = require('../constants/roles');
+const generateVerificationCode = require('../utils/generateVerificationCode');
 
 exports.loginWithOAuth = async (req, res) => {
   const { user, jwtToken, refreshJwt } = req.user;
@@ -33,9 +34,6 @@ exports.loginWithOAuth = async (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   res.redirect(`${frontendUrl}/oauth-callback?accessToken=${jwtToken}`);
 };
-
-const generateVerificationCode = () =>
-  Math.floor(100000 + Math.random() * 900000).toString();
 
 exports.signup = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, password, phone, role } = req.body;

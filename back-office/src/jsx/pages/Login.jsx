@@ -143,7 +143,7 @@ function Login(props) {
               <div className="new-account mt-2">
                 <p className="mb-0">
                   Don't have an account?{' '}
-                  <Link className="text-primary" to="/client/register">
+                  <Link className="text-primary" to="/restaurant/register">
                     Sign up
                   </Link>
                 </p>

@@ -9,6 +9,7 @@ const userRoutes = require('./routes/user.routes.js');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes.js');
+const adminRoutes = require('./routes/admin.routes.js');
 const errorHandler = require('./middlewares/error-handler.middleware.js');
 const roleRoutes = require('./routes/role.routes.js'); // Add this line
 const reservationRoutes = require('./routes/reservations.routes.js'); // Add this line
@@ -21,15 +22,17 @@ async function updateExistingDocuments() {
   try {
     const result = await Table.updateMany(
       { isReserved: { $exists: false } }, // Documents sans le champ isReserved
-      { $set: { isReserved: false } }    // Ajout du champ avec la valeur par défaut
+      { $set: { isReserved: false } } // Ajout du champ avec la valeur par défaut
     );
 
-    console.log(`${result.modifiedCount} documents mis à jour avec le champ isReserved`);
+    console.log(
+      `${result.modifiedCount} documents mis à jour avec le champ isReserved`
+    );
   } catch (error) {
     console.error('Erreur lors de la mise à jour des documents :', error);
   }
 }
-updateExistingDocuments()
+updateExistingDocuments();
 //Connect to MongoDB
 connectDB().then(() => {
   console.log('Connexion à la base de données réussie');
@@ -74,6 +77,7 @@ const PORT = process.env.PORT || 5000;
 // Routes
 app.use('/qrcodes', express.static(path.join(__dirname, 'public/qrcodes')));
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
