@@ -405,56 +405,45 @@ const RestaurantList = () => {
           {error}
         </Alert>
       )}
-
+  
       {/* Header Section */}
-      <div className="d-flex justify-content-between align-items-center mb-4 px-3">
-        <Button
-          variant="success"
-          onClick={handleShowCreateModal}
-          disabled={loading}
-          className="d-flex align-items-center"
-        >
-          <i className="fas fa-plus me-2" /> Add Restaurant
+      <div className="d-flex justify-content-between align-items-center mb-4 px-3 flex-wrap gap-3">
+        
+        {/* Add Button */}
+        <Button variant="success" onClick={handleShowCreateModal}>
+          Add Restaurant
         </Button>
-      </div>
-
-      {/* Search and Sort Section */}
-      <div className="row mb-4 px-3 g-3">
-        <div className="col-md-6 col-12">
-          <div className="input-group shadow-sm">
-            <span className="input-group-text bg-light border-0">
-              <i className="fas fa-search" />
-            </span>
+  
+        {/* Search Bar */}
+        <div className="flex-grow-1 mx-3" style={{ maxWidth: '500px' }}>
+          <div className="input-group">
             <input
               type="text"
-              className="form-control border-0 bg-light"
-              placeholder="Search by name, address, or cuisine..."
+              className="form-control"
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              disabled={loading}
             />
-            <Button variant="primary" onClick={handleSearch} disabled={loading} className="px-4">
+            <Button variant="primary" onClick={handleSearch}>
               Search
             </Button>
           </div>
         </div>
-        <div className="col-md-6 col-12 d-flex justify-content-md-end justify-content-start align-items-center mt-md-0 mt-3">
-          <Dropdown>
-            <Dropdown.Toggle variant="outline-primary" disabled={loading} className="shadow-sm">
-              Sort By: {sortConfig.key.charAt(0).toUpperCase() + sortConfig.key.slice(1)} (
-              {sortConfig.direction})
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => requestSort('name')}>Name</Dropdown.Item>
-              <Dropdown.Item onClick={() => requestSort('address')}>Address</Dropdown.Item>
-              <Dropdown.Item onClick={() => requestSort('cuisineType')}>
-                Cuisine Type
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
+  
+        {/* Sort Dropdown */}
+        <Dropdown>
+          <Dropdown.Toggle variant="outline-primary" disabled={loading} className="shadow-sm">
+            Sort By: {sortConfig.key.charAt(0).toUpperCase() + sortConfig.key.slice(1)} ({sortConfig.direction})
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => requestSort('name')}>Name</Dropdown.Item>
+            <Dropdown.Item onClick={() => requestSort('address')}>Address</Dropdown.Item>
+            <Dropdown.Item onClick={() => requestSort('cuisineType')}>Cuisine Type</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+  
       </div>
+  
       <h1 className="text-center fw-bold">Restaurants List</h1>
       <br />
 
