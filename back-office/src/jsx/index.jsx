@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 /// React router dom
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 /// Css
 import './index.css';
 import './chart.css';
@@ -121,7 +121,19 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import RestaurantRegister from './pages/RestaurantRegister';
-
+import { useAuth } from '../context/authContext';
+function HomeRedirect() {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  switch (user.role.name) {
+    case 'SuperAdmin':
+      return <Navigate to="/superadmin/dashboard" replace />;
+    case 'Admin':
+      return <Navigate to="/admin/dashboard" replace />;
+    default:
+      return <Navigate to="/login" replace />;
+  }
+}
 const Markup = () => {
   const allroutes = [
     /// Dashboard
@@ -222,6 +234,7 @@ const Markup = () => {
   return (
     <>
       <Routes>
+        <Route path="/" element={<HomeRedirect />} />
         <Route path="page-lock-screen" element={<LockScreen />} />
         <Route path="page-error-400" element={<Error400 />} />
         <Route path="page-error-403" element={<Error403 />} />
