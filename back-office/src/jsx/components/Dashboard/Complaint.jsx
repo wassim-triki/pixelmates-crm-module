@@ -8,7 +8,7 @@ import {
   getComplaintsByRestaurant,
   getComplaintsByUser,
   updateComplaint,
-  uploadImage,
+  uploadImages, // Updated to use the new function
 } from '../../../services/ComplaintService.js';
 
 const ComplaintList = () => {
@@ -17,6 +17,7 @@ const ComplaintList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState(''); // Added for category filtering
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,28 +28,30 @@ const ComplaintList = () => {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'descending' });
   const [validationErrors, setValidationErrors] = useState({});
-  const [imageFile, setImageFile] = useState(null);
+  const [imageUrls, setImageUrls] = useState([]); // Store image URLs for upload
 
   const itemsPerPage = 10;
 
+  // Authentication Check
   useEffect(() => {
-      const checkAuth = async () => {
-        try {
-          const response = await getCurrentUser();
-          const user = response.data;
-          setCurrentUser(user);
-          if (user && user.role?.name === 'SuperAdmin') {
-            await fetchComplaints();
-          }
-        } catch (err) {
-          setCurrentUser(null);
-          setError(formatError(err) || 'Authentication failed');
-        } finally {
-          setAuthLoading(false);
+    const checkAuth = async () => {
+      try {
+        const response = await getCurrentUser();
+        const user = response.data;
+        setCurrentUser(user);
+        if (user && user.role?.name === 'SuperAdmin') {
+          await fetchComplaints();
         }
-      };
-      checkAuth();
-    }, []);
+      } catch (err) {
+        setCurrentUser(null);
+        setError(formatError(err) || 'Authentication failed');
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
   // Fetch Complaints
   const fetchComplaints = async () => {
     setLoading(true);
@@ -65,6 +68,8 @@ const ComplaintList = () => {
 
   // Search Complaints
   const handleSearch = async (term) => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await getComplaints();
       const allComplaints = response.data || [];
@@ -74,6 +79,7 @@ const ComplaintList = () => {
         return (
           (c.title && c.title.toLowerCase().includes(lowerTerm)) ||
           (c.description && c.description.toLowerCase().includes(lowerTerm)) ||
+          (c.category && c.category.toLowerCase().includes(lowerTerm)) || // Added category search
           (c.user?.name && c.user.name.toLowerCase().includes(lowerTerm)) ||
           (c.restaurant?.name && c.restaurant.name.toLowerCase().includes(lowerTerm))
         );
@@ -83,6 +89,8 @@ const ComplaintList = () => {
       setCurrentPage(0);
     } catch (err) {
       setError(formatError(err) || 'Search failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,7 +109,8 @@ const ComplaintList = () => {
         {
           status: selectedComplaint.status,
           priority: selectedComplaint.priority,
-          response: selectedComplaint.response,
+          category: selectedComplaint.category,
+          response: selectedComplaint.response || null, // Allow null for response
         },
         selectedComplaint._id
       );
@@ -114,24 +123,26 @@ const ComplaintList = () => {
     }
   };
 
-  // Upload Image
+  // Upload Images
   const handleImageUpload = async () => {
-    if (!imageFile) {
-      setValidationErrors({ image: 'Please select an image' });
+    if (imageUrls.length === 0) {
+      setValidationErrors({ image: 'Please provide at least one image URL' });
       return;
     }
 
     setLoading(true);
     setError(null);
     try {
-      const formData = new FormData();
-      formData.append('image', imageFile);
-      await uploadImage(selectedComplaint._id, formData);
+      // Update the complaint's images array with the new URLs
+      await uploadImages(selectedComplaint._id, [
+        ...selectedComplaint.images,
+        ...imageUrls,
+      ]);
       await fetchComplaints(); // Refresh complaints to get updated images
-      setImageFile(null);
+      setImageUrls([]);
       setValidationErrors({});
     } catch (err) {
-      setError(formatError(err) || 'Failed to upload image');
+      setError(formatError(err) || 'Failed to upload images');
     } finally {
       setLoading(false);
     }
@@ -142,6 +153,10 @@ const ComplaintList = () => {
     const errors = {};
     if (!data.status) errors.status = 'Status is required';
     if (!data.priority) errors.priority = 'Priority is required';
+    if (!data.category) errors.category = 'Category is required';
+    if (data.response && !['Refund', 'Replacement', 'Apology', 'Discount', 'No Action'].includes(data.response)) {
+      errors.response = 'Invalid response value';
+    }
     return errors;
   };
 
@@ -154,7 +169,7 @@ const ComplaintList = () => {
   const handleCloseDetailModal = () => {
     setShowDetailModal(false);
     setSelectedComplaint(null);
-    setImageFile(null);
+    setImageUrls([]);
     setValidationErrors({});
   };
 
@@ -175,9 +190,10 @@ const ComplaintList = () => {
     return complaints.filter((c) => {
       const matchesStatus = statusFilter ? c.status === statusFilter : true;
       const matchesPriority = priorityFilter ? c.priority === priorityFilter : true;
-      return matchesStatus && matchesPriority;
+      const matchesCategory = categoryFilter ? c.category === categoryFilter : true;
+      return matchesStatus && matchesPriority && matchesCategory;
     });
-  }, [complaints, statusFilter, priorityFilter]);
+  }, [complaints, statusFilter, priorityFilter, categoryFilter]);
 
   const sortedComplaints = useMemo(() => {
     const sorted = [...filteredComplaints].sort((a, b) => {
@@ -209,7 +225,7 @@ const ComplaintList = () => {
     }));
   };
 
-  // Render Conditions (Copied from RestaurantList.jsx)
+  // Render Conditions
   if (authLoading) {
     return (
       <div className="text-center my-5">
@@ -233,7 +249,7 @@ const ComplaintList = () => {
       )}
 
       {/* Header Section */}
-      <div className="d-flex justify-content-between align-items-center mb-4 px-3 flex-nowrap gap-2">
+      <div className="d-flex justify-content-between align-items-center mb-4 px-3 flex-wrap gap-2">
         {/* Search Bar */}
         <div className="flex-grow-1 mx-3" style={{ maxWidth: '300px', minWidth: '200px' }}>
           <div className="input-group">
@@ -309,6 +325,32 @@ const ComplaintList = () => {
           </Dropdown.Menu>
         </Dropdown>
 
+        <Dropdown className="flex-shrink-0 me-2">
+          <Dropdown.Toggle
+            variant="outline-primary"
+            disabled={loading}
+            className="shadow-sm"
+            style={{
+              fontSize: '0.9rem',
+              padding: '6px 12px',
+              height: '52px',
+              maxWidth: '200px',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {categoryFilter ? `Category: ${categoryFilter}` : 'Filter by Category'}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => setCategoryFilter('')}>All</Dropdown.Item>
+            {['Food Quality', 'Service', 'Cleanliness', 'Billing', 'Other'].map((category) => (
+              <Dropdown.Item key={category} onClick={() => setCategoryFilter(category)}>
+                {category}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+
         {/* Sort Dropdown */}
         <Dropdown className="flex-shrink-0">
           <Dropdown.Toggle
@@ -332,6 +374,7 @@ const ComplaintList = () => {
             <Dropdown.Item onClick={() => requestSort('title')}>Title</Dropdown.Item>
             <Dropdown.Item onClick={() => requestSort('status')}>Status</Dropdown.Item>
             <Dropdown.Item onClick={() => requestSort('priority')}>Priority</Dropdown.Item>
+            <Dropdown.Item onClick={() => requestSort('category')}>Category</Dropdown.Item> {/* Added */}
             <Dropdown.Item onClick={() => requestSort('createdAt')}>Created Date</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
@@ -364,13 +407,20 @@ const ComplaintList = () => {
                   <th className="text-center">User</th>
                   <th className="text-center">Restaurant</th>
                   <th
+                    onClick={() => requestSort('category')}
+                    style={{ cursor: 'pointer' }}
+                    className="text-center"
+                  >
+                    Category{' '}
+                    {sortConfig.key === 'category' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                  </th>
+                  <th
                     onClick={() => requestSort('status')}
                     style={{ cursor: 'pointer' }}
                     className="text-center"
                   >
                     Status{' '}
-                    {sortConfig.key === 'status' &&
-                      (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                    {sortConfig.key === 'status' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                   </th>
                   <th
                     onClick={() => requestSort('priority')}
@@ -378,8 +428,7 @@ const ComplaintList = () => {
                     className="text-center"
                   >
                     Priority{' '}
-                    {sortConfig.key === 'priority' &&
-                      (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                    {sortConfig.key === 'priority' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                   </th>
                   <th
                     onClick={() => requestSort('createdAt')}
@@ -387,8 +436,7 @@ const ComplaintList = () => {
                     className="text-center"
                   >
                     Created At{' '}
-                    {sortConfig.key === 'createdAt' &&
-                      (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                    {sortConfig.key === 'createdAt' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                   </th>
                   <th className="text-center">Actions</th>
                 </tr>
@@ -397,8 +445,9 @@ const ComplaintList = () => {
                 {paginatedComplaints.map((complaint) => (
                   <tr key={complaint._id}>
                     <td>{complaint.title || 'N/A'}</td>
-                    <td>{complaint.user?.name || 'N/A'}</td>
+                    <td>{complaint.user?.email || 'N/A'}</td>
                     <td>{complaint.restaurant?.name || 'N/A'}</td>
+                    <td>{complaint.category || 'N/A'}</td>
                     <td className="text-center">
                       <Badge
                         bg={
@@ -510,14 +559,18 @@ const ComplaintList = () => {
               </div>
               <div className="col-md-6 mb-3">
                 <p>
-                  <strong>User:</strong> {selectedComplaint.user?.name || 'N/A'} (
-                  {selectedComplaint.user?.email || 'N/A'})
+                  <strong>User:</strong> {selectedComplaint.user?.email || 'N/A'}
                 </p>
               </div>
               <div className="col-md-6 mb-3">
                 <p>
                   <strong>Restaurant:</strong> {selectedComplaint.restaurant?.name || 'N/A'} (
                   {selectedComplaint.restaurant?.address || 'N/A'})
+                </p>
+              </div>
+              <div className="col-md-6 mb-3">
+                <p>
+                  <strong>Category:</strong> {selectedComplaint.category || 'N/A'}
                 </p>
               </div>
               <div className="col-md-6 mb-3">
@@ -560,6 +613,12 @@ const ComplaintList = () => {
                   {new Date(selectedComplaint.createdAt).toLocaleString() || 'N/A'}
                 </p>
               </div>
+              <div className="col-md-6 mb-3">
+                <p>
+                  <strong>Updated At:</strong>{' '}
+                  {new Date(selectedComplaint.updatedAt).toLocaleString() || 'N/A'}
+                </p>
+              </div>
               <div className="col-md-12 mb-3">
                 <p>
                   <strong>Description:</strong> {selectedComplaint.description || 'N/A'}
@@ -590,30 +649,7 @@ const ComplaintList = () => {
                   'No images'
                 )}
               </div>
-              <div className="col-md-12 mb-3">
-                <Form.Group controlId="imageUpload">
-                  <Form.Label>Upload Image</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImageFile(e.target.files[0])}
-                    isInvalid={!!validationErrors.image}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {validationErrors.image}
-                  </Form.Control.Feedback>
-                </Form.Group>
-                {imageFile && (
-                  <Button
-                    variant="primary"
-                    className="mt-2"
-                    onClick={handleImageUpload}
-                    disabled={loading}
-                  >
-                    {loading ? <Spinner animation="border" size="sm" /> : 'Upload Image'}
-                  </Button>
-                )}
-              </div>
+              
             </div>
           )}
         </Modal.Body>
@@ -633,6 +669,7 @@ const ComplaintList = () => {
           {selectedComplaint && (
             <Form>
               <div className="row">
+              
                 <Form.Group className="col-md-6 mb-3" controlId="editStatus">
                   <Form.Label>Status</Form.Label>
                   <Form.Select
@@ -673,17 +710,25 @@ const ComplaintList = () => {
                     {validationErrors.priority}
                   </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className="col-md-12 mb-3" controlId="editResponse">
+                <Form.Group className="col-md-6 mb-3" controlId="editResponse">
                   <Form.Label>Response</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={4}
+                  <Form.Select
                     value={selectedComplaint.response || ''}
                     onChange={(e) =>
-                      setSelectedComplaint({ ...selectedComplaint, response: e.target.value })
+                      setSelectedComplaint({
+                        ...selectedComplaint,
+                        response: e.target.value === '' ? null : e.target.value,
+                      })
                     }
                     isInvalid={!!validationErrors.response}
-                  />
+                  >
+                    <option value="">No Response</option>
+                    {['Refund', 'Replacement', 'Apology', 'Discount', 'No Action'].map((response) => (
+                      <option key={response} value={response}>
+                        {response}
+                      </option>
+                    ))}
+                  </Form.Select>
                   <Form.Control.Feedback type="invalid">
                     {validationErrors.response}
                   </Form.Control.Feedback>

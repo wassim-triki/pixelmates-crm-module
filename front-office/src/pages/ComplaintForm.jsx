@@ -18,13 +18,19 @@ const ComplaintForm = () => {
     restaurant: '',
     title: '',
     description: '',
+    category: '',
     priority: 'Medium',
     images: [],
   });
+  const [formErrors, setFormErrors] = useState({});
   const [fetchError, setFetchError] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const [complaintId, setComplaintId] = useState(null);
+  const [initialFormData, setInitialFormData] = useState(null);
+
+  // Categories to match ComplaintList
+  const categories = ['Food Quality', 'Service', 'Cleanliness', 'Billing', 'Other'];
 
   // Check for editId query parameter to determine edit mode
   useEffect(() => {
@@ -34,6 +40,9 @@ const ComplaintForm = () => {
       setIsEditMode(true);
       setComplaintId(editId);
       fetchComplaintData(editId);
+    } else {
+      setInitialFormData({ ...formData });
+      setFetchLoading(false);
     }
   }, [location.search]);
 
@@ -41,16 +50,21 @@ const ComplaintForm = () => {
   const fetchComplaintData = async (id) => {
     try {
       const complaint = await fetchComplaintById(id);
-      setFormData({
+      const complaintData = {
         restaurant: complaint.restaurant?._id || complaint.restaurant || '',
         title: complaint.title || '',
         description: complaint.description || '',
+        category: complaint.category || '',
         priority: complaint.priority || 'Medium',
         images: complaint.images || [],
-      });
+      };
+      setFormData(complaintData);
+      setInitialFormData(complaintData);
     } catch (err) {
       toast.error('Failed to load complaint data');
       navigate('/my-complaints');
+    } finally {
+      setFetchLoading(false);
     }
   };
 
@@ -85,6 +99,16 @@ const ComplaintForm = () => {
       ...prev,
       [name]: files ? Array.from(files) : value,
     }));
+    setFormErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.restaurant) errors.restaurant = 'Restaurant is required';
+    if (!formData.title.trim()) errors.title = 'Title is required';
+    if (!formData.description.trim()) errors.description = 'Description is required';
+    if (!formData.category) errors.category = 'Category is required';
+    return errors;
   };
 
   const handleSubmit = async (e) => {
@@ -96,8 +120,10 @@ const ComplaintForm = () => {
       return;
     }
 
-    if (!formData.restaurant) {
-      toast.error('Please select a restaurant');
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -106,6 +132,7 @@ const ComplaintForm = () => {
       restaurant: formData.restaurant,
       title: formData.title,
       description: formData.description,
+      category: formData.category,
       priority: formData.priority,
       images: Array.isArray(formData.images)
         ? formData.images.map((file) =>
@@ -124,8 +151,22 @@ const ComplaintForm = () => {
       }
       navigate('/my-complaints');
     } catch (err) {
-      toast.error(error || `Failed to ${isEditMode ? 'update' : 'submit'} complaint`);
+      const errorMessage = error || err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'submit'} complaint`;
+      toast.error(errorMessage);
     }
+  };
+
+  const handleReset = () => {
+    setFormData(initialFormData || {
+      restaurant: '',
+      title: '',
+      description: '',
+      category: '',
+      priority: 'Medium',
+      images: [],
+    });
+    setFormErrors({});
+    toast.info('Form reset');
   };
 
   const handleBackClick = () => navigate('/my-complaints');
@@ -146,6 +187,7 @@ const ComplaintForm = () => {
             <button
               onClick={handleBackClick}
               className="text-white bg-transparent p-2 rounded-full hover:bg-gray-500 transition-all duration-300"
+              aria-label="Go back"
             >
               <FaArrowLeft className="text-2xl" />
             </button>
@@ -155,19 +197,27 @@ const ComplaintForm = () => {
             {isEditMode ? 'Edit Complaint' : 'Submit a Complaint'}
           </h1>
 
-          {fetchLoading && <p className="text-center text-white">Loading restaurants...</p>}
+          {fetchLoading && <p className="text-center text-white">Loading data...</p>}
           {fetchError && <p className="text-red-500 text-center mb-4">{fetchError}</p>}
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1 text-white">Restaurant</label>
+              <label htmlFor="restaurant" className="text-sm font-semibold mb-1 text-white">
+                Restaurant <span className="text-red-500">*</span>
+              </label>
               <select
+                id="restaurant"
                 name="restaurant"
                 value={formData.restaurant}
                 onChange={handleChange}
-                className="p-3 rounded-lg bg-white/10 backdrop-blur-sm border border-[#FA8072] text-white focus:outline-none focus:ring-2 focus:ring-[#e0685a] disabled:opacity-50"
+                className={`p-3 rounded-lg bg-white/10 backdrop-blur-sm border ${
+                  formErrors.restaurant ? 'border-red-500' : 'border-[#FA8072]'
+                } text-white focus:outline-none focus:ring-2 focus:ring-[#e0685a] disabled:opacity-50`}
                 required
                 disabled={fetchLoading || restaurants.length === 0}
+                aria-invalid={!!formErrors.restaurant}
+                aria-describedby={formErrors.restaurant ? 'restaurant-error' : undefined}
               >
                 <option value="" disabled className="bg-[#FA8072] text-white">
                   Select a restaurant
@@ -182,71 +232,147 @@ const ComplaintForm = () => {
                   </option>
                 ))}
               </select>
+              {formErrors.restaurant && (
+                <p id="restaurant-error" className="text-red-500 text-sm mt-1">
+                  {formErrors.restaurant}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col">
+              <label htmlFor="category" className="text-sm font-semibold mb-1 text-white">
+                Category <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className={`p-3 rounded-lg bg-white/10 backdrop-blur-sm border ${
+                  formErrors.category ? 'border-red-500' : 'border-[#FA8072]'
+                } text-white focus:outline-none focus:ring-2 focus:ring-[#e0685a]`}
+                required
+                aria-invalid={!!formErrors.category}
+                aria-describedby={formErrors.category ? 'category-error' : undefined}
+              >
+                <option value="" disabled className="bg-[#FA8072] text-white">
+                  Select a category
+                </option>
+                {categories.map((category) => (
+                  <option
+                    key={category}
+                    value={category}
+                    className="bg-[#FA8072] text-white hover:bg-[#e0685a]"
+                  >
+                    {category}
+                  </option>
+                ))}
+              </select>
+              {formErrors.category && (
+                <p id="category-error" className="text-red-500 text-sm mt-1">
+                  {formErrors.category}
+                </p>
+              )}
             </div>
 
             {[
-              { label: 'Title', name: 'title', type: 'text', placeholder: 'e.g., Incorrect Order' },
-              { label: 'Description', name: 'description', type: 'textarea', placeholder: 'Describe the issue in detail' },
+              {
+                label: 'Title',
+                name: 'title',
+                type: 'text',
+                placeholder: 'e.g., Incorrect Order',
+                required: true,
+              },
+              {
+                label: 'Description',
+                name: 'description',
+                type: 'textarea',
+                placeholder: 'Describe the issue in detail',
+                required: true,
+              },
             ].map((field) => (
               <div key={field.name} className="flex flex-col">
-                <label className="text-sm font-semibold mb-1 text-white">{field.label}</label>
+                <label htmlFor={field.name} className="text-sm font-semibold mb-1 text-white">
+                  {field.label} {field.required && <span className="text-red-500">*</span>}
+                </label>
                 {field.type === 'textarea' ? (
                   <textarea
+                    id={field.name}
                     name={field.name}
                     value={formData[field.name]}
                     onChange={handleChange}
-                    className="p-3 rounded-lg bg-white/10 border border-gray-300 text-white focus:outline-none focus:ring-2 focus:ring-[#FA8072] min-h-[100px]"
+                    className={`p-3 rounded-lg bg-white/10 border ${
+                      formErrors[field.name] ? 'border-red-500' : 'border-gray-300'
+                    } text-white focus:outline-none focus:ring-2 focus:ring-[#FA8072] min-h-[100px]`}
                     placeholder={field.placeholder}
-                    required
+                    required={field.required}
+                    aria-invalid={!!formErrors[field.name]}
+                    aria-describedby={formErrors[field.name] ? `${field.name}-error` : undefined}
                   />
                 ) : (
                   <input
+                    id={field.name}
                     type={field.type}
                     name={field.name}
                     value={formData[field.name]}
                     onChange={handleChange}
-                    className="p-3 rounded-lg bg-white/10 border border-gray-300 text-white focus:outline-none focus:ring-2 focus:ring-[#FA8072]"
+                    className={`p-3 rounded-lg bg-white/10 border ${
+                      formErrors[field.name] ? 'border-red-500' : 'border-gray-300'
+                    } text-white focus:outline-none focus:ring-2 focus:ring-[#FA8072]`}
                     placeholder={field.placeholder}
-                    required
+                    required={field.required}
+                    aria-invalid={!!formErrors[field.name]}
+                    aria-describedby={formErrors[field.name] ? `${field.name}-error` : undefined}
                   />
+                )}
+                {formErrors[field.name] && (
+                  <p id={`${field.name}-error`} className="text-red-500 text-sm mt-1">
+                    {formErrors[field.name]}
+                  </p>
                 )}
               </div>
             ))}
 
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1 text-white">Priority</label>
-              <select
-                name="priority"
-                value={formData.priority}
-                onChange={handleChange}
-                className="p-3 rounded-lg bg-white/10 backdrop-blur-sm border border-[#FA8072] text-white focus:outline-none focus:ring-2 focus:ring-[#e0685a]"
-                required
-              >
-                {['Low', 'Medium', 'High'].map((level) => (
-                  <option
-                    key={level}
-                    value={level}
-                    className="bg-[#FA8072] text-white hover:bg-[#e0685a]"
-                  >
-                    {level}
-                  </option>
-                ))}
-              </select>
-            </div>
+          
 
             <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1 text-white">Images (Optional)</label>
+              <label htmlFor="images" className="text-sm font-semibold mb-1 text-white">
+                Images (Optional)
+              </label>
               <input
+                id="images"
                 type="file"
                 name="images"
-                onChange={handleChange}
                 multiple
                 accept="image/*"
+                onChange={handleChange}
                 className="p-3 rounded-lg bg-white/10 border border-gray-300 text-white focus:outline-none focus:ring-2 focus:ring-[#FA8072]"
               />
+              <p className="text-sm text-gray-300 mt-1">
+                Note: Images are converted to URLs locally. Backend should handle file uploads and return URLs.
+              </p>
+              {formData.images.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {formData.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image instanceof File ? URL.createObjectURL(image) : image}
+                      alt={`Preview ${index + 1}`}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-center pt-6 space-x-4">
+              <Button
+                type="button"
+                onClick={handleReset}
+                className="bg-transparent border border-white text-white hover:bg-white hover:text-black py-2 px-6 rounded-full transition-all duration-300"
+              >
+                Reset
+              </Button>
               <Button
                 type="button"
                 onClick={handleBackClick}
@@ -254,7 +380,6 @@ const ComplaintForm = () => {
               >
                 Cancel
               </Button>
-
               <Button
                 type="submit"
                 className="!bg-[#FA8072] hover:!bg-[#e0685a] text-white py-2 px-6 rounded-full transition-all duration-300"
