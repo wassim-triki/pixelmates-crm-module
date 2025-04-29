@@ -400,7 +400,7 @@ const RestaurantList = () => {
   </InfoContainer>
 
   <FlexContainer>
-    <BookButton to={`/restaurant/${restaurant._id}`}>
+    <BookButton to={`/restaurants/${restaurant._id}`}>
       Book Now
     </BookButton>
   </FlexContainer>

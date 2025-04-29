@@ -12,7 +12,14 @@ const restaurantSchema = new mongoose.Schema({
   promotion: { type: String },
   payCashMethod: { type: String },
   images: [String],
-  tables: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Table' }],
+  tables: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Table' 
+  }],
+  waitingList: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Reservation'
+  }]
 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);
