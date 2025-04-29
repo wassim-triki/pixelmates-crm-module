@@ -29,6 +29,9 @@ export function getComplaints() {
     throw new Error(`Failed to fetch complaints: ${error.response?.data?.message || error.message}`);
   });
 }
+export const sendResolvedSMS = (complaintId) => {
+  return axiosInstance.post(`/complaints/${complaintId}/send-sms`);
+};
 
 // Fetch a single complaint by ID
 export function getComplaintById(complaintId) {
@@ -51,6 +54,7 @@ export function getComplaintsByRestaurant(restaurantId) {
     );
   });
 }
+
 
 // Fetch complaints by user ID
 export function getComplaintsByUser(userId) {

@@ -2,13 +2,17 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Dropdown, Modal, Button, Form, Alert, Spinner, Pagination, Badge } from 'react-bootstrap';
 import { getCurrentUser, formatError } from '../../../services/AuthService.js';
+import jsPDF from 'jspdf';
+import logo from '../../../assets/images/Logo-officiel-MenuFy.png'; // Make sure this path is correct
 import {
   getComplaints,
   getComplaintById,
   getComplaintsByRestaurant,
   getComplaintsByUser,
   updateComplaint,
-  uploadImages, // Updated to use the new function
+  uploadImages, 
+  sendResolvedSMS // Add this new service function
+  // Updated to use the new function
 } from '../../../services/ComplaintService.js';
 
 const ComplaintList = () => {
@@ -29,6 +33,7 @@ const ComplaintList = () => {
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'descending' });
   const [validationErrors, setValidationErrors] = useState({});
   const [imageUrls, setImageUrls] = useState([]); // Store image URLs for upload
+  const [originalComplaint, setOriginalComplaint] = useState(null); // Add this line
 
   const itemsPerPage = 10;
 
@@ -95,7 +100,7 @@ const ComplaintList = () => {
   };
 
   // Update Complaint
-  const handleUpdateComplaint = async () => {
+   const handleUpdateComplaint = async () => {
     const errors = validateForm(selectedComplaint);
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -105,15 +110,32 @@ const ComplaintList = () => {
     setLoading(true);
     setError(null);
     try {
-      await updateComplaint(
+      // Update complaint and capture response
+      const updatedComplaint = await updateComplaint(
         {
           status: selectedComplaint.status,
           priority: selectedComplaint.priority,
           category: selectedComplaint.category,
-          response: selectedComplaint.response || null, // Allow null for response
+          response: selectedComplaint.response || null,
         },
         selectedComplaint._id
       );
+
+      // Check if status changed to Resolved
+      if (
+        originalComplaint &&
+        originalComplaint.status !== 'Resolved' &&
+        updatedComplaint.status === 'Resolved'
+      ) {
+        try {
+          await sendResolvedSMS(updatedComplaint._id);
+        } catch (smsError) {
+          setError(
+            `Complaint updated, but failed to send SMS: ${formatError(smsError)}`
+          );
+        }
+      }
+
       await fetchComplaints();
       handleCloseEditModal();
     } catch (err) {
@@ -123,29 +145,120 @@ const ComplaintList = () => {
     }
   };
 
-  // Upload Images
-  const handleImageUpload = async () => {
-    if (imageUrls.length === 0) {
-      setValidationErrors({ image: 'Please provide at least one image URL' });
-      return;
-    }
 
-    setLoading(true);
-    setError(null);
+  const generateComplaintPDF = (complaint) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPos = 30;
+  
+    // Add Logo
     try {
-      // Update the complaint's images array with the new URLs
-      await uploadImages(selectedComplaint._id, [
-        ...selectedComplaint.images,
-        ...imageUrls,
-      ]);
-      await fetchComplaints(); // Refresh complaints to get updated images
-      setImageUrls([]);
-      setValidationErrors({});
-    } catch (err) {
-      setError(formatError(err) || 'Failed to upload images');
-    } finally {
-      setLoading(false);
+      doc.addImage(logo, 'PNG', 15, 10, 40, 15); // Adjust dimensions as needed
+    } catch (error) {
+      console.error('Error loading logo:', error);
     }
+  
+    // Header Line
+    doc.setDrawColor(200);
+    doc.setLineWidth(0.5);
+    doc.line(15, 27, pageWidth - 15, 27);
+  
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Complaint Report', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 15;
+  
+    // Complaint ID
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Complaint ID: ${complaint._id}`, 15, yPos);
+    yPos += 8;
+  
+    // Report Date
+    doc.text(`Report Date: ${new Date().toLocaleDateString()}`, pageWidth - 15, yPos, {
+      align: 'right',
+    });
+    yPos += 15;
+  
+    // Section Styling
+    const sectionStyle = {
+      font: 'helvetica',
+      fontSize: 12,
+      sectionSpacing: 8,
+      lineHeight: 7,
+    };
+  
+    // Complaint Details Section
+    const details = [
+      { label: 'User', value: complaint.user?.email || 'N/A' },
+      { label: 'Restaurant', value: complaint.restaurant?.name || 'N/A' },
+      { label: 'Category', value: complaint.category || 'N/A' },
+      { label: 'Status', value: complaint.status || 'N/A' },
+      { label: 'Priority', value: complaint.priority || 'N/A' },
+      { label: 'Created At', value: new Date(complaint.createdAt).toLocaleString() },
+      { label: 'Last Updated', value: new Date(complaint.updatedAt).toLocaleString() },
+    ];
+  
+    // Details Table
+    doc.setFontSize(14);
+    doc.setFont(sectionStyle.font, 'bold');
+    doc.text('Complaint Details', 15, yPos);
+    yPos += 10;
+  
+    details.forEach((item, index) => {
+      doc.setFontSize(12);
+      doc.setFont(sectionStyle.font, 'bold');
+      doc.text(`${item.label}:`, 15, yPos);
+      doc.setFont(sectionStyle.font, 'normal');
+      doc.text(item.value, 50, yPos);
+      yPos += sectionStyle.lineHeight;
+      
+      // Add spacing after every 3 items
+      if ((index + 1) % 3 === 0) yPos += 5;
+    });
+  
+    yPos += 10;
+  
+    // Description Section
+    doc.setFontSize(14);
+    doc.setFont(sectionStyle.font, 'bold');
+    doc.text('Description', 15, yPos);
+    yPos += 8;
+  
+    doc.setFontSize(12);
+    doc.setFont(sectionStyle.font, 'normal');
+    const splitDescription = doc.splitTextToSize(complaint.description || 'No description provided', 180);
+    doc.text(splitDescription, 15, yPos);
+    yPos += splitDescription.length * 6 + 10;
+  
+    // Response Section
+    doc.setFontSize(14);
+    doc.setFont(sectionStyle.font, 'bold');
+    doc.text('Official Response', 15, yPos);
+    yPos += 8;
+  
+    doc.setFontSize(12);
+    doc.setFont(sectionStyle.font, 'normal');
+    const splitResponse = doc.splitTextToSize(
+      complaint.response || 'No official response yet', 
+      180
+    );
+    doc.text(splitResponse, 15, yPos);
+    yPos += splitResponse.length * 6 + 15;
+  
+    // Footer
+    doc.setFontSize(10);
+    doc.setFont('courier', 'italic');
+    doc.text('Generated by MenuFy - Restaurant Management System', pageWidth / 2, 280, {
+      align: 'center',
+    });
+    doc.text(`www.menufy.com | Contact: support@menufy.com`, pageWidth / 2, 285, {
+      align: 'center',
+    });
+  
+    // Save PDF
+    doc.save(`Complaint_${complaint._id}_Report.pdf`);
   };
 
   // Form Validation
@@ -172,13 +285,13 @@ const ComplaintList = () => {
     setImageUrls([]);
     setValidationErrors({});
   };
-
+  // Modify handleShowEditModal to track original complaint
   const handleShowEditModal = (complaint) => {
     setSelectedComplaint(complaint);
+    setOriginalComplaint(complaint); // Store original data
     setShowEditModal(true);
     setValidationErrors({});
   };
-
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setSelectedComplaint(null);
@@ -234,6 +347,7 @@ const ComplaintList = () => {
       </div>
     );
   }
+  
 
   if (!currentUser || currentUser.role?.name !== 'SuperAdmin') {
     return <Navigate to="/unauthorized" replace />;
@@ -657,6 +771,13 @@ const ComplaintList = () => {
           <Button variant="secondary" onClick={handleCloseDetailModal} disabled={loading}>
             Close
           </Button>
+          <Button 
+    variant="danger" 
+    onClick={() => generateComplaintPDF(selectedComplaint)}
+    disabled={!selectedComplaint || loading}
+  >
+    <i className="fas fa-file-pdf me-2" /> Generate PDF
+  </Button>
         </Modal.Footer>
       </Modal>
 
@@ -741,6 +862,7 @@ const ComplaintList = () => {
           <Button variant="secondary" onClick={handleCloseEditModal} disabled={loading}>
             Cancel
           </Button>
+          
           <Button variant="primary" onClick={handleUpdateComplaint} disabled={loading}>
             {loading ? <Spinner animation="border" size="sm" /> : 'Save Changes'}
           </Button>

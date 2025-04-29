@@ -1,5 +1,6 @@
 const Complaint = require('../models/Complaint');
 const Restaurant = require('../models/Restaurant');
+const { sendResolvedSMS } = require('../utils/sms');
 const mongoose = require('mongoose');
 
 // Create a new complaint
@@ -198,6 +199,39 @@ const getUserComplaints = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving user complaints', error: error.message });
   }
 };
+const sendSMS = async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.complaintId)
+      .populate('user', 'phoneNumber')
+      .populate('restaurant', 'name');
+
+    if (!complaint) {
+      return res.status(404).json({ message: 'Complaint not found' });
+    }
+
+    if (complaint.status !== 'Resolved') {
+      return res.status(400).json({ message: 'Complaint is not resolved' });
+    }
+
+    if (!complaint.user.phoneNumber) {
+      return res.status(400).json({ message: 'User has no phone number registered' });
+    }
+
+    const result = await sendResolvedSMS(
+      complaint.user.phoneNumber,
+      complaint._id
+    );
+
+    res.json({
+      message: 'SMS notification sent successfully',
+      sid: result.sid
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message || 'Error sending SMS notification'
+    });
+  }
+};
 
 module.exports = {
   createComplaint,
@@ -206,5 +240,6 @@ module.exports = {
   updateComplaint,
   deleteComplaint,
   getComplaintsByRestaurant,
-  getUserComplaints
+  getUserComplaints,
+  sendSMS
 };
