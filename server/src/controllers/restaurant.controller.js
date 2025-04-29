@@ -46,7 +46,7 @@ const createRestaurant = async (req, res) => {
       logo,
       promotion,
       payCashMethod,
-      images,
+      images: [],
       tables: [],
     });
 
@@ -204,7 +204,7 @@ const uploadImage = async (req, res) => {
 const createTable = async (req, res) => {
   try {
     const { restauId } = req.params;
-    const { nbtable, chairnb } = req.body;
+    const { nbtable, chairnb, shape, view, features, location } = req.body;
 
     if (!nbtable || !chairnb) {
       return res.status(400).json({ message: 'Missing table number or chair count' });
@@ -231,6 +231,10 @@ const createTable = async (req, res) => {
     const table = await Table.create({
       nbtable,
       chairnb,
+      shape,
+      view,
+      features,
+      location,
       qrcode: qrcodeToken,
       restauId,
     });
@@ -254,6 +258,7 @@ const createTable = async (req, res) => {
     });
   }
 };
+
 
 // @desc    Get all tables
 // @route   GET /api/tables
@@ -319,8 +324,7 @@ const getTableById = async (req, res) => {
 const updateTable = async (req, res) => {
   try {
     const { id, restauId } = req.params;
-    const updates = req.body;
-
+    const { nbtable, chairnb, shape, view, features, location } = req.body;
     const table = await Table.findById(id);
     if (!table) {
       return res.status(404).json({ message: 'Table not found' });
@@ -329,21 +333,22 @@ const updateTable = async (req, res) => {
     if (table.restauId.toString() !== restauId) {
       return res.status(400).json({ message: 'Table does not belong to this restaurant' });
     }
+    
+    table.nbtable = nbtable ?? table.nbtable;
+    table.chairnb = chairnb ?? table.chairnb;
+    table.shape = shape ?? table.shape;
+    table.view = view ?? table.view;
+    table.features = features ?? table.features;
+    table.location = location ?? table.location;
 
-    if (updates.restauId && updates.restauId !== restauId) {
-      return res.status(400).json({ message: 'Changing restaurant ID is not allowed' });
-    }
+    await table.save();
 
-    const updatedTable = await Table.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    }).populate('restauId', 'name address');
-
-    res.status(200).json(updatedTable);
+    res.status(200).json({ message: 'Table updated', table });
   } catch (error) {
     res.status(500).json({ message: 'Error updating table', error: error.message });
   }
 };
+
 
 // @desc    Delete a table
 // @route   DELETE /api/restaurants/:restauId/tables/:id

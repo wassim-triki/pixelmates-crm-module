@@ -1,37 +1,45 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import BlurContainer from '../components/blurContainer';
 import Button from '../components/button';
 import { FaArrowLeft } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import axios from '../config/axios';
 
 const ReservationForm = () => {
+  const { tableId } = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
     date: '',
     time: '',
     guests: 1,
+    specialRequests: ''
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  const handleBackClick = () => navigate(-1);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // For now, just simulate a successful reservation
-    toast.success('Static reservation submitted!');
-    navigate('/');
-  };
+    
+    try {
+      const reservationData = {
+        ...formData,
+        table: tableId,
+        startTime: formData.time,
+        endTime: calculateEndTime(formData.time) // À implémenter
+      };
 
-  const handleBackClick = () => navigate('/');
+      await axios.post('/reservations', reservationData);
+      
+      toast.success('Réservation confirmée !');
+      navigate('/my-reservations');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Erreur de réservation');
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent relative">
