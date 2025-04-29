@@ -25,9 +25,7 @@ async function updateExistingDocuments() {
       { $set: { isReserved: false } } // Ajout du champ avec la valeur par défaut
     );
 
-    console.log(
-      `${result.modifiedCount} documents mis à jour avec le champ isReserved`
-    );
+ 
   } catch (error) {
     console.error('Erreur lors de la mise à jour des documents :', error);
   }

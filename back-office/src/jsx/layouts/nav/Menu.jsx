@@ -12,6 +12,10 @@ export const AdminMenuList = [
         title: 'My Restaurant',
         to: '/admin/restaurant',
       },
+      {
+        title: 'Complaints',
+        to: 'complaint',
+      },
     ],
   },
 ];
@@ -36,9 +40,14 @@ export const SuperAdminMenuList = [
         to: 'restaurant',
       },
       {
-        title: 'statics',
+      title: 'Complaints',
+      to: 'complaint',
+    },
+      {
+        title: 'Statics',
         to: 'statics',
       },
+      
     ],
   },
 
