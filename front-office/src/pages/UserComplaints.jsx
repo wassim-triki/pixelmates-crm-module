@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useComplaint } from '../context/ComplaintContext';
+import { useAuth } from '../context/authContext';
+import { useComplaint } from '../context/complaintContext';
 import BlurContainer from '../components/blurContainer';
 import Button from '../components/button';
 import { FaArrowLeft, FaExclamationCircle, FaEdit, FaTrash, FaInfoCircle } from 'react-icons/fa';
