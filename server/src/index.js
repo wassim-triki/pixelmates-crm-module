@@ -15,6 +15,12 @@ const roleRoutes = require('./routes/role.routes.js'); // Add this line
 const reservationRoutes = require('./routes/reservations.routes.js'); // Add this line
 const passport = require('passport');
 const path = require('path');
+
+
+const loyaltyRoutes = require('./routes/loyaltyProgram.routes.js');
+
+
+
 dotenv.config();
 
 // Fonction pour mettre à jour les documents existants
@@ -83,6 +89,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/complaints', complaintRoutes);
+
+app.use('/api/loyalty', loyaltyRoutes);
+
 // Default route
 app.get('/', (req, res) => {
   res.send('Pixelmates CRM Backend is running...');
