@@ -137,11 +137,7 @@ function HomeRedirect() {
 const Markup = () => {
   const allroutes = [
     /// Dashboard
-    { url: '', component: <Home /> },
-    { url: 'dashboard', component: <Home /> },
-    { url: 'clients', component: <Clients /> },
-    { url: 'restaurant', component: <Restaurant /> },
-    { url: 'statics', component: <Statics /> },
+
     { url: 'orders', component: <Orders /> },
     { url: 'Order-id', component: <OrderId /> },
     { url: 'general-customers', component: <GeneralCustomers /> },
@@ -252,6 +248,30 @@ const Markup = () => {
             element={
               <ProtectedRoute requiredRole="SuperAdmin">
                 <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin/users"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Clients />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin/restaurants"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Restaurant />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin/statistics"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Statics />
               </ProtectedRoute>
             }
           />

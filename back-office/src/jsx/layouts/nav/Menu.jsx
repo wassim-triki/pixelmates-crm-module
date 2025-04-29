@@ -28,16 +28,16 @@ export const SuperAdminMenuList = [
         to: '/superadmin/dashboard',
       },
       {
-        title: 'Clients',
-        to: 'clients',
+        title: 'Users',
+        to: '/superadmin/users',
       },
       {
         title: 'Restaurants',
-        to: 'restaurant',
+        to: '/superadmin/restaurants',
       },
       {
         title: 'statics',
-        to: 'statics',
+        to: '/superadmin/statics',
       },
     ],
   },
