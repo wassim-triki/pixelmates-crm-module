@@ -2,12 +2,28 @@ const Reservation = require('../models/Reservation');
 const Restaurant = require('../models/Restaurant');
 const Table = require('../models/Table');
 const mongoose = require('mongoose');
+const calculateEndTime = (dateString, startTime) => {
+  const [hours, minutes] = startTime.split(':').map(Number);
+  const date = new Date(dateString);
+  date.setHours(hours + 2, minutes);
+  const formatted = date.toTimeString().split(' ')[0].slice(0, 5); // "HH:mm"
+  return formatted;
+};
+function isWithinOpeningHours(restaurant, dateString, time) {
+  const dayOfWeek = new Date(dateString).getDay(); // 0 = dimanche, 1 = lundi, ...
+  const openingHours = restaurant.openingHours?.[dayOfWeek];
+
+  if (!openingHours || !openingHours.start || !openingHours.end) return false;
+
+  // Comparer les heures
+  return time >= openingHours.start && time <= openingHours.end;
+}
 
 // Nouvelle fonction de vérification de disponibilité
 exports.checkAvailability = async (req, res) => {
   try {
     const { restaurantId, date, time, partySize, preferences } = req.body;
-    
+   
     // 1. Vérifier les horaires d'ouverture
     const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant.openingHours || !isWithinOpeningHours(restaurant, date, time)) {
@@ -55,38 +71,56 @@ exports.checkAvailability = async (req, res) => {
 // Modification de createReservation avec gestion liste d'attente
 exports.createReservation = async (req, res) => {
   try {
-    const { restaurantId, tableId, date, time, preferences } = req.body;
-    
-    // Vérification de capacité
-    const table = await Table.findById(tableId);
-    if (table.chairnb < req.body.partySize) {
-      return res.status(400).json({ 
-        message: `Capacité insuffisante (${table.chairnb} places)`,
-        suggestTables: await findLargerTables(restaurantId, req.body.partySize)
-      });
+    const { user, restaurant, table, reservationDate, startTime, endTime, partySize, specialRequests } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(restaurant) || 
+        !mongoose.Types.ObjectId.isValid(table) || 
+        !mongoose.Types.ObjectId.isValid(user)) {
+      return res.status(400).json({ message: 'ID invalide' });
     }
 
-    // Vérifier disponibilité
-    const isAvailable = await checkTableAvailability(tableId, date, time);
-    
-    if (!isAvailable) {
-      const waitingReservation = await createWaitingReservation(req);
-      await addToWaitingList(restaurantId, waitingReservation._id);
+    const existingReservation = await Reservation.findOne({
+      table,
+      reservationDate: new Date(reservationDate),
+      reservationDate: new Date(reservationDate),
+      startTime: { $lt: endTime },
+      endTime: { $gt: startTime },
+      status: { $in: ['confirmed', 'pending'] }
       
-      return res.status(202).json({
-        message: 'Vous êtes en liste d attente',
-        position: waitingReservation.waitingListPosition,
-        estimatedWait: await calculateWaitTime(restaurantId)
+    });
+
+    if (existingReservation) {
+      return res.status(409).json({
+        message: 'Conflit de réservation',
+        conflictingSlot: {
+          start: existingReservation.startTime,
+          end: existingReservation.endTime
+        }
       });
     }
 
-    // Création réservation
-    const reservation = await Reservation.create({ ...req.body, status: 'confirmed' });
+    const newReservation = await Reservation.create({
+      user,
+      restaurant,
+      table,
+      reservationDate: new Date(reservationDate),
+      startTime,
+      endTime,
+      partySize,
+      specialRequests,
+      status: 'confirmed'
+    });
 
-    res.status(201).json(reservation);
-
+    res.status(201).json({
+      message: 'Réservation créée avec succès',
+      reservation: newReservation
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur de réservation', error: error.message });
+    console.error('Erreur de réservation:', error);
+    res.status(500).json({
+      message: 'Erreur serveur',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 

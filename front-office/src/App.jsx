@@ -56,12 +56,13 @@ const App = () => {
               <Route path="/forgot-password" element={<ResetPasswordEmail />} />
               <Route path="/verify-email" element={<VerifyCode />} />
               <Route path="/restaurant" element={<Restaurant />} />
-              <Route path="/reservation/:tableId" element={
-               <ProtectedRoute>
-                    <ReservationForm />
-               </ProtectedRoute>
-               } 
-              />
+              <Route path="/restaurants/:restaurantId/tables/:tableId/reserve" element={
+             <ProtectedRoute>
+             <ReservationForm />
+            </ProtectedRoute>
+              } 
+/>
+             
               <Route
                 path="/restaurants/:restaurantId"
                 element={<ReservationPage />}
