@@ -46,7 +46,10 @@ function RestaurantRegister() {
       };
       const response = await axiosInstance.post('/admin/signup', postData);
       setSuccessMessage(response.data.message || 'Signup successful!');
-      // setTimeout(() => navigate('/verify-email'), 2000);
+      setTimeout(
+        () => navigate('/verify-email', { state: { email: formData.email } }),
+        2000
+      );
     } catch (err) {
       setErrorMessage(
         err.response?.data?.message || 'An unexpected error occurred.'

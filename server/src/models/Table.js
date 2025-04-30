@@ -14,6 +14,24 @@ const TableSchema = new mongoose.Schema(
       min: [1, 'Number of chairs must be at least 1'],
       max: [20, 'Number of chairs cannot exceed 20'],
     },
+    shape: {
+      type: String,
+      enum: ['rectangle', 'square', 'round'],
+      required: [true, 'Table shape is required'],
+      default: 'rectangle'
+    },
+    location: {
+      type: String,
+      enum: ['window', 'center', 'terrace', 'main lounge'],
+      required: [true, 'Table location is required'],
+      default: 'center'
+    },
+    view: {
+      type: String,
+      enum: ['sea', 'pool', 'city', 'garden', 'none'],
+      required: [true, 'Table view is required'],
+      default: 'none'
+    },
     qrcode: {
       type: String,
       required: [true, 'QR code is required'],
@@ -31,13 +49,12 @@ const TableSchema = new mongoose.Schema(
       ref: 'Restaurant',
       required: [true, 'Restaurant ID is required'],
     },
-    isReserved: {
-      type: Boolean,
-      default: false, // Par défaut, la table n'est pas réservée
-      select: true 
-      
+    features: {
+      type: [String],
+      enum: ['USB charger', 'TV screen', 'smoking area', 'private'],
+      required: true,
+      default: [] 
     }
-
   },
   {
     timestamps: true,
@@ -45,9 +62,7 @@ const TableSchema = new mongoose.Schema(
   }
 );
 
-// Compound index for unique table numbers per restaurant
 TableSchema.index({ restauId: 1, nbtable: 1 }, { unique: true });
-// Index for restaurant queries
 TableSchema.index({ restauId: 1 });
 
 module.exports = mongoose.model('Table', TableSchema);

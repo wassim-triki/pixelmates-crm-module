@@ -1,57 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../config/axios';
 import RestaurantLayout from '../components/RestaurantLayout';
+// import Loader from '../components/Loader.jsx';
 
 const ReservationPage = () => {
-  const { restaurantId } = useParams(); // Get restaurant ID from URL
+  const { restaurantId } = useParams();
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/restaurants/${restaurantId}/tables`
-        );
+        const response = await axios.get(`/restaurants/${restaurantId}/tables`);
         setTables(response.data);
       } catch (err) {
-        setError(
-          'Erreur lors du chargement des tables. Veuillez rafraîchir la page.'
-        );
-        console.error('Erreur API:', err);
+        setError('Erreur de chargement des tables');
       } finally {
         setLoading(false);
       }
     };
-
     fetchTables();
   }, [restaurantId]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  if (loading) return 'Loading...';
 
-  if (error) {
-    return (
-      <div className="p-6 text-center text-red-600 bg-red-50 rounded-lg max-w-md mx-auto mt-10">
-        {error}
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Réessayer
-        </button>
-      </div>
-    );
-  }
-
-  return <RestaurantLayout tables={tables} />;
+  return (
+    <div className="min-h-screen">
+      {error ? (
+        <div className="p-6 text-red-500">{error}</div>
+      ) : (
+        <RestaurantLayout tables={tables} />
+      )}
+    </div>
+  );
 };
 
 export default ReservationPage;

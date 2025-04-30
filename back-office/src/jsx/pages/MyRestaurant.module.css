@@ -1,0 +1,109 @@
+/* src/components/MyRestaurant.module.css */
+.dropzone {
+  border: 2px dashed #fa8072;
+  background-color: rgba(253, 197, 114, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fa8072;
+  transition: border-color 0.2s, color 0.2s;
+  overflow: hidden;
+  position: relative;
+}
+.dragover {
+  border-color: #fa8072;
+  color: #fa8072;
+}
+.thumbnailZone {
+  width: 120px;
+  height: 120px;
+}
+.galleryZone {
+  flex: 1;
+  height: 120px;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: hidden;
+}
+.fitImage {
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.imgWrapper {
+  position: relative;
+  height: 100%;
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(250, 128, 114, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.imgWrapper:hover .overlay {
+  opacity: 1;
+}
+.removeBtn {
+  background-color: #fff;
+  border: none;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fa8072;
+}
+.emptyPlaceholder {
+  color: #fa8072;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: auto;
+}
+.publishSwitch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+/* then you can also target the child input/label under .publishSwitch if you like */
+/* ─── Global overrides for the Published switch ─── */
+:global(.form-check.form-switch) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+:global(.form-check.form-switch .form-check-input) {
+  /* make the toggle a bit bigger */
+  width: 2rem;
+  height: 1.2rem;
+}
+
+:global(.form-check.form-switch .form-check-input:checked) {
+  /* brand color on “on” state */
+  background-color: #fa8072;
+  border-color: #fa8072;
+}
+
+:global(.form-check.form-switch .form-check-label) {
+  /* tighten up spacing & weight */
+  margin: 0;
+  font-weight: 500;
+}

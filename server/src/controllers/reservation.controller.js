@@ -1,154 +1,185 @@
 const Reservation = require('../models/Reservation');
 const Restaurant = require('../models/Restaurant');
+const Table = require('../models/Table');
 const mongoose = require('mongoose');
+const calculateEndTime = (dateString, startTime) => {
+  const [hours, minutes] = startTime.split(':').map(Number);
+  const date = new Date(dateString);
+  date.setHours(hours + 2, minutes);
+  const formatted = date.toTimeString().split(' ')[0].slice(0, 5); // "HH:mm"
+  return formatted;
+};
+function isWithinOpeningHours(restaurant, dateString, time) {
+  const dayOfWeek = new Date(dateString).getDay(); // 0 = dimanche, 1 = lundi, ...
+  const openingHours = restaurant.openingHours?.[dayOfWeek];
 
-// Create a new reservation
-exports.createReservation = async (req, res) => {
+  if (!openingHours || !openingHours.start || !openingHours.end) return false;
+
+  // Comparer les heures
+  return time >= openingHours.start && time <= openingHours.end;
+}
+
+// Nouvelle fonction de vérification de disponibilité
+exports.checkAvailability = async (req, res) => {
   try {
-    const { restaurantId, tableId, reservationDate, partySize, specialRequests } = req.body;
-    
-    // Validate input
-    if (!restaurantId || !tableId || !reservationDate || !partySize) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    // Check if restaurant exists
+    const { restaurantId, date, time, partySize, preferences } = req.body;
+   
+    // 1. Vérifier les horaires d'ouverture
     const restaurant = await Restaurant.findById(restaurantId);
-    if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+    if (!restaurant.openingHours || !isWithinOpeningHours(restaurant, date, time)) {
+      return res.status(400).json({ message: 'Restaurant fermé à cet horaire' });
     }
 
-    // Check if table belongs to restaurant
-    if (!restaurant.tables.includes(tableId)) {
-      return res.status(400).json({ message: 'Invalid table for this restaurant' });
-    }
-
-    // Check for conflicting reservations
-    const conflictingReservation = await Reservation.findOne({
-      restaurant: restaurantId,
-      table: tableId,
-      reservationDate: {
-        $gte: new Date(reservationDate).setHours(0, 0, 0, 0),
-        $lte: new Date(reservationDate).setHours(23, 59, 59, 999)
-      },
-      status: { $in: ['pending', 'confirmed'] }
+    // 2. Trouver les tables correspondantes
+    const matchingTables = await Table.find({
+      restauId: restaurantId,
+      chairnb: { $gte: partySize },
+      ...preferences
     });
 
-    if (conflictingReservation) {
-      return res.status(400).json({ message: 'Table already reserved for this time' });
-    }
+    // 3. Vérifier disponibilité
+    const availableTables = await Promise.all(
+      matchingTables.map(async table => {
+        const conflicts = await Reservation.find({
+          table: table._id,
+          reservationDate: date,
+          $or: [
+            { startTime: { $lt: time.end }, endTime: { $gt: time.start } },
+            { status: { $in: ['confirmed', 'pending'] } }
+          ]
+        });
+        return conflicts.length === 0 ? table : null;
+      })
+    );
 
-    const reservation = new Reservation({
-      user: req.user._id, // Assuming user is authenticated and ID is available
-      restaurant: restaurantId,
-      table: tableId,
-      reservationDate: new Date(reservationDate),
-      partySize,
-      specialRequests
+    // 4. Classement par préférences
+    const filteredTables = availableTables.filter(t => t).sort((a, b) => 
+      (b.features.includes('private') - a.features.includes('private')) ||
+      (b.view !== 'none' - a.view !== 'none')
+    );
+
+    res.json({ 
+      available: filteredTables,
+      nextAvailableSlot: filteredTables.length > 0 ? null : await findNextAvailableSlot(restaurantId)
     });
-
-    await reservation.save();
-
-    // Add reservation to restaurant
-    restaurant.reservations.push(reservation._id);
-    await restaurant.save();
-
-    res.status(201).json({ message: 'Reservation created successfully', reservation });
+    
   } catch (error) {
-    res.status(500).json({ message: 'Error creating reservation', error: error.message });
+    res.status(500).json({ message: 'Erreur de vérification', error: error.message });
   }
 };
 
-// Get all reservations for a restaurant
+// Modification de createReservation avec gestion liste d'attente
+exports.createReservation = async (req, res) => {
+  try {
+    const { user, restaurant, table, reservationDate, startTime, endTime, partySize, specialRequests } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(restaurant) || 
+        !mongoose.Types.ObjectId.isValid(table) || 
+        !mongoose.Types.ObjectId.isValid(user)) {
+      return res.status(400).json({ message: 'ID invalide' });
+    }
+
+    const existingReservation = await Reservation.findOne({
+      table,
+      reservationDate: new Date(reservationDate),
+      reservationDate: new Date(reservationDate),
+      startTime: { $lt: endTime },
+      endTime: { $gt: startTime },
+      status: { $in: ['confirmed', 'pending'] }
+      
+    });
+
+    if (existingReservation) {
+      return res.status(409).json({
+        message: 'Conflit de réservation',
+        conflictingSlot: {
+          start: existingReservation.startTime,
+          end: existingReservation.endTime
+        }
+      });
+    }
+
+    const newReservation = await Reservation.create({
+      user,
+      restaurant,
+      table,
+      reservationDate: new Date(reservationDate),
+      startTime,
+      endTime,
+      partySize,
+      specialRequests,
+      status: 'confirmed'
+    });
+
+    res.status(201).json({
+      message: 'Réservation créée avec succès',
+      reservation: newReservation
+    });
+  } catch (error) {
+    console.error('Erreur de réservation:', error);
+    res.status(500).json({
+      message: 'Erreur serveur',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+};
+
+// Gestion annulation avec mise à jour liste d'attente
+exports.cancelReservation = async (req, res) => {
+  try {
+    const reservation = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      { status: 'cancelled' },
+      { new: true }
+    );
+
+    // Si annulation d'une réservation confirmée, libérer la table
+    if (reservation.status === 'confirmed') {
+      await processWaitingList(reservation.restaurant, reservation.reservationDate);
+    }
+
+    res.json({ message: 'Réservation annulée', reservation });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur d annulation', error: error.message });
+  }
+};
+
+// Obtenir les réservations d'un restaurant
 exports.getRestaurantReservations = async (req, res) => {
   try {
     const { restaurantId } = req.params;
-    const { date } = req.query; // Optional date filter
-
-    const query = { restaurant: restaurantId };
-    if (date) {
-      query.reservationDate = {
-        $gte: new Date(date).setHours(0, 0, 0, 0),
-        $lte: new Date(date).setHours(23, 59, 59, 999)
-      };
-    }
-
-    const reservations = await Reservation.find(query)
-      .populate('user', 'name email')
-      .populate('table')
-      .sort({ reservationDate: 1 });
-
-    res.status(200).json(reservations);
+    const reservations = await Reservation.find({ restaurant: restaurantId });
+    res.json(reservations);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching reservations', error: error.message });
+    res.status(500).json({ message: 'Erreur lors de la récupération des réservations', error: error.message });
   }
 };
 
-// Get user's reservations
+// Obtenir les réservations de l'utilisateur connecté
 exports.getUserReservations = async (req, res) => {
   try {
-    const reservations = await Reservation.find({ user: req.user._id })
-      .populate('restaurant', 'name address')
-      .populate('table')
-      .sort({ reservationDate: -1 });
-
-    res.status(200).json(reservations);
+    const userId = req.user.id;
+    const reservations = await Reservation.find({ user: userId });
+    res.json(reservations);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching user reservations', error: error.message });
+    res.status(500).json({ message: 'Erreur lors de la récupération des réservations utilisateur', error: error.message });
   }
 };
 
-// Cancel a reservation
-exports.cancelReservation = async (req, res) => {
-  try {
-    const { reservationId } = req.params;
-
-    const reservation = await Reservation.findOne({
-      _id: reservationId,
-      user: req.user._id
-    });
-
-    if (!reservation) {
-      return res.status(404).json({ message: 'Reservation not found or unauthorized' });
-    }
-
-    if (reservation.status === 'cancelled') {
-      return res.status(400).json({ message: 'Reservation already cancelled' });
-    }
-
-    reservation.status = 'cancelled';
-    await reservation.save();
-
-    res.status(200).json({ message: 'Reservation cancelled successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error cancelling reservation', error: error.message });
-  }
-};
-
-// Update reservation status (for restaurant owners/managers)
+// Mettre à jour le statut d'une réservation (confirmée, refusée, etc.)
 exports.updateReservationStatus = async (req, res) => {
   try {
     const { reservationId } = req.params;
     const { status } = req.body;
 
-    if (!['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status' });
-    }
+    const reservation = await Reservation.findByIdAndUpdate(
+      reservationId,
+      { status },
+      { new: true }
+    );
 
-    const reservation = await Reservation.findById(reservationId);
-    if (!reservation) {
-      return res.status(404).json({ message: 'Reservation not found' });
-    }
-
-    // Verify user has permission to update (e.g., restaurant owner)
-    const restaurant = await Restaurant.findById(reservation.restaurant);
-    // Add your authorization logic here (e.g., check if req.user is restaurant owner)
-
-    reservation.status = status;
-    await reservation.save();
-
-    res.status(200).json({ message: 'Reservation status updated', reservation });
+    res.json(reservation);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating reservation status', error: error.message });
+    res.status(500).json({ message: 'Erreur lors de la mise à jour du statut', error: error.message });
   }
 };

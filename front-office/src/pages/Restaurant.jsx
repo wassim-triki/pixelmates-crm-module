@@ -21,8 +21,12 @@ const shimmer = keyframes`
 // Styles globaux
 const Container = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 100%), 
-              url('/bg.jpg') center/cover fixed;
+  background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.7) 100%
+    ),
+    url('/bg.jpg') center/cover fixed;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,7 +42,7 @@ const Container = styled.div`
 const BackgroundOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
   z-index: 0;
 `;
@@ -52,7 +56,6 @@ const ContentWrapper = styled.div`
   animation: ${fadeIn} 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
-
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
@@ -60,7 +63,7 @@ const Title = styled.h1`
   text-align: center;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   font-family: 'Playfair Display', serif;
 
   @media (max-width: 768px) {
@@ -75,11 +78,11 @@ const SearchInput = styled.div`
   border-radius: 0.75rem;
   background: white;
   transition: all 0.3s ease;
-  height: 3rem; 
+  height: 3rem;
 
   input {
     width: 100%;
-    height: 100%;  
+    height: 100%;
     padding: 0.75rem 1rem;
     border: none;
     outline: none;
@@ -97,9 +100,9 @@ const SearchInput = styled.div`
 const CuisineSelect = styled.select`
   padding: 0.75rem 1rem;
   width: 10rem;
-  height: 3rem;  /* Ajouter une hauteur explicite identique à celle de SearchInput */
+  height: 3rem; /* Ajouter une hauteur explicite identique à celle de SearchInput */
   border-radius: 0.75rem;
-  border: 2px solid #FA8072;
+  border: 2px solid #fa8072;
   background: white;
   color: black;
   font-weight: 600;
@@ -111,16 +114,13 @@ const CuisineSelect = styled.select`
   background-size: 1.2em;
 
   &:hover {
-    border-color: #FF6347;
+    border-color: #ff6347;
   }
 
   @media (min-width: 640px) {
     width: 13rem;
   }
 `;
-
-
-
 
 const RestaurantGrid = styled.div`
   display: grid;
@@ -143,21 +143,20 @@ const RestaurantGrid = styled.div`
 
 const RestaurantCard = styled(motion.div)`
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   padding: 1.5rem;
   color: white;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 
   &:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-5px);
   }
 `;
-
 
 const RestaurantImage = styled.img`
   width: 100%;
@@ -176,7 +175,7 @@ const RestaurantImage = styled.img`
 
 const BookButton = styled(Link)`
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #FA8072 0%, #FF6347 100%);
+  background: linear-gradient(135deg, #fa8072 0%, #ff6347 100%);
   color: white;
   font-weight: 600;
   border-radius: 0.75rem;
@@ -185,10 +184,10 @@ const BookButton = styled(Link)`
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-2px) scale(1.05);
-    background: linear-gradient(135deg, #FF6347 0%, #FA8072 100%);
+    background: linear-gradient(135deg, #ff6347 0%, #fa8072 100%);
   }
 
   &::before {
@@ -198,11 +197,15 @@ const BookButton = styled(Link)`
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 50%, transparent 75%);
+    background: linear-gradient(
+      45deg,
+      transparent 25%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 75%
+    );
     animation: ${shimmer} 4s infinite;
   }
 `;
-
 
 const PaginationButton = styled.button`
   padding: 0.5rem 1rem;
@@ -210,13 +213,13 @@ const PaginationButton = styled.button`
   font-weight: 500;
   min-width: 2.5rem;
   transition: all 0.3s ease;
-  background: ${props => props.active ? '#FA8072' : 'white'};
-  color: ${props => props.active ? 'white' : 'black'};
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: ${(props) => (props.active ? '#FA8072' : 'white')};
+  color: ${(props) => (props.active ? 'white' : 'black')};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
     transform: translateY(-2px);
-    background: #FA8072;
+    background: #fa8072;
     color: white;
   }
 `;
@@ -230,7 +233,9 @@ const Loader = styled.div`
   animation: spin 1s linear infinite;
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -239,7 +244,7 @@ const CardTitle = styled.h3`
   font-weight: 700;
   margin-bottom: 1rem;
   text-align: center;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
 const InfoContainer = styled.div`
@@ -255,7 +260,7 @@ const InfoText = styled.p`
 
 const PromotionText = styled.p`
   font-size: 0.875rem;
-  color: #FA8072;
+  color: #fa8072;
   text-align: center;
   margin-bottom: 1rem;
   font-weight: 500;
@@ -266,7 +271,6 @@ const FlexContainer = styled.div`
   justify-content: center;
   margin-top: auto;
 `;
-
 
 const RestaurantList = () => {
   const [restaurants, setRestaurants] = useState([]);
@@ -279,13 +283,18 @@ const RestaurantList = () => {
   const restaurantsPerPage = 8;
   const indexOfLast = currentPage * restaurantsPerPage;
   const indexOfFirst = indexOfLast - restaurantsPerPage;
-  const currentRestaurants = filteredRestaurants.slice(indexOfFirst, indexOfLast);
-  const navigate = useNavigate()
+  const currentRestaurants = filteredRestaurants.slice(
+    indexOfFirst,
+    indexOfLast
+  );
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getRestaurants = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/restaurants');
+        const response = await axios.get(
+          'http://localhost:5000/api/restaurants'
+        );
         setRestaurants(response.data.restaurants);
         setFilteredRestaurants(response.data.restaurants);
       } catch (error) {
@@ -304,9 +313,10 @@ const RestaurantList = () => {
 
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        filtered = filtered.filter((r) => 
-          r.name.toLowerCase().includes(term) || 
-          r.address.toLowerCase().includes(term)
+        filtered = filtered.filter(
+          (r) =>
+            r.name.toLowerCase().includes(term) ||
+            r.address.toLowerCase().includes(term)
         );
       }
 
@@ -324,31 +334,39 @@ const RestaurantList = () => {
   const cuisines = [...new Set(restaurants.map((r) => r.cuisineType))];
 
   const handleBackToHome = () => {
-    navigate('/'); }
+    navigate('/');
+  };
 
   return (
     <Container>
       <BackgroundOverlay />
       <ContentWrapper>
-                    <div className="absolute top-10 left-0 z-10">
-                      <button
-                         onClick={handleBackToHome}
-                         className="text-white bg-transparent p-2 rounded-full hover:bg-gray-500 transition-all duration-300"
-                      >
-                      <FaArrowLeft className="text-2xl" />
-                     </button>
-                      </div>
+        <div className="absolute top-10 left-0 z-10">
+          <button
+            onClick={handleBackToHome}
+            className="text-white bg-transparent p-2 rounded-full hover:bg-gray-500 transition-all duration-300"
+          >
+            <FaArrowLeft className="text-2xl" />
+          </button>
+        </div>
         <Title>🍽️ Our Partnered Restaurants</Title>
 
         <div className="flex flex-wrap gap-4 justify-center items-center mb-8">
-        <SearchInput>
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <FaSearch style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+          <SearchInput>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <FaSearch
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+              }}
+            />
           </SearchInput>
 
           <CuisineSelect
@@ -369,54 +387,68 @@ const RestaurantList = () => {
             <Loader />
           </div>
         ) : currentRestaurants.length === 0 ? (
-          <p className="text-white text-center text-lg">No restaurants found.</p>
+          <p className="text-white text-center text-lg">
+            No restaurants found.
+          </p>
         ) : (
           <>
-    <RestaurantGrid>
-    {currentRestaurants.map((restaurant, index) => (      
-  <RestaurantCard
+            <RestaurantGrid>
+              {currentRestaurants
+                .filter((res) => res.isPublished)
+                .map((restaurant, index) => (
+                  <RestaurantCard
+                    key={restaurant._id}
+                    whileHover={{ scale: 1.03 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <RestaurantImage
+                      src={
+                        restaurant.thumbnail || restaurant.logo || '/test.png'
+                      }
+                      alt={restaurant.name}
+                    />
 
-  key={restaurant._id}
-  whileHover={{ scale: 1.03 }}
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: index * 0.1 }}
->
-  <RestaurantImage
-    src={restaurant.logo || '/test.png'}
-    alt={restaurant.name}
-  />
+                    <CardTitle>{restaurant.name}</CardTitle>
 
-  <CardTitle>{restaurant.name}</CardTitle>
+                    <InfoContainer>
+                      <InfoText>Adress: {restaurant.address}</InfoText>
+                      <InfoText>Cuisine: {restaurant.cuisineType}</InfoText>
+                      <InfoText>Rating: {restaurant.note} ⭐</InfoText>
 
-  <InfoContainer>
-    <InfoText>Adress: {restaurant.address}</InfoText>
-    <InfoText>Cuisine: {restaurant.cuisineType}</InfoText>
-    <InfoText>Rating: {restaurant.note} ⭐</InfoText>
+                      {restaurant.promotion && (
+                        <PromotionText>
+                          🔥 Promo: {restaurant.promotion}
+                        </PromotionText>
+                      )}
+                    </InfoContainer>
 
-    {restaurant.promotion && (
-      <PromotionText>🔥 Promo: {restaurant.promotion}</PromotionText>
-    )}
-  </InfoContainer>
-
-  <FlexContainer>
-    <BookButton to={`/restaurant/${restaurant._id}`}>
-      Book Now
-    </BookButton>
-  </FlexContainer>
-</RestaurantCard>
-  ))}
-</RestaurantGrid>
+                    <FlexContainer>
+                      <BookButton to={`/restaurants/${restaurant._id}`}>
+                        Book Now
+                      </BookButton>
+                    </FlexContainer>
+                  </RestaurantCard>
+                ))}
+            </RestaurantGrid>
             <div className="flex justify-center mt-8 gap-2 flex-wrap">
-              {Array.from({ length: Math.ceil(filteredRestaurants.length / restaurantsPerPage) }, (_, i) => (
-                <PaginationButton
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
-                  active={currentPage === i + 1}
-                >
-                  {i + 1}
-                </PaginationButton>
-              ))}
+              {Array.from(
+                {
+                  length: Math.ceil(
+                    filteredRestaurants.length / restaurantsPerPage
+                  ),
+                },
+                (_, i) => (
+                  <PaginationButton
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    active={currentPage === i + 1}
+                  >
+                    {i + 1}
+                  </PaginationButton>
+                )
+              )}
             </div>
           </>
         )}

@@ -5,16 +5,23 @@ export const AdminMenuList = [
     iconStyle: <i className="flaticon-381-networking" />,
     content: [
       {
-        title: 'Dashboard',
-        to: '/admin/dashboard',
+        title: 'Statistics',
+        to: '/admin/statistics',
       },
+    ],
+  },
+  {
+    title: 'My Restaurant',
+    classsChange: 'mm-collapse',
+    iconStyle: <i className="flaticon-381-location" />,
+    content: [
       {
         title: 'My Restaurant',
-        to: '/admin/restaurant',
+        to: '/admin/my-restaurant',
       },
       {
-        title: 'Complaints',
-        to: 'complaint',
+        title: 'Floor configuration',
+        to: '/admin/my-restaurant',
       },
     ],
   },
@@ -32,20 +39,20 @@ export const SuperAdminMenuList = [
         to: '/superadmin/dashboard',
       },
       {
-        title: 'Clients',
-        to: 'clients',
+        title: 'Users',
+        to: '/superadmin/users',
       },
       {
         title: 'Restaurants',
-        to: 'restaurant',
+        to: '/superadmin/restaurants',
       },
       {
       title: 'Complaints',
       to: 'complaint',
     },
       {
-        title: 'Statics',
-        to: 'statics',
+        title: 'statics',
+        to: '/superadmin/statics',
       },
       
     ],

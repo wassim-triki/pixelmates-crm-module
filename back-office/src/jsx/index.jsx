@@ -122,6 +122,8 @@ import ResetPassword from './pages/ResetPassword';
 import RestaurantRegister from './pages/RestaurantRegister';
 import Complaint from './components/Dashboard/Complaint';
 import { useAuth } from '../context/authContext';
+import MyRestaurant from './pages/MyRestaurant';
+import VerifyEmail from './pages/VerifyEmail';
 function HomeRedirect() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
@@ -143,6 +145,7 @@ const Markup = () => {
     { url: 'restaurant', component: <Restaurant /> },
     { url: 'complaint', component: <Complaint /> },
     { url: 'statics', component: <Statics /> },
+
     { url: 'orders', component: <Orders /> },
     { url: 'Order-id', component: <OrderId /> },
     { url: 'general-customers', component: <GeneralCustomers /> },
@@ -243,6 +246,7 @@ const Markup = () => {
         <Route path="page-error-500" element={<Error500 />} />
         <Route path="page-error-503" element={<Error503 />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/admin/register" element={<RestaurantRegister />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -257,10 +261,42 @@ const Markup = () => {
             }
           />
           <Route
+            path="/superadmin/users"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Clients />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin/restaurants"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Restaurant />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin/statistics"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Statics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/dashboard"
             element={
               <ProtectedRoute requiredRole="Admin">
                 <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/my-restaurant"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <MyRestaurant />
               </ProtectedRoute>
             }
           />
