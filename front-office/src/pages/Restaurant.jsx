@@ -393,40 +393,44 @@ const RestaurantList = () => {
         ) : (
           <>
             <RestaurantGrid>
-              {currentRestaurants.map((restaurant, index) => (
-                <RestaurantCard
-                  key={restaurant._id}
-                  whileHover={{ scale: 1.03 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <RestaurantImage
-                    src={restaurant.thumbnail || restaurant.logo || '/test.png'}
-                    alt={restaurant.name}
-                  />
+              {currentRestaurants
+                .filter((res) => res.isPublished)
+                .map((restaurant, index) => (
+                  <RestaurantCard
+                    key={restaurant._id}
+                    whileHover={{ scale: 1.03 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <RestaurantImage
+                      src={
+                        restaurant.thumbnail || restaurant.logo || '/test.png'
+                      }
+                      alt={restaurant.name}
+                    />
 
-                  <CardTitle>{restaurant.name}</CardTitle>
+                    <CardTitle>{restaurant.name}</CardTitle>
 
-                  <InfoContainer>
-                    <InfoText>Adress: {restaurant.address}</InfoText>
-                    <InfoText>Cuisine: {restaurant.cuisineType}</InfoText>
-                    <InfoText>Rating: {restaurant.note} ⭐</InfoText>
+                    <InfoContainer>
+                      <InfoText>Adress: {restaurant.address}</InfoText>
+                      <InfoText>Cuisine: {restaurant.cuisineType}</InfoText>
+                      <InfoText>Rating: {restaurant.note} ⭐</InfoText>
 
-                    {restaurant.promotion && (
-                      <PromotionText>
-                        🔥 Promo: {restaurant.promotion}
-                      </PromotionText>
-                    )}
-                  </InfoContainer>
+                      {restaurant.promotion && (
+                        <PromotionText>
+                          🔥 Promo: {restaurant.promotion}
+                        </PromotionText>
+                      )}
+                    </InfoContainer>
 
-                  <FlexContainer>
-                    <BookButton to={`/restaurants/${restaurant._id}`}>
-                      Book Now
-                    </BookButton>
-                  </FlexContainer>
-                </RestaurantCard>
-              ))}
+                    <FlexContainer>
+                      <BookButton to={`/restaurants/${restaurant._id}`}>
+                        Book Now
+                      </BookButton>
+                    </FlexContainer>
+                  </RestaurantCard>
+                ))}
             </RestaurantGrid>
             <div className="flex justify-center mt-8 gap-2 flex-wrap">
               {Array.from(

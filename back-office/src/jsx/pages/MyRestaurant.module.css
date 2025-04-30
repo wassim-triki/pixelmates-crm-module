@@ -75,3 +75,35 @@
   font-weight: 500;
   margin: auto;
 }
+.publishSwitch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+/* then you can also target the child input/label under .publishSwitch if you like */
+/* ─── Global overrides for the Published switch ─── */
+:global(.form-check.form-switch) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+:global(.form-check.form-switch .form-check-input) {
+  /* make the toggle a bit bigger */
+  width: 2rem;
+  height: 1.2rem;
+}
+
+:global(.form-check.form-switch .form-check-input:checked) {
+  /* brand color on “on” state */
+  background-color: #fa8072;
+  border-color: #fa8072;
+}
+
+:global(.form-check.form-switch .form-check-label) {
+  /* tighten up spacing & weight */
+  margin: 0;
+  font-weight: 500;
+}

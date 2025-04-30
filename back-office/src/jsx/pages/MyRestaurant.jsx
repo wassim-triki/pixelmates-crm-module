@@ -28,7 +28,37 @@ const markerIcon = icon({
   popupAnchor: [1, -34],
   tooltipAnchor: [16, -28],
 });
+const weekdays = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
 
+// generate "HH:mm" slots every 15min
+const generateTimeSlots = () => {
+  const slots = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m of [0, 15, 30, 45]) {
+      const hh = String(h).padStart(2, '0');
+      const mm = String(m).padStart(2, '0');
+      slots.push(`${hh}:${mm}`);
+    }
+  }
+  return slots;
+};
+const timeSlots = generateTimeSlots();
+
+// format "HH:mm" → "7:00am"
+const format12 = (hhmm) => {
+  const [h, m] = hhmm.split(':').map(Number);
+  const am = h < 12;
+  const hrs = h % 12 || 12;
+  return `${hrs}:${String(m).padStart(2, '0')}${am ? 'am' : 'pm'}`;
+};
 const MyRestaurant = () => {
   const { user } = useAuth();
   const restaurantId = user?.restaurant?._id;
@@ -48,7 +78,9 @@ const MyRestaurant = () => {
 
   const [galleryFiles, setGalleryFiles] = useState([]);
   const [galleryPreviews, setGalleryPreviews] = useState([]);
-
+  const [workFrom, setWorkFrom] = useState('09:00'); // **new**
+  const [workTo, setWorkTo] = useState('23:00'); // **new**
+  const [isPublished, setIsPublished] = useState(false);
   // default to Tunis coordinates
   const [location, setLocation] = useState({ lat: 36.8065, lng: 10.1815 });
 
@@ -100,12 +132,17 @@ const MyRestaurant = () => {
           address: data.address || '',
           thumbnail: data.thumbnail || '',
           images: data.images || [],
+          workFrom: data.workFrom || '07:00',
+          workTo: data.workTo || '23:45',
+          isPublished: data.isPublished,
         });
         setFormData({
           name: data.name || '',
           description: data.description || '',
           address: data.address || '',
         });
+        setWorkFrom(data.workFrom || '09:00');
+        setWorkTo(data.workTo || '23:00');
       } catch {
         setErrorMessage('Could not load restaurant data.');
       }
@@ -202,8 +239,17 @@ const MyRestaurant = () => {
       (restaurant.images || []).length !== (originalData.images || []).length ||
       (originalLocation &&
         (location.lat !== originalLocation.lat ||
-          location.lng !== originalLocation.lng)));
+          location.lng !== originalLocation.lng)) ||
+      workFrom !== originalData.workFrom ||
+      workTo !== originalData.workTo ||
+      isPublished !== originalData.isPublished);
 
+  const pubToggled = originalData?.isPublished !== isPublished;
+  const buttonText = pubToggled
+    ? isPublished
+      ? 'Publish'
+      : 'Unpublish'
+    : 'Update';
   // submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -218,6 +264,9 @@ const MyRestaurant = () => {
       payload.append('address', formData.address);
       payload.append('latitude', location.lat);
       payload.append('longitude', location.lng);
+      payload.append('workFrom', workFrom);
+      payload.append('workTo', workTo);
+      payload.append('isPublished', isPublished);
 
       if (removeThumbnail && !thumbnailFile) payload.append('thumbnail', '');
       if (thumbnailFile) payload.append('thumbnail', thumbnailFile);
@@ -237,6 +286,9 @@ const MyRestaurant = () => {
         address: data.address,
         thumbnail: data.thumbnail || '',
         images: data.images || [],
+        workFrom: data.workFrom,
+        workTo: data.workTo,
+        isPublished: data.isPublished,
       });
       setOriginalLocation({
         lat: data.location.latitude,
@@ -479,15 +531,61 @@ const MyRestaurant = () => {
           </div>
         </div>
 
+        {/* ──────────────── NEW: Work Hours ──────────────── */}
+        <div className="mb-4">
+          <label className="form-label">Work Schedule (all week)</label>
+          <div className="d-flex align-items-center gap-2">
+            <span>From</span>
+            <select
+              className="form-select form-select-sm w-auto"
+              value={workFrom}
+              onChange={(e) => setWorkFrom(e.target.value)}
+            >
+              {timeSlots.map((t) => (
+                <option key={t} value={t}>
+                  {format12(t)}
+                </option>
+              ))}
+            </select>
+
+            <span>To</span>
+            <select
+              className="form-select form-select-sm w-auto"
+              value={workTo}
+              onChange={(e) => setWorkTo(e.target.value)}
+            >
+              {timeSlots.map((t) => (
+                <option key={t} value={t}>
+                  {format12(t)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {/* ─── PUBLICATION SWITCH ─── */}
+        <div className={`form-check form-switch mb-3 ${styles.publishSwitch}`}>
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="publishedSwitch"
+            checked={isPublished}
+            onChange={(e) => setIsPublished(e.target.checked)}
+          />
+          <label className="form-check-label" htmlFor="publishedSwitch">
+            Published
+          </label>
+        </div>
         <button
           type="submit"
-          className="btn btn-primary"
+          className={`btn btn-primary ${
+            isModified && !loading ? styles.glowButton : ''
+          }`}
           disabled={!isFormValid || !isModified || loading}
         >
           {loading ? (
             <span className="spinner-border spinner-border-sm" />
           ) : (
-            'Update'
+            buttonText
           )}
         </button>
       </form>

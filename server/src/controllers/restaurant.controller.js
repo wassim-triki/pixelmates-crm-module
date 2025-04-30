@@ -182,9 +182,6 @@ const updateRestaurant = asyncHandler(async (req, res) => {
     }
   }
 
-  // 4) Apply our simple scalar updates
-  Object.assign(restaurant, updates);
-
   // 5) Parse & assign geolocation (optional)
   if (req.body.latitude != null) {
     const lat = parseFloat(req.body.latitude);
@@ -207,6 +204,19 @@ const updateRestaurant = asyncHandler(async (req, res) => {
     restaurant.location.longitude = lng;
   }
 
+  if (req.body.workFrom != null) {
+    updates.workFrom = req.body.workFrom;
+  }
+  if (req.body.workTo != null) {
+    updates.workTo = req.body.workTo;
+  }
+  if (req.body.isPublished != null) {
+    // form-data booleans come in as strings sometimes
+    updates.isPublished =
+      req.body.isPublished === true || req.body.isPublished === 'true';
+  }
+  // 4) Apply our simple scalar updates
+  Object.assign(restaurant, updates);
   const saved = await restaurant.save();
   res.json(saved);
 });

@@ -18,6 +18,20 @@ const restaurantSchema = new mongoose.Schema(
       latitude: { type: Number },
       longitude: { type: Number },
     },
+    workFrom: {
+      type: String,
+      default: '07:00',
+      match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'must be HH:mm'],
+    },
+    workTo: {
+      type: String,
+      default: '23:45',
+      match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'must be HH:mm'],
+    },
+    isPublished: {
+      type: Boolean,
+      default: false,
+    },
 
     logo: { type: String },
     promotion: { type: String },

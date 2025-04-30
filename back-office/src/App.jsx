@@ -33,9 +33,10 @@ function App(props) {
         default:
           navigate('/login');
       }
-    } else {
-      navigate('/login');
     }
+    //  else {
+    //   navigate('/login');
+    // }
   }, [user]);
   return (
     <>
