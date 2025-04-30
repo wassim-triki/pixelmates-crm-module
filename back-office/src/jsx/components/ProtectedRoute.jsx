@@ -5,10 +5,6 @@ import { useAuth } from '../../context/authContext';
 const ProtectedRoute = ({ requiredRole, children }) => {
   const { user, loading } = useAuth();
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
   if (loading) {
     return (
       <div id="preloader">

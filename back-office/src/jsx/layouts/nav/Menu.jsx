@@ -5,12 +5,23 @@ export const AdminMenuList = [
     iconStyle: <i className="flaticon-381-networking" />,
     content: [
       {
-        title: 'Dashboard',
-        to: '/admin/dashboard',
+        title: 'Statistics',
+        to: '/admin/statistics',
       },
+    ],
+  },
+  {
+    title: 'My Restaurant',
+    classsChange: 'mm-collapse',
+    iconStyle: <i className="flaticon-381-location" />,
+    content: [
       {
         title: 'My Restaurant',
-        to: '/admin/restaurant',
+        to: '/admin/my-restaurant',
+      },
+      {
+        title: 'Floor configuration',
+        to: '/admin/my-restaurant',
       },
     ],
   },

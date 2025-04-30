@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../config/axios';
 import RestaurantLayout from '../components/RestaurantLayout';
-import Loader from '../components/Loader.jsx';
+// import Loader from '../components/Loader.jsx';
 
 const ReservationPage = () => {
   const { restaurantId } = useParams();
@@ -24,7 +24,7 @@ const ReservationPage = () => {
     fetchTables();
   }, [restaurantId]);
 
-  if (loading) return <Loader />;
+  if (loading) return 'Loading...';
 
   return (
     <div className="min-h-screen">

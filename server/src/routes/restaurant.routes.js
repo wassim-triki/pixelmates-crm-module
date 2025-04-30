@@ -13,31 +13,36 @@ const {
   updateTable,
   deleteTable,
 } = require('../controllers/restaurant.controller');
-
+const { protect } = require('../middlewares/auth.middleware');
+const multer = require('multer');
+const { storage } = require('../utils/cloudinary');
+const upload = multer({ storage });
 const router = express.Router();
 
 // Restaurant routes
-router.route('/')
-  .get(getRestaurants)
-  .post(createRestaurant);
+router.route('/').get(getRestaurants).post(createRestaurant);
 
-router.route('/search')
-  .get(searchRestaurants);
+router.route('/search').get(searchRestaurants);
 
-router.route('/:id')
-  .get(getRestaurantById)
-  .put(updateRestaurant)
-  .delete(deleteRestaurant);
+router.route('/:id').get(getRestaurantById).delete(deleteRestaurant);
 
-router.route('/:id/images')
-  .post(uploadImage);
+router.put(
+  '/:id',
+  protect,
+  upload.fields([
+    { name: 'thumbnail', maxCount: 1 },
+    { name: 'images', maxCount: 10 },
+  ]),
+  updateRestaurant
+);
+
+router.route('/:id/images').post(uploadImage);
 
 // Table routes
-router.route('/:restauId/tables')
-  .get(getTablesByRestaurant)
-  .post(createTable);
+router.route('/:restauId/tables').get(getTablesByRestaurant).post(createTable);
 
-router.route('/:restauId/tables/:id')
+router
+  .route('/:restauId/tables/:id')
   .get(getTableById)
   .put(updateTable)
   .delete(deleteTable);

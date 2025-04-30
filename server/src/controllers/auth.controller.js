@@ -290,7 +290,7 @@ exports.getMe = asyncHandler(async (req, res) => {
     })
     .populate({
       path: 'restaurantId',
-      select: 'name address', // Customize fields as needed
+      select: 'name address thumbnail', // Customize fields as needed
     })
     .select('-password -refreshToken'); // Exclude sensitive fields
 
