@@ -26,6 +26,7 @@
     "chart.js": "^4.4.9",
     "cloudinary": "^1.41.3",
     "formik": "^2.4.6",
+    "jspdf": "^3.0.1",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "lightgallery": "^2.7.2",

@@ -30,6 +30,18 @@ const complaintSchema = new mongoose.Schema({
     enum: ['Low', 'Medium', 'High'],
     default: 'Medium'
   },
+  category: {
+    type: String,
+    enum: ['Food Quality', 'Service', 'Cleanliness', 'Billing', 'Other'],
+    default: 'Other',
+    required: true
+  },
+  response: {
+    type: String,
+    enum: ['Refund', 'Replacement', 'Apology', 'Discount', 'No Action'],
+    default: null
+  },
+  images: [String],
   createdAt: {
     type: Date,
     default: Date.now
@@ -37,11 +49,7 @@ const complaintSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
-  },
-  response: {
-    type: String
-  },
-  images: [String]
+  }
 });
 
 // Update `updatedAt` timestamp on save

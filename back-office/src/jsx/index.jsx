@@ -115,12 +115,12 @@ import Unauthorized from './pages/Unauthorized'; // Added Unauthorized import
 import UpdateProfile from './components/AppsMenu/AppProfile/UpdateProfile';
 import MyProfile from './components/AppsMenu/AppProfile/MyProfile';
 import Restaurant from './components/Dashboard/Restaurant';
-
 import Statics from './components/Dashboard/Statics';
 import ProtectedRoute from './components/ProtectedRoute';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import RestaurantRegister from './pages/RestaurantRegister';
+import Complaint from './components/Dashboard/Complaint';
 import { useAuth } from '../context/authContext';
 import MyRestaurant from './pages/MyRestaurant';
 import VerifyEmail from './pages/VerifyEmail';
@@ -139,6 +139,7 @@ function HomeRedirect() {
 const Markup = () => {
   const allroutes = [
     /// Dashboard
+    { url: 'complaint', component: <Complaint /> } //FIX : ADD  COMPLAINTS FOR SUPERADMIN AND ADMIN
 
     { url: 'orders', component: <Orders /> },
     { url: 'Order-id', component: <OrderId /> },
@@ -151,7 +152,7 @@ const Markup = () => {
     { url: 'content', component: <Content /> },
     { url: 'menu', component: <Menu /> },
     { url: 'email-template', component: <EmailTemplate /> },
-    { url: 'blog', component: <Blog /> },
+    { url: 'blog', component: <Content /> },
     { url: 'add-content', component: <ContentAdd /> },
     { url: 'add-email', component: <AddMail /> },
     { url: 'add-blog', component: <AddBlog /> },

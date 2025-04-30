@@ -1,25 +1,33 @@
 const Complaint = require('../models/Complaint');
 const Restaurant = require('../models/Restaurant');
+const { sendResolvedSMS } = require('../utils/sms');
 const mongoose = require('mongoose');
 
 // Create a new complaint
 const createComplaint = async (req, res) => {
   try {
-    const { user, restaurant, title, description, priority, images } = req.body;
+    const { user, restaurant, title, description, category, priority, images } = req.body;
 
     // Validate required fields
-    if (!user || !restaurant || !title || !description) {
+    if (!user || !restaurant || !title || !description || !category) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Verify user and restaurant exist
+    // Verify user and restaurant IDs
     if (!mongoose.Types.ObjectId.isValid(user) || !mongoose.Types.ObjectId.isValid(restaurant)) {
       return res.status(400).json({ message: 'Invalid user or restaurant ID' });
     }
 
+    // Verify restaurant exists
     const restaurantExists = await Restaurant.findById(restaurant);
     if (!restaurantExists) {
       return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    // Validate category
+    const validCategories = ['Food Quality', 'Service', 'Cleanliness', 'Billing', 'Other'];
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({ message: 'Invalid category' });
     }
 
     const complaint = new Complaint({
@@ -27,6 +35,7 @@ const createComplaint = async (req, res) => {
       restaurant,
       title,
       description,
+      category,
       priority: priority || 'Medium',
       images: images || []
     });
@@ -64,7 +73,7 @@ const getComplaintById = async (req, res) => {
       .populate('restaurant', 'name address');
 
     if (!complaint) {
-      return res.status(404). fortunatelyjson({ message: 'Complaint not found' });
+      return res.status(404).json({ message: 'Complaint not found' });
     }
 
     res.status(200).json(complaint);
@@ -77,7 +86,7 @@ const getComplaintById = async (req, res) => {
 const updateComplaint = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, status, priority, response, images } = req.body;
+    const { title, description, status, priority, category, response, images } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'Invalid complaint ID' });
@@ -91,9 +100,34 @@ const updateComplaint = async (req, res) => {
     // Update only provided fields
     if (title) complaint.title = title;
     if (description) complaint.description = description;
-    if (status) complaint.status = status;
-    if (priority) complaint.priority = priority;
-    if (response) complaint.response = response;
+    if (status) {
+      const validStatuses = ['Pending', 'In Progress', 'Resolved', 'Closed'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: 'Invalid status' });
+      }
+      complaint.status = status;
+    }
+    if (priority) {
+      const validPriorities = ['Low', 'Medium', 'High'];
+      if (!validPriorities.includes(priority)) {
+        return res.status(400).json({ message: 'Invalid priority' });
+      }
+      complaint.priority = priority;
+    }
+    if (category) {
+      const validCategories = ['Food Quality', 'Service', 'Cleanliness', 'Billing', 'Other'];
+      if (!validCategories.includes(category)) {
+        return res.status(400).json({ message: 'Invalid category' });
+      }
+      complaint.category = category;
+    }
+    if (response !== undefined) {
+      const validResponses = ['Refund', 'Replacement', 'Apology', 'Discount', 'No Action', null];
+      if (!validResponses.includes(response)) {
+        return res.status(400).json({ message: 'Invalid response' });
+      }
+      complaint.response = response;
+    }
     if (images) complaint.images = images;
 
     const updatedComplaint = await complaint.save();
@@ -165,6 +199,39 @@ const getUserComplaints = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving user complaints', error: error.message });
   }
 };
+const sendSMS = async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.complaintId)
+      .populate('user', 'phoneNumber')
+      .populate('restaurant', 'name');
+
+    if (!complaint) {
+      return res.status(404).json({ message: 'Complaint not found' });
+    }
+
+    if (complaint.status !== 'Resolved') {
+      return res.status(400).json({ message: 'Complaint is not resolved' });
+    }
+
+    if (!complaint.user.phoneNumber) {
+      return res.status(400).json({ message: 'User has no phone number registered' });
+    }
+
+    const result = await sendResolvedSMS(
+      complaint.user.phoneNumber,
+      complaint._id
+    );
+
+    res.json({
+      message: 'SMS notification sent successfully',
+      sid: result.sid
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message || 'Error sending SMS notification'
+    });
+  }
+};
 
 module.exports = {
   createComplaint,
@@ -173,5 +240,6 @@ module.exports = {
   updateComplaint,
   deleteComplaint,
   getComplaintsByRestaurant,
-  getUserComplaints
+  getUserComplaints,
+  sendSMS
 };

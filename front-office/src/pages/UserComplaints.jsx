@@ -17,9 +17,10 @@ const ComplaintModal = ({ complaint, isOpen, onClose }) => {
         <h2 className="text-2xl font-bold text-white mb-4">{complaint.title}</h2>
         <div className="space-y-4 text-white">
           <p><span className="font-medium">Restaurant:</span> {complaint.restaurant?.name || 'Unknown'}</p>
-          <p><span className="font-medium">Priority:</span> {complaint.priority}</p>
+          <p><span className="font-medium">Category:</span> {complaint.category || 'Other'}</p>
           <p><span className="font-medium">Status:</span> {complaint.status || 'Pending'}</p>
           <p><span className="font-medium">Description:</span> {complaint.description}</p>
+          <p><span className="font-medium">Response:</span> {complaint.response || 'No response yet'}</p>
           <p><span className="font-medium">Created:</span> {formatDistanceToNow(new Date(complaint.createdAt), { addSuffix: true })}</p>
           {complaint.images?.length > 0 && (
             <div>
@@ -111,15 +112,6 @@ const UserComplaints = () => {
     setSelectedComplaint(null);
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'High': return 'bg-red-500';
-      case 'Medium': return 'bg-yellow-500';
-      case 'Low': return 'bg-green-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
   const getStatusColor = (status) => {
     switch (status) {
       case 'Resolved': return 'text-green-400';
@@ -199,19 +191,19 @@ const UserComplaints = () => {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h2 className="text-lg font-semibold text-white truncate">{complaint.title}</h2>
-                      <span
-                        className={`text-xs font-medium px-2 py-1 rounded-full ${getPriorityColor(
-                          complaint.priority
-                        )} text-white`}
-                      >
-                        {complaint.priority}
-                      </span>
                     </div>
                     <p className="text-sm text-gray-200 mb-2">
                       <span className="font-medium">Restaurant:</span>{' '}
                       {getRestaurantName(complaint.restaurant)}
                     </p>
+                    <p className="text-sm text-gray-200 mb-2">
+                      <span className="font-medium">Category:</span> {complaint.category || 'Other'}
+                    </p>
                     <p className="text-sm text-gray-200 mb-2 line-clamp-3">{complaint.description}</p>
+                    <p className="text-sm text-gray-200 mb-2 line-clamp-2">
+                      <span className="font-medium">Response:</span>{' '}
+                      {complaint.response || 'No response yet'}
+                    </p>
                     <div className="flex justify-between items-center mb-2">
                       <span className={`text-sm font-medium ${getStatusColor(complaint.status)}`}>
                         {complaint.status || 'Pending'}
