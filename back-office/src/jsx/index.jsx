@@ -120,7 +120,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import RestaurantRegister from './pages/RestaurantRegister';
-import Complaint from './components/Dashboard/Complaint';
+import Complaints from './components/Dashboard/Complaints';
 import { useAuth } from '../context/authContext';
 import MyRestaurant from './pages/MyRestaurant';
 import VerifyEmail from './pages/VerifyEmail';
@@ -139,7 +139,6 @@ function HomeRedirect() {
 const Markup = () => {
   const allroutes = [
     /// Dashboard
-    { url: 'complaint', component: <Complaint /> } //FIX : ADD  COMPLAINTS FOR SUPERADMIN AND ADMIN
 
     { url: 'orders', component: <Orders /> },
     { url: 'Order-id', component: <OrderId /> },
@@ -260,6 +259,22 @@ const Markup = () => {
             element={
               <ProtectedRoute requiredRole="SuperAdmin">
                 <Clients />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin/complaints"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Complaints />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/complaints"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <Complaints />
               </ProtectedRoute>
             }
           />

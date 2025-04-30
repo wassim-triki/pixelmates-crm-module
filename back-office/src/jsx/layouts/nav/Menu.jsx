@@ -25,7 +25,7 @@ export const AdminMenuList = [
       },
       {
         title: 'Complaints',
-        to: 'complaint',
+        to: '/admin/complaints',
       },
     ],
   },
@@ -52,7 +52,7 @@ export const SuperAdminMenuList = [
       },
       {
         title: 'Complaints',
-        to: 'complaint',
+        to: '/superadmin/complaints',
       },
       {
         title: 'statics',
