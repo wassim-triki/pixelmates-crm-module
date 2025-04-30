@@ -122,6 +122,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import RestaurantRegister from './pages/RestaurantRegister';
 import { useAuth } from '../context/authContext';
+import MyRestaurant from './pages/MyRestaurant';
+import VerifyEmail from './pages/VerifyEmail';
 function HomeRedirect() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
@@ -238,6 +240,7 @@ const Markup = () => {
         <Route path="page-error-500" element={<Error500 />} />
         <Route path="page-error-503" element={<Error503 />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/admin/register" element={<RestaurantRegister />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -280,6 +283,14 @@ const Markup = () => {
             element={
               <ProtectedRoute requiredRole="Admin">
                 <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/my-restaurant"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <MyRestaurant />
               </ProtectedRoute>
             }
           />

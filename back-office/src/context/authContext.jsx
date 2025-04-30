@@ -9,21 +9,17 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     const token = localStorage.getItem('accessToken');
-    console.log('Checking localStorage for token:', token); // ✅ Debugging step
 
     if (!token) {
-      console.log('No token found, stopping fetchUser');
       setLoading(false);
       return;
     }
 
     try {
       const response = await axiosInstance.get('/auth/me');
-      console.log('User data fetched successfully:', response.data); // ✅ Debugging step
 
       setUser(response.data);
     } catch (error) {
-      console.error('Failed to fetch user:', error);
       localStorage.removeItem('accessToken'); // ❌ This might be causing the issue
       setUser(null);
     }
@@ -81,9 +77,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    console.log('User state changed:', user); // ✅ Debugging step
+    console.log('CONTEXT USER:', user);
   }, [user]);
-
   useEffect(() => {
     const interceptor = axiosInstance.interceptors.response.use(
       (response) => response,
@@ -115,12 +110,7 @@ export const AuthProvider = ({ children }) => {
 
             return axiosInstance(originalRequest);
           } catch (refreshError) {
-            console.error('Refresh token failed:', refreshError);
-
             if (refreshError.response?.status === 403) {
-              console.warn(
-                'Refresh token is invalid or expired. Logging out user.'
-              );
               logout();
             }
 

@@ -53,7 +53,7 @@ exports.signup = asyncHandler(async (req, res) => {
     phone,
     role: adminRole._id,
     restaurantId: newRestaurant._id, // ← link the restaurant
-    isVerified: true, //FOR TESTING ONLY, REMOVE LATER
+    isVerified: false, //FOR TESTING ONLY, REMOVE LATER
     verificationCode,
     verificationCodeExpire: Date.now() + 10 * 60 * 1000,
   });
