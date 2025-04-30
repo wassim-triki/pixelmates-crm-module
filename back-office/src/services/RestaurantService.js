@@ -92,3 +92,10 @@ export function updateTable(restaurantId, tableId, tableData) {
 export function deleteTable(restaurantId, tableId) {
   return axiosInstance.delete(`/restaurants/${restaurantId}/tables/${tableId}`);
 }
+
+
+
+ // Get loyalty users for a restaurant
+ export function getLoyaltyUsers(restaurantId) {
+  return axiosInstance.get(`/loyalty/restaurant/${restaurantId}`);
+}

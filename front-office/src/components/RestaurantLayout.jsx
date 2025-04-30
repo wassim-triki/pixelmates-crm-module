@@ -70,16 +70,16 @@ const RestaurantLayout = ({ tables }) => {
           </div>
 
           {/* Bouton de réservation */}
-          {!table.isReserved && (
-            <Link
-              to={`/reservation/${table._id}`}
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-4 
-                opacity-0 group-hover:opacity-100 transition-all duration-300 
-                text-xs bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-full 
-                shadow-lg text-white"
-            >
-              Réserver
-            </Link>
+ {!table.isReserved && (
+  <Link
+  to={`/restaurants/${table.restauId._id}/tables/${table._id}/reserve`}
+  className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-4 
+    opacity-0 group-hover:opacity-100 transition-all duration-300 
+    text-xs bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-full 
+    shadow-lg text-white"
+>
+  Réserver
+</Link>
           )}
         </div>
       </div>

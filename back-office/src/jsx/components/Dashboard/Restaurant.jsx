@@ -12,6 +12,7 @@ import {
   createTable,
   updateTable,
   deleteTable,
+  getLoyaltyUsers,
 } from '../../../services/RestaurantService.js';
 
 const RestaurantList = () => {
@@ -56,6 +57,14 @@ const RestaurantList = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [tableValidationErrors, setTableValidationErrors] = useState({});
 
+
+
+
+
+  const [loyaltyUsers, setLoyaltyUsers] = useState([]);
+  const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
+
+
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -77,6 +86,35 @@ const RestaurantList = () => {
     checkAuth();
   }, []);
 
+  const handleShowLoyaltyUsers = async (restaurantId) => {
+    console.log("Fetching loyalty users for restaurantId:", restaurantId);
+    setLoading(true);
+    try {
+    /* const res = await getLoyaltyUsers(restaurantId);
+      const filtered = res.data.filter(loyalty => loyalty.points > 0);*/// ✅ fixed
+      const res = await getLoyaltyUsers(restaurantId);
+console.log("API Response:", res.data);
+const filtered = res.data.filter(loyalty => loyalty.points > 0);
+
+      setLoyaltyUsers(filtered);
+      setShowLoyaltyModal(true);
+    } catch (err) {
+      console.error(err);
+      setError(formatError(err) || 'Failed to fetch loyalty users');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  const handleCloseLoyaltyModal = () => {
+    setShowLoyaltyModal(false);
+    setLoyaltyUsers([]);
+  };
+  
+
+
+  
   const fetchRestaurants = async () => {
     setLoading(true);
     setError(null);
@@ -573,6 +611,8 @@ const RestaurantList = () => {
                     >
                       <i className="fas fa-edit" />
                     </Button>
+
+                   
                     <Button
                       variant="danger"
                       size="sm"
@@ -716,6 +756,25 @@ const RestaurantList = () => {
                         >
                           <i className="fas fa-eye" />
                         </Button>
+
+
+                                        <Button
+                  variant="success"
+                  size="sm"
+                  onClick={() => {
+                    if (restaurant?._id) {
+                      handleShowLoyaltyUsers(restaurant._id);
+                    } else {
+                      console.warn('Invalid restaurant ID:', restaurant);
+                    }
+                  }}
+                  
+                >
+                  <i className="fas fa-star" />
+                </Button>
+
+
+
                         <Button
                           variant="warning"
                           size="sm"
@@ -790,6 +849,49 @@ const RestaurantList = () => {
           </div>
         </>
       )}
+
+
+
+
+
+
+ 
+
+
+      <Modal show={showLoyaltyModal} onHide={handleCloseLoyaltyModal} centered size="md">
+  <Modal.Header closeButton>
+    <Modal.Title className="w-100 text-center fw-bold">Loyalty Users</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {loyaltyUsers.length > 0 ? (
+      <table className="table table-bordered table-striped">
+        <thead className="table-dark">
+          <tr>
+            <th>Email</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loyaltyUsers.map((entry, index) => (
+            <tr key={index}>
+              <td>{entry.user?.email || 'N/A'}</td>
+              <td>{entry.points}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p className="text-center">No users with loyalty points.</p>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleCloseLoyaltyModal}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
 
       {/* Detail Modal (Horizontal Layout - 2 Columns) */}
         <Modal show={showDetailModal} onHide={handleCloseDetailModal} centered size="lg">
