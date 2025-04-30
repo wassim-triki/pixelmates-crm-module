@@ -113,7 +113,7 @@ const updateRestaurant = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Cannot update tables directly' });
   }
 
-  // Parse and assign tax fields
+  // Build up simple scalar updates
   const updates = {};
   [
     'name',
@@ -125,37 +125,43 @@ const updateRestaurant = asyncHandler(async (req, res) => {
     'promotion',
     'payCashMethod',
   ].forEach((field) => {
-    if (req.body[field] != null) updates[field] = req.body[field];
+    if (req.body[field] != null) {
+      updates[field] = req.body[field];
+    }
   });
+
+  // Parse and validate taxes
   if (req.body.taxeTPS != null) {
     const val = parseFloat(req.body.taxeTPS.toString().replace('%', ''));
-    if (isNaN(val))
+    if (isNaN(val)) {
       return res
         .status(400)
         .json({ message: 'Taxe TPS must be a valid number' });
+    }
     updates.taxeTPS = val;
   }
   if (req.body.taxeTVQ != null) {
     const val = parseFloat(req.body.taxeTVQ.toString().replace('%', ''));
-    if (isNaN(val))
+    if (isNaN(val)) {
       return res
         .status(400)
         .json({ message: 'Taxe TVQ must be a valid number' });
+    }
     updates.taxeTVQ = val;
   }
 
-  // 1) explicit thumbnail deletion
+  // 1) Handle explicit thumbnail deletion
   if (req.body.thumbnail !== undefined && !req.files?.thumbnail) {
-    // client sent thumbnail='' → delete it
     restaurant.thumbnail = '';
   }
-  // 2) updated list of original image URLs
-  if (req.body.images) {
+
+  // 2) Handle JSON list of existing images
+  if (req.body.images != null) {
     let imgs = req.body.images;
     if (typeof imgs === 'string') {
       try {
         imgs = JSON.parse(imgs);
-      } catch (e) {
+      } catch {
         return res.status(400).json({ message: 'Invalid images JSON' });
       }
     }
@@ -164,27 +170,41 @@ const updateRestaurant = asyncHandler(async (req, res) => {
     }
   }
 
-  // 3) then handle any new file uploads
+  // 3) Handle any newly uploaded files
   if (req.files) {
+    // thumbnail upload
     if (req.files.thumbnail && req.files.thumbnail[0]) {
       restaurant.thumbnail = req.files.thumbnail[0].path;
     }
+    // gallery uploads
     if (req.files.images) {
       restaurant.images = req.files.images.map((f) => f.path);
     }
   }
 
-  // Apply updates
+  // 4) Apply our simple scalar updates
   Object.assign(restaurant, updates);
 
-  // Handle file uploads
-  if (req.files) {
-    if (req.files.thumbnail && req.files.thumbnail[0]) {
-      restaurant.thumbnail = req.files.thumbnail[0].path;
+  // 5) Parse & assign geolocation (optional)
+  if (req.body.latitude != null) {
+    const lat = parseFloat(req.body.latitude);
+    if (isNaN(lat)) {
+      return res
+        .status(400)
+        .json({ message: 'Latitude must be a valid number' });
     }
-    if (req.files.images) {
-      restaurant.images = req.files.images.map((f) => f.path);
+    restaurant.location = restaurant.location || {};
+    restaurant.location.latitude = lat;
+  }
+  if (req.body.longitude != null) {
+    const lng = parseFloat(req.body.longitude);
+    if (isNaN(lng)) {
+      return res
+        .status(400)
+        .json({ message: 'Longitude must be a valid number' });
     }
+    restaurant.location = restaurant.location || {};
+    restaurant.location.longitude = lng;
   }
 
   const saved = await restaurant.save();

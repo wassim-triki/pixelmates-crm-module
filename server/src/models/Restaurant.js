@@ -10,26 +10,20 @@ const restaurantSchema = new mongoose.Schema(
     taxeTPS: { type: Number },
     taxeTVQ: { type: Number },
     color: { type: String },
-    // Thumbnail image URL
     thumbnail: { type: String },
-    // Gallery images URLs
     images: [{ type: String }],
-    // Legacy logo field (if still used elsewhere)
+
+    // **NEW** optional geolocation field
+    location: {
+      latitude: { type: Number },
+      longitude: { type: Number },
+    },
+
     logo: { type: String },
     promotion: { type: String },
     payCashMethod: { type: String },
-    tables: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Table',
-      },
-    ],
-    waitingList: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Reservation',
-      },
-    ],
+    tables: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Table' }],
+    waitingList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reservation' }],
   },
   {
     timestamps: true,
