@@ -27,6 +27,7 @@ import {
 const ComplaintList = () => {
   // State Management
   const [complaints, setComplaints] = useState([]);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -60,6 +61,10 @@ const ComplaintList = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchComplaints();
+  }, []);
 
   // Search Complaints
   const handleSearch = async (term) => {
