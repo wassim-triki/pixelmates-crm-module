@@ -17,4 +17,6 @@ router.put('/:id', loyaltyController.updateLoyalty);
 // Delete a loyalty record
 router.delete('/:id', loyaltyController.deleteLoyalty);
 
+
+ 
 module.exports = router;
