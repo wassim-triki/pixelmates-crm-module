@@ -394,7 +394,7 @@ const RestaurantList = () => {
           <>
             <RestaurantGrid>
               {currentRestaurants
-                .filter((res) => res.isPublished)
+              //  .filter((res) => res.isPublished)
                 .map((restaurant, index) => (
                   <RestaurantCard
                     key={restaurant._id}
