@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restaurant Guest Count Predictor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            margin: 10px 0;
+        }
+        input, select {
+            padding: 5px;
+            width: 200px;
+        }
+        input[type="submit"] {
+            width: auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        canvas {
+            max-width: 100%;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Predict Guest Count</h1>
+    <form method="POST">
+        <label>Start Date and Time (YYYY-MM-DD HH:MM):</label>
+        <input type="datetime-local" name="start_time" required><br>
+        <label>End Date and Time (YYYY-MM-DD HH:MM):</label>
+        <input type="datetime-local" name="end_time" required><br>
+        <label>Special Event:</label>
+        <select name="special_event" required>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select><br><br>
+        <input type="submit" value="Predict">
+    </form>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+    {% if hours and predictions %}
+        <h2>Predicted Guest Count</h2>
+        <canvas id="guestCountChart"></canvas>
+        <script>
+            const ctx = document.getElementById('guestCountChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ hours | tojson }},
+                    datasets: [{
+                        label: 'Predicted Guest Count',
+                        data: {{ predictions | tojson }},
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Hour of Day'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Guest Count'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        </script>
+    {% endif %}
+</body>
+</html>
