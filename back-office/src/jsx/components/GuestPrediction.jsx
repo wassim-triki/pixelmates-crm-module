@@ -3,6 +3,7 @@ import { Dropdown, Nav, Tab } from 'react-bootstrap';
 import ActivityLineChart from './Sego/Home/ActivityLineChart';
 import axios from '../../config/axios';
 import { useAuth } from '../../context/authContext';
+import DatePicker from 'react-datepicker';
 
 const GuestPrediction = () => {
   const [session, setSession] = useState('Monthly');
@@ -46,49 +47,29 @@ const GuestPrediction = () => {
     <div className="card">
       <div className="card-header d-sm-flex d-block pb-0 border-0">
         <div className="me-auto pe-3">
-          <h4 className="text-black fs-20">Revenue</h4>
+          <h4 className="text-black fs-20">Peak Guest Hour Prediction</h4>
           <p className="fs-13 mb-0 text-black">
-            Lorem ipsum dolor sit amet, consectetur
+            A prediction of peak guestcount vs hour of day.
           </p>
         </div>
-        <Dropdown className="dropdown mt-sm-0 mt-3">
-          <Dropdown.Toggle className="btn btn-primary light dropdown-toggle">
-            {session}
-          </Dropdown.Toggle>
-          <Dropdown.Menu align="end">
-            <Dropdown.Item onClick={() => setSession('Month')}>
-              Month
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => setSession('Day')}>Day</Dropdown.Item>
-            <Dropdown.Item onClick={() => setSession('Week')}>
-              Week
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => setSession('Year')}>
-              Year
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+        <Nav as="ul" className="nav nav-tabs">
+          <Nav.Item as="li">
+            <div className="input-hasicon">
+              <DatePicker
+                selected={new Date()}
+                // onChange={(date) => setStartDate(date)}
+                className="form-control "
+              />
+              <div className="icon">
+                <i className="far fa-calendar" />
+              </div>
+            </div>
+          </Nav.Item>
+        </Nav>
       </div>
 
       <div className="card-body" id="user-activity">
         <Tab.Container defaultActiveKey="all-food">
-          <div className="d-flex flex-wrap mb-4">
-            <div className="me-auto mb-2 pe-3 d-flex align-items-center">
-              {/* …SVG icon… */}
-              <div className="ms-3">
-                <p className="fs-12 mb-1">Income</p>
-                <span className="fs-22 text-black font-w600">$126,000</span>
-              </div>
-            </div>
-            <div className="card-action revenue-tabs">
-              <Nav as="ul" className="nav nav-tabs">
-                <Nav.Item as="li">
-                  <Nav.Link eventKey="all-food">All Food</Nav.Link>
-                </Nav.Item>
-              </Nav>
-            </div>
-          </div>
-
           <Tab.Content>
             <Tab.Pane eventKey="all-food">
               <ActivityLineChart dataActive={0} labels={hourLabels} />
