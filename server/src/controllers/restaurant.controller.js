@@ -520,8 +520,18 @@ const deleteTable = async (req, res) => {
 //   res.json(updated);
 // });
 
+const getRestaurantSchedule = async (req, res) => {
+  const restaurant = await Restaurant.findById(req.params.id);
+  if (!restaurant) {
+    res.status(404);
+    throw new Error('Restaurant not found');
+  }
+  res.json({ workTo: restaurant.workTo, workFrom: restaurant.workFrom });
+};
+
 module.exports = {
   createRestaurant,
+  getRestaurantSchedule,
   getRestaurants,
   getRestaurantById,
   updateRestaurant,
