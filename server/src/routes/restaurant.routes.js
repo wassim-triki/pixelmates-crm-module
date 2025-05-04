@@ -11,6 +11,7 @@ const {
   getTablesByRestaurant,
   getTableById,
   updateTable,
+  getRestaurantSchedule,
   deleteTable,
 } = require('../controllers/restaurant.controller');
 const { protect } = require('../middlewares/auth.middleware');
@@ -25,6 +26,7 @@ router.route('/').get(getRestaurants).post(createRestaurant);
 router.route('/search').get(searchRestaurants);
 
 router.route('/:id').get(getRestaurantById).delete(deleteRestaurant);
+router.route('/:id/schedule').get(getRestaurantSchedule); // For getting restaurant schedule
 
 router.put(
   '/:id',

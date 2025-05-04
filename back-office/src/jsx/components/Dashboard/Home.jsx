@@ -1,31 +1,32 @@
-import React, { useEffect,useState } from "react";
-import { Link } from "react-router-dom";
-import pMinDelay from "p-min-delay";
-import loadable from "@loadable/component";
-import { Dropdown, Nav, Tab } from "react-bootstrap";
-import ChartDonught2 from "../Sego/Home/donught2";
-import ChartDonught3 from "../Sego/Home/donught3";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import pMinDelay from 'p-min-delay';
+import loadable from '@loadable/component';
+import { Dropdown, Nav, Tab } from 'react-bootstrap';
+import ChartDonught2 from '../Sego/Home/donught2';
+import ChartDonught3 from '../Sego/Home/donught3';
 
-import ActivityLineChart from "../Sego/Home/ActivityLineChart";
-import TimeLineChart from "../Sego/Home/TimeLineChart";
-import TimeLineChart2 from "../Sego/Home/TimeLineChart2";
-import TimeLineChart3 from "../Sego/Home/TimeLineChart3";
+import ActivityLineChart from '../Sego/Home/ActivityLineChart';
+import TimeLineChart from '../Sego/Home/TimeLineChart';
+import TimeLineChart2 from '../Sego/Home/TimeLineChart2';
+import TimeLineChart3 from '../Sego/Home/TimeLineChart3';
 
 //** Import Image */
-import menu9 from "../../../assets/images/menus/9.png";
-import menu10 from "../../../assets/images/menus/10.png";
-import menu11 from "../../../assets/images/menus/11.png";
-import menu12 from "../../../assets/images/menus/12.png";
+import menu9 from '../../../assets/images/menus/9.png';
+import menu10 from '../../../assets/images/menus/10.png';
+import menu11 from '../../../assets/images/menus/11.png';
+import menu12 from '../../../assets/images/menus/12.png';
+import GuestPrediction from '../GuestPrediction';
 
 const BarChart = loadable(() =>
-  pMinDelay(import("../Sego/Home/BarChart"), 1000)
+  pMinDelay(import('../Sego/Home/BarChart'), 1000)
 );
 const RadialBarChart = loadable(() =>
-  pMinDelay(import("../Sego/Home/RadialBarChart"), 1000)
+  pMinDelay(import('../Sego/Home/RadialBarChart'), 1000)
 );
 
-function Home() {  
-	const [session, setSession] = useState('Monthly');
+function Home() {
+  const [session, setSession] = useState('Monthly');
   return (
     <>
       <div className="row">
@@ -260,7 +261,7 @@ function Home() {
                         <span className="mb-3 d-block">from $500,000.00</span>
                         <p className="fs-14">
                           Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit, sed do{" "}
+                          elit, sed do{' '}
                         </p>
                         <Link
                           to="post-details"
@@ -276,7 +277,9 @@ function Home() {
                           <h3 className="fs-32 text-black font-w600 mb-1">
                             25
                           </h3>
-                          <span className="fs-18 text-primary text-primary">On Delivery</span>
+                          <span className="fs-18 text-primary text-primary">
+                            On Delivery
+                          </span>
                         </div>
                       </div>
                       <div className="col-sm-4 mb-md-0 mb-3">
@@ -284,13 +287,17 @@ function Home() {
                           <h3 className="fs-32 text-black font-w600 mb-1">
                             60
                           </h3>
-                          <span className="fs-18 text-primary text-primary">Delivered</span>
+                          <span className="fs-18 text-primary text-primary">
+                            Delivered
+                          </span>
                         </div>
                       </div>
                       <div className="col-sm-4">
                         <div className="p-3 border rounded">
                           <h3 className="fs-32 text-black font-w600 mb-1">7</h3>
-                          <span className="fs-18 text-primary text-primary">Canceled</span>
+                          <span className="fs-18 text-primary text-primary">
+                            Canceled
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -311,7 +318,7 @@ function Home() {
                         <span className="mb-3 d-block">from $400,000.00</span>
                         <p className="fs-14">
                           Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit, sed do{" "}
+                          elit, sed do{' '}
                         </p>
                         <Link
                           to="post-details"
@@ -327,7 +334,9 @@ function Home() {
                           <h3 className="fs-32 text-black font-w600 mb-1">
                             30
                           </h3>
-                          <span className="fs-18 text-primary">On Delivery</span>
+                          <span className="fs-18 text-primary">
+                            On Delivery
+                          </span>
                         </div>
                       </div>
                       <div className="col-sm-4 mb-md-0 mb-3">
@@ -362,7 +371,7 @@ function Home() {
                         <span className="mb-3 d-block">from $800,000.00</span>
                         <p className="fs-14">
                           Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit, sed do{" "}
+                          elit, sed do{' '}
                         </p>
                         <Link
                           to="post-details"
@@ -378,7 +387,9 @@ function Home() {
                           <h3 className="fs-32 text-black font-w600 mb-1">
                             45
                           </h3>
-                          <span className="fs-18 text-primary">On Delivery</span>
+                          <span className="fs-18 text-primary">
+                            On Delivery
+                          </span>
                         </div>
                       </div>
                       <div className="col-sm-4 mb-md-0 mb-3">
@@ -403,7 +414,8 @@ function Home() {
           </div>
         </div>
         <div className="col-xl-6">
-          <div className="card">
+          <GuestPrediction />
+          {/* <div className="card">
             <div className="card-header d-sm-flex d-block pb-0 border-0">
               <div className="me-auto pe-3">
                 <h4 className="text-black fs-20">Revenue</h4>
@@ -411,15 +423,31 @@ function Home() {
                   Lorem ipsum dolor sit amet, consectetur
                 </p>
               </div>
-               <Dropdown className="dropdown mt-sm-0 mt-3">
-                <Dropdown.Toggle type="button" className="btn btn-primary light  dropdown-toggle">{session}</Dropdown.Toggle>
-                <Dropdown.Menu className="dropdown-menu dropdown-menu-right" align="end">
-                  <Dropdown.Item onClick={()=>setSession("Month")} to="/">Month</Dropdown.Item>
-                  <Dropdown.Item onClick={()=>setSession("Day")} to="/">Day</Dropdown.Item>
-                  <Dropdown.Item onClick={()=>setSession("Week")} to="/">Week</Dropdown.Item>
-                  <Dropdown.Item onClick={()=>setSession("Year")} to="/">Year</Dropdown.Item>
+              <Dropdown className="dropdown mt-sm-0 mt-3">
+                <Dropdown.Toggle
+                  type="button"
+                  className="btn btn-primary light  dropdown-toggle"
+                >
+                  {session}
+                </Dropdown.Toggle>
+                <Dropdown.Menu
+                  className="dropdown-menu dropdown-menu-right"
+                  align="end"
+                >
+                  <Dropdown.Item onClick={() => setSession('Month')} to="/">
+                    Month
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setSession('Day')} to="/">
+                    Day
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setSession('Week')} to="/">
+                    Week
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => setSession('Year')} to="/">
+                    Year
+                  </Dropdown.Item>
                 </Dropdown.Menu>
-               </Dropdown>
+              </Dropdown>
             </div>
             <div className="card-body" id="user-activity">
               <Tab.Container defaultActiveKey="all-food">
@@ -506,28 +534,19 @@ function Home() {
                   </div>
                 </div>
                 <Tab.Content className="tab-content" id="myTabContent">
-                  <Tab.Pane
-                    className="tab-pane fade"
-                    eventKey="all-food"                   
-                  >
+                  <Tab.Pane className="tab-pane fade" eventKey="all-food">
                     <ActivityLineChart dataActive={0} />
                   </Tab.Pane>
-                  <Tab.Pane
-                    className="tab-pane fade"
-                    eventKey="food"                    
-                  >
+                  <Tab.Pane className="tab-pane fade" eventKey="food">
                     <ActivityLineChart dataActive={1} />
                   </Tab.Pane>
-                  <Tab.Pane
-                    className="tab-pane fade"
-                    eventKey="beverages"                    
-                  >
+                  <Tab.Pane className="tab-pane fade" eventKey="beverages">
                     <ActivityLineChart dataActive={2} />
                   </Tab.Pane>
                 </Tab.Content>
               </Tab.Container>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="col-xl-9 col-xxl-8">
           <div className="row">
@@ -695,8 +714,8 @@ function Home() {
                         </h2>
                       </Link>
                       <span className="text-black font-w600 d-inline-block me-3">
-                        $5.6{" "}
-                      </span>{" "}
+                        $5.6{' '}
+                      </span>{' '}
                       <span className="fs-14">Order 89x</span>
                     </div>
                     <img
@@ -715,8 +734,8 @@ function Home() {
                         </h2>
                       </Link>
                       <span className="text-black font-w600 d-inline-block me-3">
-                        $5.6{" "}
-                      </span>{" "}
+                        $5.6{' '}
+                      </span>{' '}
                       <span className="fs-14">Order 89x</span>
                     </div>
                     <img
@@ -735,8 +754,8 @@ function Home() {
                         </h2>
                       </Link>
                       <span className="text-black font-w600 d-inline-block me-3">
-                        $5.6{" "}
-                      </span>{" "}
+                        $5.6{' '}
+                      </span>{' '}
                       <span className="fs-14">Order 89x</span>
                     </div>
                     <img
@@ -755,8 +774,8 @@ function Home() {
                         </h2>
                       </Link>
                       <span className="text-black font-w600 d-inline-block me-3">
-                        $5.6{" "}
-                      </span>{" "}
+                        $5.6{' '}
+                      </span>{' '}
                       <span className="fs-14">Order 89x</span>
                     </div>
                     <img
@@ -775,8 +794,8 @@ function Home() {
                         </h2>
                       </Link>
                       <span className="text-black font-w600 d-inline-block me-3">
-                        $5.6{" "}
-                      </span>{" "}
+                        $5.6{' '}
+                      </span>{' '}
                       <span className="fs-14">Order 89x</span>
                     </div>
                     <img
