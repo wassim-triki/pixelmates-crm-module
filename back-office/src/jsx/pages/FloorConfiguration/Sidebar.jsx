@@ -1,25 +1,24 @@
 // src/components/Sidebar.jsx
 import React from 'react';
 import './Sidebar.css';
+import { FaGlobe } from 'react-icons/fa';
 
-// available shapes in the palette
 const SHAPES = [
-  { id: 'rectangle', label: 'Rectangle' },
+  { id: 'rectangle', label: 'Square' },
   { id: 'circle', label: 'Circle' },
 ];
 
 export default function Sidebar({
-  tableCounts = {}, // { rectangle: 2, circle: 1, ... }
-  onShapeDragStart, // (shapeId) => void
-  selectedTable, // { name, minCovers, maxCovers, online }
-  onDetailChange, // (field, value) => void
+  tableCounts = {},
+  onShapeDragStart,
+  selectedTable,
+  onDetailChange,
 }) {
   return (
     <aside className="sidebar">
-      {/* Table Options */}
       <div className="section table-options">
         <h3>Table Options</h3>
-        <p className="subtitle">Drag &amp; drop your tables</p>
+        <p className="subtitle">Drag & drop your tables</p>
         <div className="shape-palette">
           {SHAPES.map((shape) => (
             <div
@@ -31,14 +30,15 @@ export default function Sidebar({
                 onShapeDragStart(shape.id);
               }}
             >
-              <div className="shape-icon">🌐</div>
+              <div className="shape-icon">
+                <FaGlobe />
+              </div>
               <span className="shape-count">{tableCounts[shape.id] || 0}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Details for selected table */}
       <div
         className={`section table-details ${
           !selectedTable ? 'no-selection' : ''
@@ -59,12 +59,10 @@ export default function Sidebar({
                 onChange={(e) => onDetailChange('name', e.target.value)}
               />
             </div>
-
             <div className="field counter-field">
               <label>Min Covers</label>
               <div className="counter">
                 <button
-                  type="button"
                   onClick={() =>
                     onDetailChange(
                       'minCovers',
@@ -76,7 +74,6 @@ export default function Sidebar({
                 </button>
                 <input readOnly type="number" value={selectedTable.minCovers} />
                 <button
-                  type="button"
                   onClick={() =>
                     onDetailChange('minCovers', selectedTable.minCovers + 1)
                   }
@@ -85,12 +82,10 @@ export default function Sidebar({
                 </button>
               </div>
             </div>
-
             <div className="field counter-field">
               <label>Max Covers</label>
               <div className="counter">
                 <button
-                  type="button"
                   onClick={() =>
                     onDetailChange(
                       'maxCovers',
@@ -105,7 +100,6 @@ export default function Sidebar({
                 </button>
                 <input readOnly type="number" value={selectedTable.maxCovers} />
                 <button
-                  type="button"
                   onClick={() =>
                     onDetailChange('maxCovers', selectedTable.maxCovers + 1)
                   }
@@ -114,7 +108,6 @@ export default function Sidebar({
                 </button>
               </div>
             </div>
-
             <div className="field toggle-field">
               <label>Online</label>
               <label className="switch">
