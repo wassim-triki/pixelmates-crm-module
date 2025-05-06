@@ -124,6 +124,7 @@ import Complaints from './components/Dashboard/Complaints';
 import { useAuth } from '../context/authContext';
 import MyRestaurant from './pages/MyRestaurant';
 import VerifyEmail from './pages/VerifyEmail';
+import FloorConfiguration from './pages/FloorConfiguration/FloorConfiguration';
 function HomeRedirect() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
@@ -314,6 +315,14 @@ const Markup = () => {
             element={
               <ProtectedRoute requiredRole="Admin">
                 <MyRestaurant />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/floor-configuration"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <FloorConfiguration />
               </ProtectedRoute>
             }
           />

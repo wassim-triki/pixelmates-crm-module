@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Navigate } from 'react-router-dom';
 import {
   Dropdown,
   Modal,
@@ -7,55 +6,66 @@ import {
   Form,
   Alert,
   Spinner,
-  Pagination,
   Badge,
 } from 'react-bootstrap';
-import { getCurrentUser, formatError } from '../../../services/AuthService.js';
+import { formatError } from '../../../services/AuthService.js';
+import { useAuth } from '../../../context/authContext';
 import jsPDF from 'jspdf';
 import logo from '../../../assets/images/Logo-officiel-MenuFy.png'; // Make sure this path is correct
+import AnalyticsModal from './AnalyticsModal';
 import {
   getComplaints,
-  getComplaintById,
   getComplaintsByRestaurant,
-  getComplaintsByUser,
   updateComplaint,
-  uploadImages,
-  sendResolvedSMS, // Add this new service function
-  // Updated to use the new function
+  sendResolvedSMS,
 } from '../../../services/ComplaintService.js';
 
 const ComplaintList = () => {
+  const { user } = useAuth();
+
   // State Management
   const [complaints, setComplaints] = useState([]);
-
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState(''); // Added for category filtering
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [sortConfig, setSortConfig] = useState({
     key: 'createdAt',
     direction: 'descending',
   });
   const [validationErrors, setValidationErrors] = useState({});
-  const [imageUrls, setImageUrls] = useState([]); // Store image URLs for upload
-  const [originalComplaint, setOriginalComplaint] = useState(null); // Add this line
+  const [originalComplaint, setOriginalComplaint] = useState(null);
 
   const itemsPerPage = 10;
 
-  // Fetch Complaints
+  // Fetch Complaints based on user role
   const fetchComplaints = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await getComplaints();
+      let response;
+
+      // If user is Admin, only fetch complaints for their restaurant
+      if (user?.role?.name === 'Admin' && user?.restaurant?._id) {
+        console.log('Admin user fetching complaints for restaurant:', user.restaurant._id);
+        response = await getComplaintsByRestaurant(user.restaurant._id);
+      } else {
+        // SuperAdmin can see all complaints
+        console.log('SuperAdmin fetching all complaints');
+        response = await getComplaints();
+      }
+
+      console.log('Complaints fetched:', response.data?.length || 0, 'complaints');
       setComplaints(response.data || []);
     } catch (err) {
+      console.error('Error fetching complaints:', err);
       setError(formatError(err) || 'Failed to fetch complaints');
     } finally {
       setLoading(false);
@@ -63,32 +73,48 @@ const ComplaintList = () => {
   };
 
   useEffect(() => {
-    fetchComplaints();
-  }, []);
+    if (user) {
+      fetchComplaints();
+    }
+  }, [user]);
 
   // Search Complaints
   const handleSearch = async (term) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await getComplaints();
+      let response;
+
+      // If user is Admin, only search within their restaurant's complaints
+      if (user?.role?.name === 'Admin' && user?.restaurant?._id) {
+        console.log('Admin searching complaints for restaurant:', user.restaurant._id);
+        response = await getComplaintsByRestaurant(user.restaurant._id);
+      } else {
+        // SuperAdmin can search all complaints
+        console.log('SuperAdmin searching all complaints');
+        response = await getComplaints();
+      }
+
       const allComplaints = response.data || [];
+      console.log('Total complaints before filtering:', allComplaints.length);
 
       const filteredComplaints = allComplaints.filter((c) => {
         const lowerTerm = term.toLowerCase();
         return (
           (c.title && c.title.toLowerCase().includes(lowerTerm)) ||
           (c.description && c.description.toLowerCase().includes(lowerTerm)) ||
-          (c.category && c.category.toLowerCase().includes(lowerTerm)) || // Added category search
+          (c.category && c.category.toLowerCase().includes(lowerTerm)) ||
           (c.user?.name && c.user.name.toLowerCase().includes(lowerTerm)) ||
-          (c.restaurant?.name &&
-            c.restaurant.name.toLowerCase().includes(lowerTerm))
+          (c.user?.email && c.user.email.toLowerCase().includes(lowerTerm)) ||
+          (c.restaurant?.name && c.restaurant.name.toLowerCase().includes(lowerTerm))
         );
       });
 
+      console.log('Filtered complaints:', filteredComplaints.length);
       setComplaints(filteredComplaints);
       setCurrentPage(0);
     } catch (err) {
+      console.error('Search error:', err);
       setError(formatError(err) || 'Search failed');
     } finally {
       setLoading(false);
@@ -106,25 +132,33 @@ const ComplaintList = () => {
     setLoading(true);
     setError(null);
     try {
-      // Update complaint and capture response
-      const updatedComplaint = await updateComplaint(
+      // Get status note if status is changing
+      let statusNote = '';
+      if (originalComplaint && originalComplaint.status !== selectedComplaint.status) {
+        statusNote = `Status changed from ${originalComplaint.status} to ${selectedComplaint.status}`;
+      }
+
+      // Update complaint
+      await updateComplaint(
         {
           status: selectedComplaint.status,
           priority: selectedComplaint.priority,
           category: selectedComplaint.category,
           response: selectedComplaint.response || null,
         },
-        selectedComplaint._id
+        selectedComplaint._id,
+        user?._id, // Pass the current user ID
+        statusNote // Pass the status note
       );
 
       // Check if status changed to Resolved
       if (
         originalComplaint &&
         originalComplaint.status !== 'Resolved' &&
-        updatedComplaint.status === 'Resolved'
+        selectedComplaint.status === 'Resolved'
       ) {
         try {
-          await sendResolvedSMS(updatedComplaint._id);
+          await sendResolvedSMS(selectedComplaint._id);
         } catch (smsError) {
           setError(
             `Complaint updated, but failed to send SMS: ${formatError(
@@ -308,7 +342,6 @@ const ComplaintList = () => {
   const handleCloseDetailModal = () => {
     setShowDetailModal(false);
     setSelectedComplaint(null);
-    setImageUrls([]);
     setValidationErrors({});
   };
   // Modify handleShowEditModal to track original complaint
@@ -550,7 +583,24 @@ const ComplaintList = () => {
         </Dropdown>
       </div>
 
-      <h1 className="text-center fw-bold pt-4 mb-4">Complaints List</h1>
+      <div className="d-flex justify-content-between align-items-center pt-4 mb-4">
+        <h1 className="fw-bold">Complaints List</h1>
+        <Button
+          variant="info"
+          className="d-flex align-items-center gap-2"
+          onClick={() => setShowAnalyticsModal(true)}
+        >
+          <i className="fas fa-chart-bar"></i>
+          <span>View Analytics</span>
+        </Button>
+      </div>
+
+      {/* Analytics Modal */}
+      <AnalyticsModal
+        show={showAnalyticsModal}
+        onHide={() => setShowAnalyticsModal(false)}
+        restaurantId={user?.role?.name === 'Admin' && user?.restaurant?._id ? user.restaurant._id : ''}
+      />
 
       {/* Complaint Table */}
       {loading ? (

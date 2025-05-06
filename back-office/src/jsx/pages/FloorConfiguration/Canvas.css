@@ -1,0 +1,137 @@
+.canvas {
+  flex: 1;
+  position: relative;
+  background-color: #fdfdfd;
+  background-size: 20px 20px;
+  background-image: linear-gradient(to right, #ddd 1px, transparent 1px),
+    linear-gradient(to bottom, #ddd 1px, transparent 1px);
+}
+
+.table-instance {
+  border: 2px solid var(--color-primary);
+  background: #fff;
+}
+
+.table-instance.rectangle {
+  border-radius: var(--radius);
+}
+.table-instance.circle {
+  border-radius: 50%;
+}
+
+.table-instance.selected {
+  box-shadow: 0 0 0 2px rgba(239, 125, 112, 0.4);
+}
+
+/* Resize handles styling */
+.react-resizable-handle {
+  visibility: hidden;
+  width: 10px;
+  height: 10px;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  position: absolute;
+}
+.table-instance.selected .react-resizable-handle {
+  visibility: visible !important;
+}
+
+/* Position handles for each corner & edge */
+.table-instance.selected .react-resizable-handle-se {
+  bottom: -6px;
+  right: -6px;
+  cursor: se-resize;
+}
+.table-instance.selected .react-resizable-handle-sw {
+  bottom: -6px;
+  left: -6px;
+  cursor: sw-resize;
+}
+.table-instance.selected .react-resizable-handle-ne {
+  top: -6px;
+  right: -6px;
+  cursor: ne-resize;
+}
+.table-instance.selected .react-resizable-handle-nw {
+  top: -6px;
+  left: -6px;
+  cursor: nw-resize;
+}
+.table-instance.selected .react-resizable-handle-s {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: s-resize;
+}
+.table-instance.selected .react-resizable-handle-n {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: n-resize;
+}
+.table-instance.selected .react-resizable-handle-e {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: e-resize;
+}
+.table-instance.selected .react-resizable-handle-w {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: w-resize;
+}
+
+.online-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-primary);
+  font-size: 1.5rem;
+}
+
+.label-top,
+.label-bottom {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.label-top {
+  top: -18px;
+}
+.label-bottom {
+  bottom: -18px;
+}
+
+.toolbar {
+  position: absolute;
+  top: -65px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar button {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.toolbar button:hover {
+  background: #f5f5f5;
+}

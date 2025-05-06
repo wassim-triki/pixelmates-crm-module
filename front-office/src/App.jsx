@@ -21,6 +21,7 @@ import ReservationPage from './pages/ReservationPage';
 import ReservationForm from './pages/ReservationForm';
 import ComplaintForm from './pages/ComplaintForm';
 import UserComplaints from './pages/UserComplaints';
+import RestaurantDetails from './pages/RestaurantDetails/RestaurantDetails';
 const App = () => {
   const location = useLocation();
   const [showFooter, setShowFooter] = useState(true);
@@ -56,17 +57,23 @@ const App = () => {
               <Route path="/forgot-password" element={<ResetPasswordEmail />} />
               <Route path="/verify-email" element={<VerifyCode />} />
               <Route path="/restaurant" element={<Restaurant />} />
-              <Route path="/restaurants/:restaurantId/tables/:tableId/reserve" element={
-             <ProtectedRoute>
-             <ReservationForm />
-            </ProtectedRoute>
-              } 
-/>
-             
               <Route
                 path="/restaurants/:restaurantId"
-                element={<ReservationPage />}
+                element={<RestaurantDetails />}
               />
+              <Route
+                path="/restaurants/:restaurantId/tables/:tableId/reserve"
+                element={
+                  <ProtectedRoute>
+                    <ReservationForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* <Route
+                path="/restaurants/:restaurantId"
+                element={<ReservationPage />}
+              /> */}
               <Route path="/complaint" element={<ComplaintForm />} />
               <Route
                 path="/my-complaints"
