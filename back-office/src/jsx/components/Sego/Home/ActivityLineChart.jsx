@@ -1,38 +1,21 @@
+// src/components/Sego/Home/ActivityLineChart.jsx
 import React, { Component } from 'react';
 import { Line } from 'react-chartjs-2';
 
 class ActivityLineChart extends Component {
   render() {
-    const { labels, dataActive } = this.props;
+    const { labels, predictions } = this.props;
 
-    // Replace or expand these with your real datasets.
-    const activityData = [
-      [30, 60, 30, 65, 35, 60, 40, 70, 30, 45, 30, 60], // month fallback
-      // …other series if you have them…
-    ];
+    // Fallback data (if you ever need it)
+    const fallbackData = Array(labels.length).fill(0);
 
     const data = {
       defaultFontFamily: 'Poppins',
-      labels: labels.length
-        ? labels
-        : [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec',
-          ],
+      labels: labels.length ? labels : ['No data'],
       datasets: [
         {
           label: 'Guest Count',
-          data: activityData[dataActive] || [],
+          data: predictions.length ? predictions : fallbackData,
           borderColor: '#EA7A9A',
           borderWidth: 4,
           tension: 0.5,
@@ -52,7 +35,6 @@ class ActivityLineChart extends Component {
         x: {
           grid: { display: false },
           ticks: {
-            fontColor: '#3e4954',
             fontFamily: 'Nunito, sans-serif',
           },
         },
@@ -62,10 +44,8 @@ class ActivityLineChart extends Component {
             drawBorder: true,
           },
           ticks: {
-            max: 100,
             min: 0,
             stepSize: 20,
-            fontColor: '#3e4954',
           },
         },
       },
@@ -78,11 +58,7 @@ class ActivityLineChart extends Component {
       },
     };
 
-    return (
-      <div style={{ height: '350px' }}>
-        <Line data={data} options={options} height={350} />
-      </div>
-    );
+    return <Line data={data} options={options} height={350} />;
   }
 }
 

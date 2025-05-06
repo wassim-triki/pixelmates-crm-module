@@ -42,7 +42,7 @@
     "react-chartjs-2": "^5.3.0",
     "react-color": "^2.19.3",
     "react-countup": "^6.5.3",
-    "react-datepicker": "^7.5.0",
+    "react-datepicker": "^7.6.0",
     "react-dom": "^18.3.1",
     "react-dropzone-uploader": "^2.11.0",
     "react-form-stepper": "^2.0.3",

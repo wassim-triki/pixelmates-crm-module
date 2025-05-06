@@ -1,100 +1,93 @@
+// src/components/GuestPrediction.jsx
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Nav, Tab } from 'react-bootstrap';
+import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from 'react-datepicker';
+import { Nav } from 'react-bootstrap';
 import ActivityLineChart from './Sego/Home/ActivityLineChart';
-import axios from '../../config/axios';
+import axiosInstance from '../../config/axios';
+import axios from 'axios';
 import { useAuth } from '../../context/authContext';
 
 const GuestPrediction = () => {
-  const [session, setSession] = useState('Monthly');
-  const [hourLabels, setHourLabels] = useState([]);
   const { user } = useAuth();
 
+  // schedule
+  const [workFrom, setWorkFrom] = useState('');
+  const [workTo, setWorkTo] = useState('');
+
+  // chart data
+  const [labels, setLabels] = useState([]);
+  const [predictions, setPredictions] = useState([]);
+
+  // date & event flag
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [specialEvent, setSpecialEvent] = useState(0);
+
+  // fetch schedule once
   useEffect(() => {
-    const fetchRestaurantSchedule = async () => {
-      try {
-        // 1. Fetch the schedule
-        const response = await axios.get(
-          `/restaurants/${user.restaurant._id}/schedule`
-        );
-        const { workFrom, workTo } = response.data;
-
-        // 2. Generate hourly labels
-        const generateHourlyLabels = (from, to) => {
-          const [fH, fM] = from.split(':').map(Number);
-          const [tH, tM] = to.split(':').map(Number);
-          const startHour = Math.floor(fH + fM / 60);
-          const endHour = Math.round(tH + tM / 60);
-          const labels = [];
-          for (let h = startHour; h <= endHour; h++) {
-            labels.push(h.toString().padStart(2, '0') + ':00');
-          }
-          return labels;
-        };
-
-        setHourLabels(generateHourlyLabels(workFrom, workTo));
-      } catch (error) {
-        console.error('Error fetching restaurant schedule:', error);
-      }
-    };
-
-    if (user?.restaurant?._id) {
-      fetchRestaurantSchedule();
-    }
+    if (!user?.restaurant?._id) return;
+    axiosInstance
+      .get(`/restaurants/${user.restaurant._id}/schedule`)
+      .then((res) => {
+        setWorkFrom(res.data.workFrom);
+        setWorkTo(res.data.workTo);
+      })
+      .catch((err) => console.error('Schedule error:', err));
   }, [user]);
+
+  // whenever date or schedule or flag changes → predict
+  useEffect(() => {
+    if (!workFrom || !workTo) return;
+
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    const startTime = `${dateStr}T${workFrom}`;
+    const endTime = `${dateStr}T${workTo}`;
+
+    axios
+      .post('http://192.168.70.126:5001/predict', {
+        start_time: startTime,
+        end_time: endTime,
+        special_event: specialEvent,
+      })
+      .then((res) => {
+        const { hours, predictions } = res.data;
+        // build "HH:00" labels
+        setLabels(hours.map((h) => h.toString().padStart(2, '0') + ':00'));
+        setPredictions(predictions);
+      })
+      .catch((err) => console.error('Prediction error:', err));
+  }, [selectedDate, workFrom, workTo, specialEvent]);
 
   return (
     <div className="card">
-      <div className="card-header d-sm-flex d-block pb-0 border-0">
-        <div className="me-auto pe-3">
-          <h4 className="text-black fs-20">Revenue</h4>
-          <p className="fs-13 mb-0 text-black">
-            Lorem ipsum dolor sit amet, consectetur
+      <div className="card-header d-flex justify-content-between align-items-center pb-0 border-0">
+        <div>
+          <h4 className="fs-20">Peak Guest Hour Prediction</h4>
+          <p className="fs-13 mb-0">
+            A prediction of peak guest count vs. hour of day.
           </p>
         </div>
-        <Dropdown className="dropdown mt-sm-0 mt-3">
-          <Dropdown.Toggle className="btn btn-primary light dropdown-toggle">
-            {session}
-          </Dropdown.Toggle>
-          <Dropdown.Menu align="end">
-            <Dropdown.Item onClick={() => setSession('Month')}>
-              Month
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => setSession('Day')}>Day</Dropdown.Item>
-            <Dropdown.Item onClick={() => setSession('Week')}>
-              Week
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => setSession('Year')}>
-              Year
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
 
-      <div className="card-body" id="user-activity">
-        <Tab.Container defaultActiveKey="all-food">
-          <div className="d-flex flex-wrap mb-4">
-            <div className="me-auto mb-2 pe-3 d-flex align-items-center">
-              {/* …SVG icon… */}
-              <div className="ms-3">
-                <p className="fs-12 mb-1">Income</p>
-                <span className="fs-22 text-black font-w600">$126,000</span>
+        {/* date picker */}
+        <Nav as="ul" className="nav nav-tabs">
+          <Nav.Item as="li">
+            <div className="input-hasicon">
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                dateFormat="yyyy-MM-dd"
+                className="form-control"
+              />
+              <div className="icon">
+                <i className="far fa-calendar" />
               </div>
             </div>
-            <div className="card-action revenue-tabs">
-              <Nav as="ul" className="nav nav-tabs">
-                <Nav.Item as="li">
-                  <Nav.Link eventKey="all-food">All Food</Nav.Link>
-                </Nav.Item>
-              </Nav>
-            </div>
-          </div>
+          </Nav.Item>
+        </Nav>
+      </div>
 
-          <Tab.Content>
-            <Tab.Pane eventKey="all-food">
-              <ActivityLineChart dataActive={0} labels={hourLabels} />
-            </Tab.Pane>
-          </Tab.Content>
-        </Tab.Container>
+      <div className="card-body" style={{ height: '350px' }}>
+        <ActivityLineChart labels={labels} predictions={predictions} />
       </div>
     </div>
   );
