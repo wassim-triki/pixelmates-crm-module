@@ -55,7 +55,7 @@ export const SuperAdminMenuList = [
         to: '/superadmin/complaints',
       },
       {
-        title: 'statics',
+        title: 'Statistics',
         to: '/superadmin/statics',
       },
     ],
