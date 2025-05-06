@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const ejs = require('ejs');
 const path = require('path');
+const fs = require('fs').promises;
 
 const transporter = nodemailer.createTransport({
   service: 'gmail', // Use your preferred service
@@ -14,15 +15,46 @@ const transporter = nodemailer.createTransport({
 });
 
 module.exports = async function sendEmail({ to, subject, template, data }) {
-  const templatePath = path.join(__dirname, `../templates/${template}.ejs`);
-  const emailBody = await ejs.renderFile(templatePath, data);
+  try {
+    // Path to the logo file
+    const logoPath = path.join(__dirname, '../../public/images/Logo-officiel-MenuFy.png');
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to,
-    subject,
-    html: emailBody,
-  };
+    // Check if the logo file exists
+    try {
+      await fs.access(logoPath);
+    } catch (error) {
+      console.warn('Logo file not found at:', logoPath);
+    }
 
-  return transporter.sendMail(mailOptions);
+    // Render the email template
+    const templatePath = path.join(__dirname, `../templates/${template}.ejs`);
+
+    // Add logo CID to the data
+    const enhancedData = {
+      ...data,
+      logoUrl: 'cid:menufy-logo'
+    };
+
+    const emailBody = await ejs.renderFile(templatePath, enhancedData);
+
+    // Create mail options with embedded logo
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      html: emailBody,
+      attachments: [
+        {
+          filename: 'Logo-officiel-MenuFy.png',
+          path: logoPath,
+          cid: 'menufy-logo' // Same cid value as in the html img src
+        }
+      ]
+    };
+
+    return transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+  }
 };

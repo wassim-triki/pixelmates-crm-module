@@ -1,7 +1,7 @@
 const Complaint = require('../models/Complaint');
 const Restaurant = require('../models/Restaurant');
 const User = require('../models/User');
-const { sendResolvedSMS } = require('../utils/sms');
+const { sendResolvedSMS, sendNewComplaintSMS, sendStatusUpdateSMS } = require('../utils/sms');
 const { sendStatusUpdateEmail, sendNewCommentEmail, sendFollowUpEmail } = require('../utils/complaintNotifications');
 const mongoose = require('mongoose');
 
@@ -26,6 +26,12 @@ const createComplaint = async (req, res) => {
       return res.status(404).json({ message: 'Restaurant not found' });
     }
 
+    // Get user details for notifications
+    const userDetails = await User.findById(user);
+    if (!userDetails) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     // Validate category
     const validCategories = ['Food Quality', 'Service', 'Cleanliness', 'Billing', 'Other'];
     if (!validCategories.includes(category)) {
@@ -43,6 +49,22 @@ const createComplaint = async (req, res) => {
     });
 
     const savedComplaint = await complaint.save();
+
+    // Send SMS notification if user has a phone number
+    if (userDetails.phone) {
+      try {
+        await sendNewComplaintSMS(
+          userDetails.phone,
+          savedComplaint._id,
+          restaurantExists.name
+        );
+        console.log(`SMS notification sent to ${userDetails.phone} for complaint ${savedComplaint._id}`);
+      } catch (smsError) {
+        console.error('Failed to send SMS notification:', smsError);
+        // Don't fail the request if SMS sending fails
+      }
+    }
+
     res.status(201).json(savedComplaint);
   } catch (error) {
     res.status(500).json({ message: 'Error creating complaint', error: error.message });
@@ -165,7 +187,7 @@ const updateComplaint = async (req, res) => {
 
     const updatedComplaint = await complaint.save();
 
-    // Send email notification if status has changed
+    // Send notifications if status has changed
     if (status && status !== originalStatus) {
       try {
         // Get the base URL from the request
@@ -185,9 +207,25 @@ const updateComplaint = async (req, res) => {
           statusNote || `Status updated by ${changer ? changer.name : 'staff'}`,
           baseUrl
         );
+
+        // Send SMS notification if user has a phone number
+        if (complaint.user.phone) {
+          try {
+            await sendStatusUpdateSMS(
+              complaint.user.phone,
+              updatedComplaint._id,
+              status,
+              complaint.restaurant.name
+            );
+            console.log(`Status update SMS sent to ${complaint.user.phone} for complaint ${updatedComplaint._id}`);
+          } catch (smsError) {
+            console.error('Failed to send status update SMS:', smsError);
+            // Don't fail the request if SMS sending fails
+          }
+        }
       } catch (emailError) {
-        console.error('Failed to send status update email:', emailError);
-        // Don't fail the request if email sending fails
+        console.error('Failed to send status update notifications:', emailError);
+        // Don't fail the request if notifications fail
       }
     }
 
@@ -261,8 +299,14 @@ const getUserComplaints = async (req, res) => {
 };
 const sendSMS = async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.complaintId)
-      .populate('user', 'phoneNumber')
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid complaint ID' });
+    }
+
+    const complaint = await Complaint.findById(id)
+      .populate('user')
       .populate('restaurant', 'name');
 
     if (!complaint) {
@@ -273,12 +317,12 @@ const sendSMS = async (req, res) => {
       return res.status(400).json({ message: 'Complaint is not resolved' });
     }
 
-    if (!complaint.user.phoneNumber) {
+    if (!complaint.user.phone) {
       return res.status(400).json({ message: 'User has no phone number registered' });
     }
 
     const result = await sendResolvedSMS(
-      complaint.user.phoneNumber,
+      complaint.user.phone,
       complaint._id
     );
 
@@ -287,6 +331,7 @@ const sendSMS = async (req, res) => {
       sid: result.sid
     });
   } catch (error) {
+    console.error('Error in sendSMS:', error);
     res.status(500).json({
       message: error.message || 'Error sending SMS notification'
     });

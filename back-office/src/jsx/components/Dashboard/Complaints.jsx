@@ -178,142 +178,367 @@ const ComplaintList = () => {
   };
 
   const generateComplaintPDF = (complaint) => {
+    // Create a new PDF document
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     let yPos = 30;
 
-    // Add Logo
-    try {
-      doc.addImage(logo, 'PNG', 15, 10, 40, 15); // Adjust dimensions as needed
-    } catch (error) {
-      console.error('Error loading logo:', error);
-    }
+    // Define colors
+    const primaryColor = [250, 128, 114]; // #006DEF - Blue
+    const secondaryColor = [250, 128, 114]; // #FA8072 - Salmon
+    const textColor = [51, 51, 51]; // #333333 - Dark Gray
 
-    // Header Line
-    doc.setDrawColor(200);
-    doc.setLineWidth(0.5);
-    doc.line(15, 27, pageWidth - 15, 27);
+    // Function to finalize the PDF generation
+    const finalizePDF = () => {
+      // Add header with blue background
+      doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.rect(0, 0, pageWidth, 30, 'F');
 
-    // Title
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Complaint Report', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 15;
+      // Add document title
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 255, 255); // White
+      doc.setFontSize(22);
+      doc.text('COMPLAINT REPORT', pageWidth - 15, 20, { align: 'right' });
 
-    // Complaint ID
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Complaint ID: ${complaint._id}`, 15, yPos);
-    yPos += 8;
+      // Reset text color
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
-    // Report Date
-    doc.text(
-      `Report Date: ${new Date().toLocaleDateString()}`,
-      pageWidth - 15,
-      yPos,
-      {
-        align: 'right',
+      // Add complaint ID and date
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Report generated on: ${new Date().toLocaleDateString()}`, 15, 40);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Complaint ID: ${complaint._id}`, pageWidth - 15, 40, { align: 'right' });
+
+      // Add status badge
+      doc.setFillColor(
+        complaint.status === 'Resolved' ? 40 :
+        complaint.status === 'In Progress' ? 255 :
+        complaint.status === 'Pending' ? 220 : 108,
+        complaint.status === 'Resolved' ? 167 :
+        complaint.status === 'In Progress' ? 193 :
+        complaint.status === 'Pending' ? 53 : 117,
+        complaint.status === 'Resolved' ? 69 :
+        complaint.status === 'In Progress' ? 7 :
+        complaint.status === 'Pending' ? 69 : 125
+      );
+      doc.rect(15, 45, 40, 10, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.text(complaint.status || 'N/A', 35, 51, { align: 'center' });
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+      // Add priority badge
+      doc.setFillColor(
+        complaint.priority === 'High' ? 220 :
+        complaint.priority === 'Medium' ? 255 :
+        complaint.priority === 'Low' ? 40 : 108,
+        complaint.priority === 'High' ? 53 :
+        complaint.priority === 'Medium' ? 193 :
+        complaint.priority === 'Low' ? 167 : 117,
+        complaint.priority === 'High' ? 69 :
+        complaint.priority === 'Medium' ? 7 :
+        complaint.priority === 'Low' ? 69 : 125
+      );
+      doc.rect(60, 45, 40, 10, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.text(complaint.priority || 'N/A', 80, 51, { align: 'center' });
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+      // Add summary section
+      doc.setFillColor(240, 240, 240); // Light gray
+      doc.rect(15, 60, pageWidth - 30, 25, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(complaint.title || 'N/A', pageWidth / 2, 70, { align: 'center' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Restaurant: ${complaint.restaurant?.name || 'N/A'} | Category: ${complaint.category || 'N/A'}`,
+        pageWidth / 2, 80, { align: 'center' });
+
+      // Add complaint details section
+      yPos = 95;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('Complaint Details', 15, yPos);
+      yPos += 10;
+
+      // Create details table manually
+      const details = [
+        { label: 'Customer', value: complaint.user?.email || 'N/A' },
+        { label: 'Customer Name', value: `${complaint.user?.firstName || ''} ${complaint.user?.lastName || ''}` },
+        { label: 'Phone', value: complaint.user?.phone || 'N/A' },
+        { label: 'Created Date', value: new Date(complaint.createdAt).toLocaleString() },
+        { label: 'Last Updated', value: new Date(complaint.updatedAt).toLocaleString() },
+        { label: 'Category', value: complaint.category || 'N/A' }
+      ];
+
+      // Draw details
+      details.forEach((item, index) => {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(item.label + ':', 15, yPos);
+
+        doc.setFont('helvetica', 'normal');
+        doc.text(item.value, 60, yPos);
+
+        yPos += 8;
+
+        // Add spacing after every 3 items
+        if ((index + 1) % 3 === 0) yPos += 5;
+      });
+
+      yPos += 10;
+
+      // Add description section
+      doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.rect(15, yPos - 5, pageWidth - 30, 0.5, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.text('Description', 15, yPos + 5);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+      yPos += 15;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+
+      const descriptionText = complaint.description || 'No description provided';
+      const splitDescription = doc.splitTextToSize(descriptionText, pageWidth - 30);
+
+      doc.text(splitDescription, 15, yPos);
+
+      yPos += splitDescription.length * 7 + 15;
+
+      // Check if we need a new page
+      if (yPos > pageHeight - 50) {
+        doc.addPage();
+        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.rect(0, 0, pageWidth, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.text('Complaint Report - Continued', pageWidth / 2, 10, { align: 'center' });
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+        yPos = 30;
       }
-    );
-    yPos += 15;
 
-    // Section Styling
-    const sectionStyle = {
-      font: 'helvetica',
-      fontSize: 12,
-      sectionSpacing: 8,
-      lineHeight: 7,
+      // Add response section
+      doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.rect(15, yPos - 5, pageWidth - 30, 0.5, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.text('Official Response', 15, yPos + 5);
+      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+      yPos += 15;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+
+      const responseText = complaint.response || 'No official response yet';
+      const splitResponse = doc.splitTextToSize(responseText, pageWidth - 30);
+
+      doc.text(splitResponse, 15, yPos);
+
+      yPos += splitResponse.length * 7 + 15;
+
+      // Add comments section if available
+      if (complaint.comments && complaint.comments.length > 0) {
+        // Check if we need a new page
+        if (yPos > pageHeight - 50) {
+          doc.addPage();
+          doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+          doc.rect(0, 0, pageWidth, 15, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(10);
+          doc.text('Complaint Report - Continued', pageWidth / 2, 10, { align: 'center' });
+          doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+          yPos = 30;
+        }
+
+        doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+        doc.rect(15, yPos - 5, pageWidth - 30, 0.5, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+        doc.text('Comments', 15, yPos + 5);
+        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+        yPos += 15;
+
+        // Add comments manually
+        complaint.comments.forEach((comment, index) => {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.text(`${new Date(comment.createdAt).toLocaleDateString()} - ${comment.user?.name || 'Unknown'}:`, 15, yPos);
+
+          yPos += 7;
+
+          doc.setFont('helvetica', 'normal');
+          const commentText = doc.splitTextToSize(comment.text, pageWidth - 40);
+          doc.text(commentText, 20, yPos);
+
+          yPos += commentText.length * 7 + 10;
+
+          // Check if we need a new page for next comment
+          if (index < complaint.comments.length - 1 && yPos > pageHeight - 30) {
+            doc.addPage();
+            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.rect(0, 0, pageWidth, 15, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(10);
+            doc.text('Complaint Report - Continued', pageWidth / 2, 10, { align: 'center' });
+            doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+            yPos = 30;
+          }
+        });
+      }
+
+      // Add footer to all pages
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+
+        // Footer line
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.line(15, pageHeight - 30, pageWidth - 15, pageHeight - 30);
+
+        // Footer text
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text('Generated by MenuFy - Restaurant Management System', pageWidth / 2, pageHeight - 22, { align: 'center' });
+        doc.text(`www.menufy.com | Contact: support@menufy.com | Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - 17, { align: 'center' });
+
+        // Add logo to footer if available
+        if (window.logoDataURL) {
+          try {
+            // Add small logo to the left side of the footer
+            doc.addImage(window.logoDataURL, 'PNG', 15, pageHeight - 25, 20, 8);
+          } catch (e) {
+            console.error('Error adding logo to footer:', e);
+          }
+        }
+      }
+
+      // Save PDF
+      doc.save(`Complaint_${complaint._id}_Report.pdf`);
     };
 
-    // Complaint Details Section
-    const details = [
-      { label: 'User', value: complaint.user?.email || 'N/A' },
-      { label: 'Restaurant', value: complaint.restaurant?.name || 'N/A' },
-      { label: 'Category', value: complaint.category || 'N/A' },
-      { label: 'Status', value: complaint.status || 'N/A' },
-      { label: 'Priority', value: complaint.priority || 'N/A' },
-      {
-        label: 'Created At',
-        value: new Date(complaint.createdAt).toLocaleString(),
-      },
-      {
-        label: 'Last Updated',
-        value: new Date(complaint.updatedAt).toLocaleString(),
-      },
-    ];
+    // Set default text color
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
-    // Details Table
-    doc.setFontSize(14);
-    doc.setFont(sectionStyle.font, 'bold');
-    doc.text('Complaint Details', 15, yPos);
-    yPos += 10;
+    // Add Logo from external URL
+    try {
+      // Use the external logo URL
+      const logoUrl = 'http://localhost:4000/src/assets/images/Logo-officiel-MenuFy.png';
 
-    details.forEach((item, index) => {
-      doc.setFontSize(12);
-      doc.setFont(sectionStyle.font, 'bold');
-      doc.text(`${item.label}:`, 15, yPos);
-      doc.setFont(sectionStyle.font, 'normal');
-      doc.text(item.value, 50, yPos);
-      yPos += sectionStyle.lineHeight;
+      // Create an image element to load the logo
+      const img = new Image();
 
-      // Add spacing after every 3 items
-      if ((index + 1) % 3 === 0) yPos += 5;
-    });
+      // Set cross-origin to anonymous to avoid CORS issues
+      img.crossOrigin = 'Anonymous';
 
-    yPos += 10;
+      // Set the image source to the logo URL
+      img.src = logoUrl;
 
-    // Description Section
-    doc.setFontSize(14);
-    doc.setFont(sectionStyle.font, 'bold');
-    doc.text('Description', 15, yPos);
-    yPos += 8;
+      // When the image is loaded, add it to the PDF
+      img.onload = function() {
+        try {
+          // Create a canvas to convert the image to a data URL
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
 
-    doc.setFontSize(12);
-    doc.setFont(sectionStyle.font, 'normal');
-    const splitDescription = doc.splitTextToSize(
-      complaint.description || 'No description provided',
-      180
-    );
-    doc.text(splitDescription, 15, yPos);
-    yPos += splitDescription.length * 6 + 10;
+          // Set canvas dimensions to match the image
+          canvas.width = img.width;
+          canvas.height = img.height;
 
-    // Response Section
-    doc.setFontSize(14);
-    doc.setFont(sectionStyle.font, 'bold');
-    doc.text('Official Response', 15, yPos);
-    yPos += 8;
+          // Draw image on canvas
+          ctx.drawImage(img, 0, 0);
 
-    doc.setFontSize(12);
-    doc.setFont(sectionStyle.font, 'normal');
-    const splitResponse = doc.splitTextToSize(
-      complaint.response || 'No official response yet',
-      180
-    );
-    doc.text(splitResponse, 15, yPos);
-    yPos += splitResponse.length * 6 + 15;
+          // Get base64 data URL
+          const dataURL = canvas.toDataURL('image/png');
 
-    // Footer
-    doc.setFontSize(10);
-    doc.setFont('courier', 'italic');
-    doc.text(
-      'Generated by MenuFy - Restaurant Management System',
-      pageWidth / 2,
-      280,
-      {
-        align: 'center',
-      }
-    );
-    doc.text(
-      `www.menufy.com | Contact: support@menufy.com`,
-      pageWidth / 2,
-      285,
-      {
-        align: 'center',
-      }
-    );
+          // Store the data URL in a global variable for use in the footer
+          window.logoDataURL = dataURL;
 
-    // Save PDF
-    doc.save(`Complaint_${complaint._id}_Report.pdf`);
+          console.log('Logo loaded successfully and will be added to the footer');
+        } catch (e) {
+          console.error('Error converting logo to data URL:', e);
+        }
+
+        // Continue with PDF generation
+        finalizePDF();
+      };
+
+      // Handle image loading error
+      img.onerror = function() {
+        console.error('Error loading logo from URL:', logoUrl);
+        // Try with the imported logo as fallback
+        try {
+          const fallbackImg = new Image();
+          fallbackImg.src = logo;
+          fallbackImg.onload = function() {
+            try {
+              // Create a canvas to convert the fallback image to a data URL
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+
+              // Set canvas dimensions to match the image
+              canvas.width = fallbackImg.width;
+              canvas.height = fallbackImg.height;
+
+              // Draw image on canvas
+              ctx.drawImage(fallbackImg, 0, 0);
+
+              // Get base64 data URL
+              const dataURL = canvas.toDataURL('image/png');
+
+              // Store the data URL in a global variable for use in the footer
+              window.logoDataURL = dataURL;
+
+              console.log('Fallback logo loaded successfully and will be added to the footer');
+            } catch (e) {
+              console.error('Error converting fallback logo to data URL:', e);
+            }
+            finalizePDF();
+          };
+          fallbackImg.onerror = function() {
+            console.error('Fallback logo also failed to load');
+            finalizePDF();
+          };
+        } catch (fallbackError) {
+          console.error('Error with fallback logo:', fallbackError);
+          finalizePDF();
+        }
+      };
+
+      // If image takes too long, continue anyway after a timeout
+      setTimeout(function() {
+        if (!img.complete) {
+          console.warn('Logo image loading timeout - continuing without logo');
+          finalizePDF();
+        }
+      }, 3000);
+
+      // Return early - the actual PDF generation will happen in the callbacks
+      return;
+    } catch (error) {
+      console.error('Error in logo loading process:', error);
+      // Continue with PDF generation without the logo
+      finalizePDF();
+    }
+
+
   };
 
   // Form Validation
