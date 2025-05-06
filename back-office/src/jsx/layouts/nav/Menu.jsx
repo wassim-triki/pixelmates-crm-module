@@ -21,7 +21,7 @@ export const AdminMenuList = [
       },
       {
         title: 'Floor configuration',
-        to: '/admin/my-restaurant',
+        to: '/admin/floor-configuration',
       },
       {
         title: 'Complaints',
