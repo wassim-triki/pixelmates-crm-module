@@ -14,12 +14,10 @@ const errorHandler = require('./middlewares/error-handler.middleware.js');
 const roleRoutes = require('./routes/role.routes.js'); // Add this line
 const reservationRoutes = require('./routes/reservations.routes.js'); // Add this line
 const passport = require('passport');
+const tablesRoutes = require('./routes/table.routes.js');
 const path = require('path');
 
-
 const loyaltyRoutes = require('./routes/loyaltyProgram.routes.js');
-
-
 
 dotenv.config();
 
@@ -30,8 +28,6 @@ async function updateExistingDocuments() {
       { isReserved: { $exists: false } }, // Documents sans le champ isReserved
       { $set: { isReserved: false } } // Ajout du champ avec la valeur par défaut
     );
-
- 
   } catch (error) {
     console.error('Erreur lors de la mise à jour des documents :', error);
   }
@@ -83,6 +79,7 @@ app.use('/qrcodes', express.static(path.join(__dirname, 'public/qrcodes')));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/restaurants/:restaurantId/tables', tablesRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/reservations', reservationRoutes);

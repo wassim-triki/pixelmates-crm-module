@@ -3,58 +3,76 @@ const validator = require('validator');
 
 const TableSchema = new mongoose.Schema(
   {
-    nbtable: {
-      type: Number,
+    number: {
+      type: String,
       required: [true, 'Table number is required'],
-      min: [1, 'Table number must be at least 1'],
+      trim: true,
+      validate: {
+        validator: (v) => /^[a-zA-Z0-9-_]+$/.test(v),
+        message: 'Invalid table number format',
+      },
     },
-    chairnb: {
+    minCovers: {
       type: Number,
-      required: [true, 'Number of chairs is required'],
-      min: [1, 'Number of chairs must be at least 1'],
-      max: [20, 'Number of chairs cannot exceed 20'],
+      required: [true, 'Minimum covers is required'],
+      min: [1, 'Minimum covers must be at least 1'],
+      default: 1,
+    },
+    maxCovers: {
+      type: Number,
+      required: [true, 'Maximum covers is required'],
+      min: [1, 'Maximum covers must be at least 1'],
+      default: 1,
+    },
+    online: {
+      type: Boolean,
+      default: true,
+      required: [true, 'Online status is required'],
+    },
+    x: {
+      type: Number,
+      required: [true, 'X position is required'],
+      min: [0, 'X position must be at least 0'],
+    },
+    y: {
+      type: Number,
+      required: [true, 'Y position is required'],
+      min: [0, 'Y position must be at least 0'],
+    },
+    w: {
+      type: Number,
+      required: [true, 'Width is required'],
+      min: [1, 'Width must be at least 1'],
+    },
+    h: {
+      type: Number,
+      required: [true, 'Height is required'],
+      min: [1, 'Height must be at least 1'],
     },
     shape: {
       type: String,
-      enum: ['rectangle', 'square', 'round'],
+      enum: ['rectangle', 'circle'],
       required: [true, 'Table shape is required'],
-      default: 'rectangle'
+      default: 'rectangle',
     },
-    location: {
-      type: String,
-      enum: ['window', 'center', 'terrace', 'main lounge'],
-      required: [true, 'Table location is required'],
-      default: 'center'
-    },
-    view: {
-      type: String,
-      enum: ['sea', 'pool', 'city', 'garden', 'none'],
-      required: [true, 'Table view is required'],
-      default: 'none'
-    },
-    qrcode: {
-      type: String,
-      required: [true, 'QR code is required'],
-      unique: true,
-      trim: true,
-      validate: {
-        validator: function (v) {
-          return /^[a-zA-Z0-9-_]+$/.test(v) || validator.isURL(v);
-        },
-        message: 'Invalid QR code format',
-      },
-    },
-    restauId: {
+
+    // qrcode: {
+    //   type: String,
+    //   required: [true, 'QR code is required'],
+    //   unique: true,
+    //   trim: true,
+    //   validate: {
+    //     validator: function (v) {
+    //       return /^[a-zA-Z0-9-_]+$/.test(v) || validator.isURL(v);
+    //     },
+    //     message: 'Invalid QR code format',
+    //   },
+    // },
+    restaurant: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Restaurant',
       required: [true, 'Restaurant ID is required'],
     },
-    features: {
-      type: [String],
-      enum: ['USB charger', 'TV screen', 'smoking area', 'private'],
-      required: true,
-      default: [] 
-    }
   },
   {
     timestamps: true,
@@ -62,7 +80,10 @@ const TableSchema = new mongoose.Schema(
   }
 );
 
-TableSchema.index({ restauId: 1, nbtable: 1 }, { unique: true });
-TableSchema.index({ restauId: 1 });
+// Compound index: number unique *per restaurant*
+TableSchema.index(
+  { restaurant: 1, number: 1 },
+  { unique: true, name: 'unique_number_per_restaurant' }
+);
 
 module.exports = mongoose.model('Table', TableSchema);

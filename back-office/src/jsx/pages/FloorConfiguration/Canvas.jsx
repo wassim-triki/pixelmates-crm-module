@@ -188,7 +188,7 @@ export default function Canvas({
             <div className="label-top">
               #{table.minCovers}-{table.maxCovers}
             </div>
-            <div className="label-bottom">{table.name}</div>
+            <div className="label-bottom">{table.number}</div>
             {isSelected && (
               <div className="toolbar">
                 <button onClick={() => onToggleShape(table.id)}>

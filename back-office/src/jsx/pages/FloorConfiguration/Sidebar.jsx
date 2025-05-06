@@ -13,6 +13,10 @@ export default function Sidebar({
   onShapeDragStart,
   selectedTable,
   onDetailChange,
+  handleSubmit,
+  submitting,
+  successMsg,
+  errorMsg,
 }) {
   return (
     <aside className="sidebar">
@@ -52,11 +56,11 @@ export default function Sidebar({
         ) : (
           <>
             <div className="field">
-              <label>Table Name</label>
+              <label>Table Number</label>
               <input
                 type="text"
-                value={selectedTable.name}
-                onChange={(e) => onDetailChange('name', e.target.value)}
+                value={selectedTable.number}
+                onChange={(e) => onDetailChange('number', e.target.value)}
               />
             </div>
             <div className="field counter-field">
@@ -72,7 +76,7 @@ export default function Sidebar({
                 >
                   –
                 </button>
-                <input readOnly type="number" value={selectedTable.minCovers} />
+                <input readOnly value={selectedTable.minCovers} />
                 <button
                   onClick={() =>
                     onDetailChange('minCovers', selectedTable.minCovers + 1)
@@ -98,7 +102,7 @@ export default function Sidebar({
                 >
                   –
                 </button>
-                <input readOnly type="number" value={selectedTable.maxCovers} />
+                <input readOnly value={selectedTable.maxCovers} />
                 <button
                   onClick={() =>
                     onDetailChange('maxCovers', selectedTable.maxCovers + 1)
@@ -121,6 +125,23 @@ export default function Sidebar({
             </div>
           </>
         )}
+      </div>
+
+      {successMsg && <div className="alert alert-success">{successMsg}</div>}
+      {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+
+      <div className="text-center">
+        <button
+          type="button"
+          className="btn btn-primary btn-block"
+          disabled={submitting}
+          onClick={handleSubmit}
+        >
+          {submitting && (
+            <span className="spinner-border spinner-border-sm me-2" />
+          )}
+          Save
+        </button>
       </div>
     </aside>
   );
