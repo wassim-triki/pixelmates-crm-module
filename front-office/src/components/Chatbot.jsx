@@ -7,270 +7,95 @@ const Chatbot = () => {
   const [userInput, setUserInput] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState(null);
   const { user } = useAuth();
 
-  const apiKey = "73676677ec625895ec0e633a2c792e3a";
-  const apiToken ="2536|52h4SKvwBrlsOPWYetbbCg4sv2ob5IMt8LszhOBI";
+  // Gemini API key (move to environment variable in production)
+  const geminiApiKey = "AIzaSyDotkJj_EF4Ba0TZ7xWIHPxE2PTma7JEd8";
+
   const handleInputChange = (event) => {
     setUserInput(event.target.value);
   };
 
-  const getWeather = async (city = "Paris") => {
+  // Function to call Gemini API
+  const callGeminiAPI = async (userMessage) => {
     try {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=en`
-      );
-      const data = await response.json();
-  
-      if (data.cod === 200) {
-        const temp = data.main.temp;
-        const feelsLike = data.main.feels_like;
-        const humidity = data.main.humidity;
-        const pressure = data.main.pressure;
-        const visibility = data.visibility;
-        const windSpeed = data.wind.speed;
-        const windDeg = data.wind.deg;
-        const description = data.weather[0].description;
-  
-        const windDirection = degToCompass(windDeg);
-  
-        const message = `
-  🌤️ **Weather Report for ${city}:**\n
-  - 🌥️ **Condition**: ${description}\n
-  - 🌡️ **Temperature**: ${temp.toFixed(1)}°C (Feels like: ${feelsLike.toFixed(1)}°C)\n
-  - 💧 **Humidity**: ${humidity}%\n
-  - 🌬️ **Wind Speed**: ${windSpeed} m/s from ${windDirection}\n
-  - 🌫️ **Visibility**: ${(visibility / 1000).toFixed(1)} km\n
-  - 🧭 **Pressure**: ${pressure} hPa\n
-  - 🌪️ **Wind Direction**: ${windDirection} (from ${windDeg}°)\n
-  - 💧 **Humidity Level**: ${humidity >= 90 ? 'High humidity 🌧️' : 'Comfortable 🌤️'}\n\n
-  📍 Stay safe and enjoy your day!
-  `;
-  
-        return message;
-      } else {
-        return `Error: ${data.message}`;
-      }
-    } catch (error) {
-      return "Something went wrong while fetching the weather.";
-    }
-  };
-  
-  // Convert wind degrees to compass direction
-  const degToCompass = (num) => {
-    const val = Math.floor((num / 22.5) + 0.5);
-    const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-                 "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-    return arr[val % 16];
-  };
-    // Make a reservation (simplified for demonstration)
-    const makeReservation = async (restaurant, time, people) => {
-      // Simulate an API call to book a table
-      return `Your reservation for ${restaurant} at ${time} for ${people} people has been successfully made!`;
-    };
+      setIsTyping(true);
+      setError(null);
 
-  const getCountryInfo = async (country) => {
-    try {
-      const response = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
-      const data = await response.json();
-      
-      if (data.status !== 404) {
-        const countryInfo = data[0];
-        const name = countryInfo.name.common;
-        const capital = countryInfo.capital ? countryInfo.capital[0] : 'No capital listed';
-        const population = countryInfo.population;
-        const region = countryInfo.region;
-        const subRegion = countryInfo.subregion;
-        const currencies = countryInfo.currencies ? Object.values(countryInfo.currencies).map(curr => curr.name).join(', ') : 'No currency listed';
-        const languages = countryInfo.languages ? Object.values(countryInfo.languages).join(', ') : 'No languages listed';
-        const borders = countryInfo.borders ? countryInfo.borders.join(', ') : 'No borders listed';
-        
-        return `🌍 **Country Information for ${name}:**
-   - 🏙️ **Capital**: ${capital}
-   - 👥 **Population**: ${population.toLocaleString()}
-   - 🌏 **Region**: ${region}
-   - 🌍 **Subregion**: ${subRegion}
-   - 💰 **Currencies**: ${currencies}
-   - 🗣️ **Languages**: ${languages}
-   - 🌍 **Borders**: ${borders}
-   `;
-      } else {
-        return "Sorry, I couldn't find information about that country.";
-      }
-    } catch (error) {
-      return "Sorry, something went wrong while fetching country information.";
-    }
-  };
-  
-  const getFoodInfo = async (query) => {
-    try {
-      const response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`);
-      const data = await response.json();
-  
-      if (data.meals && data.meals.length > 0) {
-        const meal = data.meals[0];
-        const name = meal.strMeal;
-        const category = meal.strCategory;
-        const area = meal.strArea;
-        const instructions = meal.strInstructions.split('. ').slice(0, 2).join('. ') + '.';
-        const ingredients = [];
-  
-        for (let i = 1; i <= 5; i++) {
-          const ingredient = meal[`strIngredient${i}`];
-          const measure = meal[`strMeasure${i}`];
-          if (ingredient && ingredient.trim()) {
-            ingredients.push(`${ingredient} (${measure.trim()})`);
-          }
+      // Prepare conversation history for Gemini
+      const apiMessages = messages.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.text }]
+      }));
+
+      // Add the new user message
+      apiMessages.push({
+        role: 'user',
+        parts: [{ text: userMessage }]
+      });
+
+      console.log("Sending request to Gemini API with messages:", apiMessages);
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: apiMessages
+          })
         }
-  
-        return `🍽️ **Dish**: ${name}
-  - 🍱 **Category**: ${category}
-  - 🌍 **Origin**: ${area}
-  - 🥣 **Ingredients**: ${ingredients.join(', ')}
-  - 📖 **Instructions**: ${instructions}
-        
-  Want the full recipe? Visit: ${meal.strSource || meal.strYoutube || 'No link available'}
-  `;
+      );
+
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+        throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log("API Response:", data);
+
+      if (data.candidates && data.candidates.length > 0) {
+        const botResponse = data.candidates[0].content.parts[0].text;
+        return botResponse;
       } else {
-        return "Sorry, I couldn't find any food with that name.";
+        throw new Error("No valid response from Gemini API");
       }
     } catch (error) {
-      return "Something went wrong while fetching food information.";
+      console.error("Error calling Gemini API:", error);
+      setError(`Failed to get response from Gemini: ${error.message}`);
+      return "Sorry, I couldn't process your request. Please try again later.";
+    } finally {
+      setIsTyping(false);
     }
   };
-  
 
   const handleSendMessage = async () => {
-    if (userInput.trim()) {
-      const normalizedInput = userInput.toLowerCase().trim();
-      setIsTyping(true);
+    if (!userInput.trim()) return;
 
-      let botResponse = "I'm sorry, I didn't understand that.";
+    // Add user message to chat
+    setMessages(prevMessages => [
+      ...prevMessages,
+      { sender: 'user', text: userInput }
+    ]);
 
-      if (/\b(hello|hi|salem|hey|hiya|hola|howdy)\b/.test(normalizedInput)) {
-        botResponse = "Hello! How can I assist you today?";
-      } else if (/\b(how are you|how's it going|how are you doing|how do you do|how are u|how are u doing)\b/.test(normalizedInput)) {
-        botResponse = "I'm doing great, thank you for asking!";
-      } else if (/\b(what is your name|who are you|what's your name|who are u)\b/.test(normalizedInput)) {
-        if (user) {
-          botResponse = `I am your friendly chatbot, and your name is ${user.firstName} ${user.lastName}!`;
-        } else {
-          botResponse = "Please log in so I can know your name!";
-        }
-      } else if (/\b(what is my name|who am i|what is my full name|what's my name|what's my full name)\b/.test(normalizedInput)) {
-        if (user) {
-          botResponse = `Your name is ${user.lastName} ${user.firstName}!`;
-        } else {
-          botResponse = "Please log in to get your full name!";
-        }
-      } else if (/\b(what is the date today|what time is it|current time|what's the date today)\b/.test(normalizedInput)) {
-        const currentDate = new Date();
-        const dateString = currentDate.toLocaleString();
-        botResponse = `Today is ${dateString}`;
-      } else if (/\b(tell me a joke|make me laugh|give me a joke|joke)\b/.test(normalizedInput)) {
-        botResponse = "Why don't skeletons fight each other? They don't have the guts!";
-      } else if (/\b(can you help me with my order|order assistance|help with my order)\b/.test(normalizedInput)) {
-        botResponse = "Of course! I can assist you with tracking or updating your order. Could you provide your order number, please?";
-      } else if (/\b(what is the weather today|how's the weather|what's the weather today)\b/.test(normalizedInput)) {
-        botResponse = await getWeather(); 
-      } else if (/how to cook|give me recipe|recipe for|cook .*|prepare .*/i.test(normalizedInput)) {
-        const foodMatch = normalizedInput.match(/(?:how to cook|give me recipe|cook|recipe for|prepare)\s(.+)/i);
-        if (foodMatch && foodMatch[1]) {
-          const food = foodMatch[1].trim();
-          botResponse = await getFoodInfo(food);
-        } else {
-          botResponse = "Please specify the name of a dish or food you'd like to learn about.";
-        }
-      } else if (/\b(reserve table|book a table|table reservation)\b/.test(normalizedInput)) { 
-        const reservationMatch = normalizedInput.match(/reserve table for (\d+) people at (\d{1,2}(:\d{2})?\s?(am|pm)?)/i);
-        
-        if (reservationMatch && reservationMatch[1] && reservationMatch[2]) {
-          const people = reservationMatch[1];
-          let time = reservationMatch[2].trim();
-  
-          // Check if time includes 'am' or 'pm'. If not, assume 'pm'.
-          if (!/\b(am|pm)\b/i.test(time)) {
-            time = `${time} pm`; // Default to pm if no AM/PM is specified
-          }
-  
-          // Normalize time to 12-hour format if needed (example: convert 2 to 2 pm)
-          time = time.toLowerCase();
-          
-          // Parsing hours and minutes properly (optional)
-          const timeParts = time.match(/(\d{1,2})(?::(\d{2}))?\s?(am|pm)?/);
-          if (timeParts) {
-            let hours = parseInt(timeParts[1]);
-            const minutes = timeParts[2] ? timeParts[2] : '00';
-            const ampm = timeParts[3] || 'pm'; // Default to 'pm' if not specified
-  
-            // If the time is in 12-hour format, adjust to 24-hour time if needed (basic check)
-            if (ampm === 'pm' && hours < 12) hours += 12; // Convert PM time to 24-hour
-            if (ampm === 'am' && hours === 12) hours = 0; // Midnight fix
-  
-            time = `${hours}:${minutes} ${ampm}`;
-          }
-  
-          const restaurant = "Sample Restaurant";  // Can be dynamic depending on the restaurant
-          botResponse = await makeReservation(restaurant, time, people);
-          
-          // Send confirmation email after reservation
-          botResponse += "\n\nA confirmation email will be sent shortly to confirm your reservation.";
-        
-        } else {
-          botResponse = "Please provide the number of people and time for your reservation.";
-        }
-  
-      }
-       else if (/\b(order food|place an order)\b/.test(normalizedInput)) {
-        botResponse = "I can help you place an order. What would you like to order?";
-      } else if (/\b(give feedback|complaint)\b/.test(normalizedInput)) {
-        botResponse = "I'm sorry to hear that! Please provide your feedback or complaint, and I will forward it to the restaurant.";
-      }
+    const userMessage = userInput;
+    setUserInput(''); // Clear input field
 
-        else if (/\b(what is the country info|country information|tell me about|give me info about |give me information about)\b/.test(normalizedInput)) {
-        const countryMatch = normalizedInput.match(/(?:about|the country) (\w+)/);
-        if (countryMatch && countryMatch[1]) {
-          const country = countryMatch[1].trim();
-          botResponse = await getCountryInfo(country); 
-        } else {
-          botResponse = "Please provide the name of a country.";
-        }
-      }
-       else if (/\b(what is the time in)\b/.test(normalizedInput)) {
-        const cityMatch = normalizedInput.match(/what is the time in (\w+)/i);
-        if (cityMatch && cityMatch[1]) {
-          const city = cityMatch[1];
-          botResponse = `I don't have real-time access to time zone data, but you can easily check the time in ${city} using any world clock service!`;
-        } else {
-          botResponse = "Please provide a city to check the time.";
-        }
-      } else if (/\b(what is the weather in|how is the weather in|weather in)\b/.test(normalizedInput)) {
-        const cityMatch = normalizedInput.match(/(?:weather in|what is the weather in|how is the weather in) ([a-zA-Z\s]+)/);
-        if (cityMatch && cityMatch[1]) {
-          const city = cityMatch[1].trim();
-          botResponse = await getWeather(city);
-        } else {
-          botResponse = "Could you please specify the location you'd like to know the weather for?";
-        }
-      } else if (/\b(what can u do|what can you do)\b/.test(normalizedInput)) {
-        botResponse = "I am your friendly chatbot, here to assist you with whatever you need!";
-      } else if (/\b(how do i contact support|how to contact support|how to contact u|your contact|give me your contact)\b/.test(normalizedInput)) {
-        botResponse = "You can contact support through our support page or by emailing menu.comapp@gmail.com!";
-      } else if (/\b(what is your purpose|what can you help with|why are you here|why are u here|what can u help|help me )\b/.test(normalizedInput)) {
-        botResponse = "I'm here to assist you with your questions and help you navigate the website!";
-      } else {
-        botResponse = "I'm not sure about that. Could you clarify your question?";
-      }
-    
-      setIsTyping(false);
+    // Get response from Gemini
+    const botResponse = await callGeminiAPI(userMessage);
 
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: 'user', text: userInput },
-        { sender: 'bot', text: botResponse },
-      ]);
-      setUserInput('');
-    }
+    // Add bot response to chat
+    setMessages(prevMessages => [
+      ...prevMessages,
+      { sender: 'bot', text: botResponse }
+    ]);
   };
 
   const toggleChatbot = () => {
@@ -308,7 +133,7 @@ const Chatbot = () => {
       position: 'fixed',
       bottom: '20px',
       right: '20px',
-      zIndex: 9999, 
+      zIndex: 9999,
       width: isOpen ? '350px' : '60px',
       height: isOpen ? '500px' : '60px',
       transition: 'all 0.3s ease-in-out'
@@ -340,6 +165,7 @@ const Chatbot = () => {
                 </div>
               ))}
               {isTyping && <div className="text-left text-gray-500 p-2 animate-pulse">Bot is typing...</div>}
+              {error && <div className="text-left text-red-500 p-2">Error: {error}</div>}
             </div>
 
             <div className="flex space-x-2 relative">
@@ -349,13 +175,17 @@ const Chatbot = () => {
                 value={userInput}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
-                className="w-full p-2 border border-gray-300 rounded-lg pl-10"
+                className="w-full p-2 border border-gray-300 rounded-lg pl-3"
                 placeholder="Type a message..."
+                disabled={isTyping}
               />
-              <FaPaperPlane
-                className="absolute right-5 top-1/2 transform -translate-y-1/2 text-[black] cursor-pointer hover:text-[#f56a59] transition-all duration-300"
+              <button
                 onClick={handleSendMessage}
-              />
+                disabled={isTyping || !userInput.trim()}
+                className="absolute right-5 top-1/2 transform -translate-y-1/2 text-[black] hover:text-[#f56a59] transition-all duration-300"
+              >
+                <FaPaperPlane />
+              </button>
             </div>
           </div>
         </div>

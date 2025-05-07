@@ -8,7 +8,7 @@ const sendEmail = require('./sendEmail');
  * @param {String} note - Optional note about the status change
  * @param {String} baseUrl - Base URL for links in the email
  */
-const sendStatusUpdateEmail = async (complaint, user, restaurant, note = '', baseUrl) => {
+const sendStatusUpdateEmail = async (complaint, user, restaurant, note = '', baseUrl = 'http://localhost:3000/') => {
   // Define status colors for visual indication
   const statusColors = {
     'Pending': '#FFC107', // Yellow
@@ -16,6 +16,33 @@ const sendStatusUpdateEmail = async (complaint, user, restaurant, note = '', bas
     'Resolved': '#28A745', // Green
     'Closed': '#6C757D' // Gray
   };
+
+  // Generate personalized note based on response content
+  let personalizedNote = note;
+
+  if (complaint.status === 'Resolved' && complaint.response) {
+    const response = complaint.response.toLowerCase();
+
+    // Check for common response types and provide personalized messages
+    if (response.includes('replacement') || response.includes('replace')) {
+      personalizedNote = "We are sorry for the inconvenience and would like to offer you a replacement. Your satisfaction is our priority.";
+    } else if (response.includes('refund')) {
+      personalizedNote = "We apologize for your experience and have processed a refund. We value your feedback and hope to serve you better in the future.";
+    } else if (response.includes('discount') || response.includes('coupon')) {
+      personalizedNote = "As a token of our appreciation for your feedback, we've added a special discount to your account for your next visit.";
+    } else if (response.includes('fix') || response.includes('repair') || response.includes('correct')) {
+      personalizedNote = "Thank you for bringing this issue to our attention. We've taken corrective action to fix the problem and improve our service.";
+    } else if (response.includes('training') || response.includes('staff')) {
+      personalizedNote = "We appreciate your feedback. We've addressed this with our staff and implemented additional training to ensure better service in the future.";
+    } else {
+      personalizedNote = "Thank you for your feedback. We've resolved your complaint and hope to provide you with a better experience next time.";
+    }
+
+    // Add the original note as additional information if it exists
+    if (note && !note.includes('Status changed from')) {
+      personalizedNote += " " + note;
+    }
+  }
 
   // Prepare data for the email template
   const emailData = {
@@ -27,7 +54,7 @@ const sendStatusUpdateEmail = async (complaint, user, restaurant, note = '', bas
     restaurantName: restaurant.name,
     category: complaint.category,
     response: complaint.response,
-    note: note,
+    note: personalizedNote,
     viewComplaintLink: `${baseUrl}/my-complaints?id=${complaint._id}`
   };
 
@@ -48,7 +75,7 @@ const sendStatusUpdateEmail = async (complaint, user, restaurant, note = '', bas
  * @param {Object} commentAuthor - The user who added the comment
  * @param {String} baseUrl - Base URL for links in the email
  */
-const sendNewCommentEmail = async (complaint, user, comment, commentAuthor, baseUrl) => {
+const sendNewCommentEmail = async (complaint, user, comment, commentAuthor, baseUrl = 'http://localhost:3000/') => {
   // Format the comment date
   const commentDate = new Date(comment.createdAt).toLocaleString();
 
@@ -78,7 +105,7 @@ const sendNewCommentEmail = async (complaint, user, comment, commentAuthor, base
  * @param {Object} user - The user who submitted the complaint
  * @param {String} baseUrl - Base URL for links in the email
  */
-const sendFollowUpEmail = async (complaint, user, baseUrl) => {
+const sendFollowUpEmail = async (complaint, user, baseUrl = 'http://localhost:3000/') => {
   // Prepare data for the email template
   const emailData = {
     name: user.firstName || user.name || 'Customer',

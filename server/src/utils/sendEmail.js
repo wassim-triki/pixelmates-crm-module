@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 module.exports = async function sendEmail({ to, subject, template, data }) {
   try {
     // Path to the logo file
-    const logoPath = path.join(__dirname, '../../public/images/Logo-officiel-MenuFy.png');
+    const logoPath = path.join(__dirname, '../public/images/Logo-officiel-MenuFy.png');
 
     // Check if the logo file exists
     try {

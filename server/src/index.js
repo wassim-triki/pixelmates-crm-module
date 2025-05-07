@@ -17,8 +17,66 @@ const reservationRoutes = require('./routes/reservations.routes.js'); // Add thi
 const passport = require('passport');
 const tablesRoutes = require('./routes/table.routes.js');
 const path = require('path');
+const fs = require('fs').promises;
 
 const loyaltyRoutes = require('./routes/loyaltyProgram.routes.js');
+
+// Function to ensure the logo file exists in the public directory
+async function ensureLogoExists() {
+  try {
+    // Create the public/images directory if it doesn't exist
+    const imagesDir = path.join(__dirname, 'public/images');
+    await fs.mkdir(imagesDir, { recursive: true });
+
+    // Path to the destination logo file
+    const logoDestPath = path.join(imagesDir, 'Logo-officiel-MenuFy.png');
+
+    // Check if the logo already exists
+    try {
+      await fs.access(logoDestPath);
+      console.log('✅ Logo file already exists in public directory');
+    } catch (error) {
+      // Logo doesn't exist, try to copy it from the back-office directory
+      try {
+        // Try to find the logo in various possible locations
+        const possibleSourcePaths = [
+          path.join(__dirname, '../../../back-office/src/assets/images/Logo-officiel-MenuFy.png'),
+          path.join(__dirname, '../../back-office/src/assets/images/Logo-officiel-MenuFy.png'),
+          path.join(__dirname, '../back-office/src/assets/images/Logo-officiel-MenuFy.png'),
+          path.join(__dirname, '../../../public/images/Logo-officiel-MenuFy.png'),
+          path.join(__dirname, '../../public/images/Logo-officiel-MenuFy.png')
+        ];
+
+        let copied = false;
+        for (const sourcePath of possibleSourcePaths) {
+          try {
+            await fs.access(sourcePath);
+            // If we get here, the file exists
+            const logoData = await fs.readFile(sourcePath);
+            await fs.writeFile(logoDestPath, logoData);
+            console.log(`✅ Logo file copied from ${sourcePath} to public directory`);
+            copied = true;
+            break;
+          } catch (err) {
+            // File doesn't exist at this path, try the next one
+            continue;
+          }
+        }
+
+        if (!copied) {
+          // If we couldn't find the logo, create a placeholder file
+          console.warn('⚠️ Could not find logo file to copy. Creating a placeholder.');
+          // Create a simple placeholder file
+          await fs.writeFile(logoDestPath, 'Placeholder for logo file');
+        }
+      } catch (copyError) {
+        console.error('❌ Error copying logo file:', copyError);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error ensuring logo exists:', error);
+  }
+}
 
 dotenv.config();
 
@@ -77,6 +135,7 @@ const PORT = process.env.PORT || 5000;
 
 // Routes
 app.use('/qrcodes', express.static(path.join(__dirname, 'public/qrcodes')));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/restaurants', restaurantRoutes);
@@ -95,6 +154,9 @@ app.get('/', (req, res) => {
 });
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+// Ensure the logo exists before starting the server
+ensureLogoExists().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  });
 });
