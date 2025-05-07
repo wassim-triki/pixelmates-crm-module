@@ -125,6 +125,11 @@ import { useAuth } from '../context/authContext';
 import MyRestaurant from './pages/MyRestaurant';
 import VerifyEmail from './pages/VerifyEmail';
 import FloorConfiguration from './pages/FloorConfiguration/FloorConfiguration';
+
+import LoyaltyUsersPage from './components/Dashboard/LoyaltyUsersPage'; 
+
+
+
 function HomeRedirect() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
@@ -326,6 +331,16 @@ const Markup = () => {
               </ProtectedRoute>
             }
           />
+
+        <Route
+          path="/admin/loyalty-users"
+          element={
+            <ProtectedRoute requiredRole="Admin">
+              <LoyaltyUsersPage />
+            </ProtectedRoute>
+          } 
+        />
+
 
           {allroutes.map((data, i) => (
             <Route

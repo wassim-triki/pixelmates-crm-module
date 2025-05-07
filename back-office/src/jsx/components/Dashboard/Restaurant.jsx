@@ -90,11 +90,10 @@ const RestaurantList = () => {
     console.log("Fetching loyalty users for restaurantId:", restaurantId);
     setLoading(true);
     try {
-    /* const res = await getLoyaltyUsers(restaurantId);
-      const filtered = res.data.filter(loyalty => loyalty.points > 0);*/// ✅ fixed
+  
       const res = await getLoyaltyUsers(restaurantId);
-console.log("API Response:", res.data);
-const filtered = res.data.filter(loyalty => loyalty.points > 0);
+    console.log("API Response:", res.data);
+    const filtered = res.data.filter(loyalty => loyalty.points > 0);
 
       setLoyaltyUsers(filtered);
       setShowLoyaltyModal(true);

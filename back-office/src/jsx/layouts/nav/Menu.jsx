@@ -27,6 +27,15 @@ export const AdminMenuList = [
         title: 'Complaints',
         to: '/admin/complaints',
       },
+    
+      {
+        title: 'Loyalty Users',
+        to: '/admin/loyalty-users',
+      },
+
+
+
+
     ],
   },
 ];
