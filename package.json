@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "dotenv": "^16.5.0",
-    "jspdf-autotable": "^5.0.2",
-    "twilio": "^5.5.2"
-  }
-}
