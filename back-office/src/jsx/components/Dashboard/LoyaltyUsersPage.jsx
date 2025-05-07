@@ -180,6 +180,7 @@ const LoyaltyUsersPage = () => {
                 <th className="text-center" onClick={() => handleSort('user.email')}>Email</th>
                 <th className="text-center" onClick={() => handleSort('points')}>Points</th>
                 <th className="text-center" onClick={() => handleSort('restaurant.name')}>Level</th>
+                <th className="text-center" onClick={() => handleSort('totalReservations')}>totalReservations</th>
                 <th className="text-center">Actions</th>
               </tr>
             </thead>
