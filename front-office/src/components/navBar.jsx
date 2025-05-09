@@ -116,8 +116,9 @@ const Navbar = () => {
               </div>
               <div className="flex-shrink-0 min-w-[100px]">
                 <span className="block text-white font-bold text-xs sm:text-sm md:text-base truncate">
-                  {user.firstName || 'User'} {user.lastName || ''}
-                </span>
+    {user.firstName || 'User'} {user.lastName || ''} ({user.points ?? 0} pts)
+  </span>
+
               </div>
             </button>
 
@@ -197,9 +198,10 @@ const Navbar = () => {
                       )}
                     </div>
                     <div className="flex-shrink-0 max-w-[160px]">
-                      <span className="block text-[#FA8072] font-bold text-sm sm:text-base truncate">
-                        {user.firstName || 'User'} {user.lastName || ''}
-                      </span>
+           <span className="block text-[#FA8072] font-bold text-sm sm:text-base truncate">
+          {user.firstName || 'User'} {user.lastName || ''} ({user.points ?? 0} pts)
+        </span>
+
                     </div>
                   </button>
 

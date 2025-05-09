@@ -72,7 +72,7 @@ exports.checkAvailability = async (req, res) => {
 };
 
 // Modification de createReservation avec gestion liste d'attente
-/*exports.createReservation = async (req, res) => {
+ exports.createReservation = async (req, res) => {
   try {
     const { user, restaurant, table, reservationDate, startTime, endTime, partySize, specialRequests } = req.body;
     if (!mongoose.Types.ObjectId.isValid(restaurant) || 
@@ -125,11 +125,11 @@ exports.checkAvailability = async (req, res) => {
       details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
-};*/
+}; 
 
 
 // added by chaher
-exports.createReservation = async (req, res) => {
+/*exports.createReservation = async (req, res) => {
   try {
     const { user, restaurant, table, reservationDate, startTime, endTime, partySize, specialRequests } = req.body;
 
@@ -193,7 +193,7 @@ exports.createReservation = async (req, res) => {
     });
   }
 };
-
+*/
 
 
 // Gestion annulation avec mise à jour liste d'attente

@@ -38,7 +38,10 @@ export const AdminMenuList = [
         to: '/admin/rewards',
       },
       
-
+      {
+        title: 'Redemptions',
+        to: '/admin/redemptions',
+      },
 
     ],
   },
