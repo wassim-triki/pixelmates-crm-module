@@ -27,13 +27,21 @@ const RewardsPage = () => {
       setLoading(true);
       const res = await fetch('http://localhost:5000/api/rewards');
       const data = await res.json();
-      setRewards(data);
+  
+      // ✅ Filter by user's restaurant ID (either string or object _id)
+      const restaurantId = user?.restaurant?._id || user?.restaurantId;
+      const filteredData = data.filter((reward) =>
+        reward.restaurant?._id === restaurantId || reward.restaurant === restaurantId
+      );
+  
+      setRewards(filteredData);
     } catch (err) {
       setError('Failed to fetch rewards');
     } finally {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     console.log('User from useAuth:', user); // Log entire user object
@@ -195,20 +203,25 @@ const RewardsPage = () => {
                   </td>
                   <td>{reward.restaurant?.name || 'N/A'}</td>
                   <td>
-                    <Button
-                      size="sm"
-                      variant="info"
-                      onClick={() => handleShowModal(reward)}
-                    >
-                      Edit
-                    </Button>{' '}
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => handleDelete(reward._id)}
-                    >
-                      Delete
-                    </Button>
+                          <Button
+          variant="warning"
+          size="sm"
+          style={{ backgroundColor: '#ffc107', color: 'black' }}
+          onClick={() => handleShowModal(reward)}
+          disabled={loading}
+        >
+          <i className="fas fa-pen" />
+        </Button>{' '}
+        <Button
+          variant="danger"
+          size="sm"
+          style={{ backgroundColor: '#dc3545', color: 'white' }}
+          onClick={() => handleDelete(reward._id)}
+          disabled={loading}
+        >
+          <i className="fas fa-trash" />
+        </Button>
+
                   </td>
                 </tr>
               ))}
