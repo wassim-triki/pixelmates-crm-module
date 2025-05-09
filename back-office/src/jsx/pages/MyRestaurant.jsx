@@ -42,7 +42,7 @@ const weekdays = [
 const generateTimeSlots = () => {
   const slots = [];
   for (let h = 0; h < 24; h++) {
-    for (let m of [0, 15, 30, 45]) {
+    for (let m of [0, 30]) {
       const hh = String(h).padStart(2, '0');
       const mm = String(m).padStart(2, '0');
       slots.push(`${hh}:${mm}`);
