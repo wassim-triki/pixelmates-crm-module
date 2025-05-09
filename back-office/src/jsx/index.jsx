@@ -128,7 +128,7 @@ import FloorConfiguration from './pages/FloorConfiguration/FloorConfiguration';
 
 import LoyaltyUsersPage from './components/Dashboard/LoyaltyUsersPage'; 
 
-
+import RewardsPage from './components/Dashboard/RewardsPage';
 
 function HomeRedirect() {
   const { user } = useAuth();
@@ -341,6 +341,15 @@ const Markup = () => {
           } 
         />
 
+        
+    <Route
+      path="/admin/rewards"
+      element={
+        <ProtectedRoute requiredRole="Admin">
+          <RewardsPage />
+        </ProtectedRoute>
+      }
+    />
 
           {allroutes.map((data, i) => (
             <Route

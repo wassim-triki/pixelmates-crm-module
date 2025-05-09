@@ -1,6 +1,9 @@
 const Reservation = require('../models/Reservation');
 const Restaurant = require('../models/Restaurant');
 const Table = require('../models/Table');
+//add
+const User = require('../models/User');
+
 const mongoose = require('mongoose');
 const calculateEndTime = (dateString, startTime) => {
   const [hours, minutes] = startTime.split(':').map(Number);
@@ -69,7 +72,7 @@ exports.checkAvailability = async (req, res) => {
 };
 
 // Modification de createReservation avec gestion liste d'attente
-exports.createReservation = async (req, res) => {
+/*exports.createReservation = async (req, res) => {
   try {
     const { user, restaurant, table, reservationDate, startTime, endTime, partySize, specialRequests } = req.body;
     if (!mongoose.Types.ObjectId.isValid(restaurant) || 
@@ -122,7 +125,76 @@ exports.createReservation = async (req, res) => {
       details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
+};*/
+
+
+// added by chaher
+exports.createReservation = async (req, res) => {
+  try {
+    const { user, restaurant, table, reservationDate, startTime, endTime, partySize, specialRequests } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(restaurant) || 
+        !mongoose.Types.ObjectId.isValid(table) || 
+        !mongoose.Types.ObjectId.isValid(user)) {
+      return res.status(400).json({ message: 'ID invalide' });
+    }
+
+    // Vérification de conflit
+    const existingReservation = await Reservation.findOne({
+      table,
+      reservationDate: new Date(reservationDate),
+      startTime: { $lt: endTime },
+      endTime: { $gt: startTime },
+      status: { $in: ['confirmed', 'pending'] }
+    });
+
+    if (existingReservation) {
+      return res.status(409).json({
+        message: 'Conflit de réservation',
+        conflictingSlot: {
+          start: existingReservation.startTime,
+          end: existingReservation.endTime
+        }
+      });
+    }
+
+    // 🟡 Calcul des points gagnés (exemple : 10 points par personne)
+    const earnedPoints = partySize * 10;
+
+    // 🔵 Création de la réservation avec les points
+    const newReservation = await Reservation.create({
+      user,
+      restaurant,
+      table,
+      reservationDate: new Date(reservationDate),
+      startTime,
+      endTime,
+      partySize,
+      specialRequests,
+      status: 'confirmed',
+      points: earnedPoints // Optional: store it in reservation
+    });
+
+    // 🔴 Mise à jour des points utilisateur
+    await User.findByIdAndUpdate(user, { $inc: { points: earnedPoints } });
+
+    res.status(201).json({
+      message: 'Réservation créée avec succès',
+      reservation: newReservation,
+      earnedPoints
+    });
+
+  } catch (error) {
+    console.error('Erreur de réservation:', error);
+    res.status(500).json({
+      message: 'Erreur serveur',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
 };
+
+
 
 // Gestion annulation avec mise à jour liste d'attente
 exports.cancelReservation = async (req, res) => {

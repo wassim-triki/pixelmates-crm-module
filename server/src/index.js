@@ -20,6 +20,8 @@ const path = require('path');
 const fs = require('fs').promises;
 
 const loyaltyRoutes = require('./routes/loyaltyProgram.routes.js');
+const rewardRoutes = require('./routes/reward.routes');
+const redemptionRoutes = require('./routes/redemption.routes');
 
 // Function to ensure the logo file exists in the public directory
 async function ensureLogoExists() {
@@ -147,6 +149,11 @@ app.use('/api/complaints', complaintRoutes);
 app.use('/api/complaint-analytics', complaintAnalyticsRoutes);
 
 app.use('/api/loyalty', loyaltyRoutes);
+app.use('/api/rewards', rewardRoutes);
+app.use('/api/redemptions', redemptionRoutes);
+
+
+
 
 // Default route
 app.get('/', (req, res) => {

@@ -33,7 +33,11 @@ export const AdminMenuList = [
         to: '/admin/loyalty-users',
       },
 
-
+      {
+        title: 'Rewards',
+        to: '/admin/rewards',
+      },
+      
 
 
     ],
