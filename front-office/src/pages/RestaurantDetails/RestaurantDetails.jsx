@@ -47,7 +47,10 @@ export default function RestaurantDetails() {
   const { openModal } = useModal();
 
   const handleBookATable = () => {
-    openModal(<BookingForm />, `Book - “${restaurant.name}”`);
+    openModal(
+      <BookingForm restaurant={restaurant} />,
+      `Book - “${restaurant.name}”`
+    );
   };
 
   useEffect(() => {
