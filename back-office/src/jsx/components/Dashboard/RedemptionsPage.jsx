@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Spinner, Alert, Pagination } from 'react-bootstrap';
+import { Table, Button, Modal, Form, Spinner, Alert } from 'react-bootstrap';
 
 const RedemptionsPage = () => {
   const [redemptions, setRedemptions] = useState([]);
@@ -8,20 +8,22 @@ const RedemptionsPage = () => {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    userEmail: '',  // Change to userEmail
+    userEmail: '',
     rewardId: '',
     reservationId: '',
   });
-  const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 10;
 
   const fetchRedemptions = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5000/api/redemptions');
+      const userEmail = 'user@example.com'; // Get the logged-in user's email dynamically
+      const res = await fetch(`http://localhost:5000/api/redemptions?userEmail=${userEmail}`);
       const data = await res.json();
+
+      console.log("Fetched redemptions:", data);
       setRedemptions(data);
     } catch (err) {
+      console.error("Error fetching redemptions:", err);
       setError('Failed to fetch redemptions');
     } finally {
       setLoading(false);
@@ -66,7 +68,28 @@ const RedemptionsPage = () => {
       await fetchRedemptions();
       setShowModal(false);
     } catch (err) {
+      console.error('Redemption error:', err);
       setError(err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/redemptions/${id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Delete error:", data);
+        throw new Error(data.message || 'Failed to delete redemption');
+      }
+
+      console.log("Redemption deleted:", data);
+      await fetchRedemptions();
+    } catch (err) {
+      console.error('Delete failed:', err);
+      setError('Failed to delete redemption');
     }
   };
 
@@ -106,10 +129,10 @@ const RedemptionsPage = () => {
             <tbody>
               {redemptions.map((redemption) => (
                 <tr key={redemption._id} className="text-center">
-                  <td>{redemption.user.firstName} {redemption.user.lastName}</td>
-                  <td>{redemption.reward.name}</td>
+                  <td>{redemption.user?.firstName} {redemption.user?.lastName}</td>
+                  <td>{redemption.reward?.name}</td>
                   <td>{redemption.reservation ? redemption.reservation.name : 'N/A'}</td>
-                  <td>{redemption.user.points }</td>
+                  <td>{redemption.user?.points}</td>
                   <td>{new Date(redemption.redeemedAt).toLocaleString()}</td>
                   <td>
                     <Button
@@ -131,9 +154,6 @@ const RedemptionsPage = () => {
               ))}
             </tbody>
           </Table>
-
-          {/* Add pagination */}
-          {/* ... */}
 
           <Modal show={showModal} onHide={() => setShowModal(false)}>
             <Form onSubmit={handleSubmit}>

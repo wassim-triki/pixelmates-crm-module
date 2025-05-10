@@ -15,46 +15,7 @@ exports.getRedemptionById = asyncHandler(async (req, res) => {
   if (!redemption) return res.status(404).json({ message: 'Redemption not found' });
   res.json(redemption);
 });
-/*
-// Redeem a reward
-exports.redeemReward = asyncHandler(async (req, res) => {
-  const { userId, rewardId, reservationId } = req.body;
-
-  console.log('Received redemption request:', { userId, rewardId, reservationId });
-
-  const user = await User.findById(userId);
-  const reward = await Reward.findById(rewardId);
-
-  if (!user || !reward) {
-    console.log('User or reward not found');
-    return res.status(404).json({ message: 'User or Reward not found' });
-  }
-
-  if (!reward.isActive) {
-    console.log('Reward is inactive');
-    return res.status(400).json({ message: 'Reward is inactive' });
-  }
-
-  if (user.points < reward.pointsCost) {
-    console.log(`Not enough points: User has ${user.points}, reward costs ${reward.pointsCost}`);
-    return res.status(400).json({ message: 'Not enough points' });
-  }
-
-  // Deduct points
-  user.points -= reward.pointsCost;
-  await user.save();
-
-  const redemption = new Redemption({
-    user: userId,
-    reward: rewardId,
-    reservation: reservationId || null,
-  });
-
-  const saved = await redemption.save();
-  console.log('Redemption saved:', saved);
-
-  res.status(201).json(saved);
-});*/
+ 
 
 // Redeem a reward
 exports.redeemReward = asyncHandler(async (req, res) => {
