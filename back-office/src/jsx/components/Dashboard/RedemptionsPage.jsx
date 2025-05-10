@@ -20,11 +20,18 @@ const RedemptionsPage = () => {
   const fetchRedemptions = async () => {
     try {
       setLoading(true);
-      const userEmail = user.email; // Get the logged-in user's email dynamically
-      const res = await fetch(`http://localhost:5000/api/redemptions?userEmail=${userEmail}`);
+      const userEmail = user.email;
+  
+      const res = await fetch(
+        `http://localhost:5000/api/redemptions?userEmail=${userEmail}`
+      );
+  
       const data = await res.json();
-
-      console.log("Fetched redemptions:", data);
+  
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data returned from API");
+      }
+  
       setRedemptions(data);
     } catch (err) {
       console.error("Error fetching redemptions:", err);
@@ -33,6 +40,9 @@ const RedemptionsPage = () => {
       setLoading(false);
     }
   };
+  
+  
+
 
   const fetchRewards = async () => {
     try {
@@ -155,22 +165,22 @@ const RedemptionsPage = () => {
                   <td>{new Date(redemption.redeemedAt).toLocaleString()}</td>
                   <td>
                   <Button
-  variant="warning"
-  size="sm"
-  style={{ backgroundColor: '#ffc107', color: 'black' }}
-  onClick={() => setShowModal(true)}
-  disabled={loading}
->
-  <i className="fas fa-pen" />
-</Button>{' '}
-<Button
-  variant="danger"
-  size="sm"
-  onClick={() => handleDelete(redemption._id)}
-  disabled={loading}
->
-  <i className="fas fa-trash" />
-</Button>
+            variant="warning"
+            size="sm"
+            style={{ backgroundColor: '#ffc107', color: 'black' }}
+            onClick={() => setShowModal(true)}
+            disabled={loading}
+          >
+            <i className="fas fa-pen" />
+          </Button>{' '}
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => handleDelete(redemption._id)}
+            disabled={loading}
+          >
+            <i className="fas fa-trash" />
+          </Button>
 
                   </td>
                 </tr>

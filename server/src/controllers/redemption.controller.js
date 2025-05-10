@@ -2,12 +2,40 @@ const Redemption = require('../models/Redemption');
 const Reward = require('../models/Reward');
 const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
-
+/*
 // Get all redemptions
 exports.getAllRedemptions = asyncHandler(async (req, res) => {
   const redemptions = await Redemption.find().populate('user reward reservation');
   res.json(redemptions);
 });
+*/
+exports.getAllRedemptions = asyncHandler(async (req, res) => {
+  const { userEmail, restaurantId } = req.query;
+
+  let finalRestaurantId;
+
+  if (restaurantId) {
+    finalRestaurantId = restaurantId;
+  } else if (userEmail) {
+    const user = await User.findOne({ email: userEmail });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    finalRestaurantId = user.restaurantId;
+  } else {
+    return res.status(400).json({ message: 'Missing userEmail or restaurantId' });
+  }
+
+  const rewards = await Reward.find({ restaurant: finalRestaurantId });
+  const rewardIds = rewards.map(r => r._id);
+
+  const redemptions = await Redemption.find({ reward: { $in: rewardIds } })
+    .populate('user reward reservation');
+
+  res.json(redemptions);
+});
+
+
+
+
 
 // Get redemption by ID
 exports.getRedemptionById = asyncHandler(async (req, res) => {
