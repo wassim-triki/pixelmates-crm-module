@@ -11,6 +11,11 @@ const UserSchema = new mongoose.Schema(
     address: { type: String },
     birthday: { type: Date },
     points: { type: Number, default: 0 },
+    vipLevel: {
+      type: String,
+      enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
+      default: 'Bronze',
+    },
     password: { type: String, select: false }, // Hide password when querying users
     role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' },
     refreshToken: { type: String },

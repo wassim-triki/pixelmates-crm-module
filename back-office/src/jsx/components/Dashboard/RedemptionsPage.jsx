@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Spinner, Alert } from 'react-bootstrap';
+import { useAuth } from '../../../context/authContext';
 
 const RedemptionsPage = () => {
+    const { user } = useAuth();
   const [redemptions, setRedemptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -12,11 +14,13 @@ const RedemptionsPage = () => {
     rewardId: '',
     reservationId: '',
   });
+  const [rewards, setRewards] = useState([]);
+  const [selectedRewardId, setSelectedRewardId] = useState('');
 
   const fetchRedemptions = async () => {
     try {
       setLoading(true);
-      const userEmail = 'user@example.com'; // Get the logged-in user's email dynamically
+      const userEmail = user.email; // Get the logged-in user's email dynamically
       const res = await fetch(`http://localhost:5000/api/redemptions?userEmail=${userEmail}`);
       const data = await res.json();
 
@@ -30,8 +34,20 @@ const RedemptionsPage = () => {
     }
   };
 
+  const fetchRewards = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/rewards');  // Adjust the API endpoint as needed
+      const data = await res.json();
+      setRewards(data);
+    } catch (err) {
+      console.error('Error fetching rewards:', err);
+      setError('Failed to fetch rewards');
+    }
+  };
+
   useEffect(() => {
     fetchRedemptions();
+    fetchRewards();  // Fetch rewards when the page loads
   }, []);
 
   const handleChange = (e) => {
@@ -120,6 +136,7 @@ const RedemptionsPage = () => {
               <tr>
                 <th>User</th>
                 <th>Reward</th>
+                <th>VIP Level</th>
                 <th>Reservation</th>
                 <th>Points</th>
                 <th>Redeemed At</th>
@@ -129,26 +146,32 @@ const RedemptionsPage = () => {
             <tbody>
               {redemptions.map((redemption) => (
                 <tr key={redemption._id} className="text-center">
-                  <td>{redemption.user?.firstName} {redemption.user?.lastName}</td>
+                  <td>{redemption.user?.email}</td>
+
                   <td>{redemption.reward?.name}</td>
+                  <td>{redemption.user?.vipLevel}</td>
                   <td>{redemption.reservation ? redemption.reservation.name : 'N/A'}</td>
                   <td>{redemption.user?.points}</td>
                   <td>{new Date(redemption.redeemedAt).toLocaleString()}</td>
                   <td>
-                    <Button
-                      size="sm"
-                      variant="info"
-                      onClick={() => setShowModal(true)}
-                    >
-                      Edit
-                    </Button>{' '}
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => handleDelete(redemption._id)}
-                    >
-                      Delete
-                    </Button>
+                  <Button
+  variant="warning"
+  size="sm"
+  style={{ backgroundColor: '#ffc107', color: 'black' }}
+  onClick={() => setShowModal(true)}
+  disabled={loading}
+>
+  <i className="fas fa-pen" />
+</Button>{' '}
+<Button
+  variant="danger"
+  size="sm"
+  onClick={() => handleDelete(redemption._id)}
+  disabled={loading}
+>
+  <i className="fas fa-trash" />
+</Button>
+
                   </td>
                 </tr>
               ))}
@@ -173,14 +196,26 @@ const RedemptionsPage = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-2">
-                  <Form.Label>Reward ID</Form.Label>
+                  <Form.Label>Reward</Form.Label>
                   <Form.Control
+                    as="select"
                     name="rewardId"
-                    type="text"
                     value={formData.rewardId}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        rewardId: e.target.value,
+                      });
+                    }}
                     required
-                  />
+                  >
+                    <option value="">Select a reward</option>
+                    {rewards.map((reward) => (
+                      <option key={reward._id} value={reward._id}>
+                        {reward.name} - {reward.pointsCost} points
+                      </option>
+                    ))}
+                  </Form.Control>
                 </Form.Group>
 
                 <Form.Group className="mb-2">

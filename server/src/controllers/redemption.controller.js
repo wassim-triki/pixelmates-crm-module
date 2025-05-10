@@ -16,7 +16,7 @@ exports.getRedemptionById = asyncHandler(async (req, res) => {
   res.json(redemption);
 });
  
-
+/*
 // Redeem a reward
 exports.redeemReward = asyncHandler(async (req, res) => {
   const { userEmail, rewardId, reservationId } = req.body;
@@ -57,6 +57,99 @@ exports.redeemReward = asyncHandler(async (req, res) => {
 
   res.status(201).json(saved);
 });
+*/
+
+/*
+exports.redeemReward = asyncHandler(async (req, res) => {
+  const { userEmail, rewardId, reservationId } = req.body;
+
+  // Find user by email instead of userId
+  const user = await User.findOne({ email: userEmail });
+  const reward = await Reward.findById(rewardId);
+
+  if (!user || !reward) {
+    return res.status(404).json({ message: 'User or Reward not found' });
+  }
+
+  if (!reward.isActive) {
+    return res.status(400).json({ message: 'Reward is inactive' });
+  }
+
+  if (user.points < reward.pointsCost) {
+    return res.status(400).json({ message: 'Not enough points' });
+  }
+
+  // Deduct points
+  user.points -= reward.pointsCost;
+  await user.save();
+
+  const redemption = new Redemption({
+    user: user._id, // Save the user's ID in the redemption
+    reward: rewardId,
+    reservation: reservationId || null,
+  });
+
+  const saved = await redemption.save();
+  res.status(201).json(saved);
+});*/
+
+// Get all rewards
+exports.getAllRewards = asyncHandler(async (req, res) => {
+  const rewards = await Reward.find();
+  res.json(rewards);
+});
 
 
 
+
+exports.redeemReward = asyncHandler(async (req, res) => {
+  const { userEmail, rewardId, reservationId } = req.body;
+
+  // Find user and reward
+  const user = await User.findOne({ email: userEmail });
+  const reward = await Reward.findById(rewardId);
+
+  if (!user || !reward) {
+    return res.status(404).json({ message: 'User or Reward not found' });
+  }
+
+  if (!reward.isActive) {
+    return res.status(400).json({ message: 'Reward is inactive' });
+  }
+
+  if (user.points < reward.pointsCost) {
+    return res.status(400).json({ message: 'Not enough points' });
+  }
+
+  // Deduct points and update VIP level
+  user.points -= reward.pointsCost;
+  updateVIPLevel(user);
+  await user.save();
+
+  const redemption = new Redemption({
+    user: user._id,
+    reward: rewardId,
+    reservation: reservationId || null,
+  });
+
+  const saved = await redemption.save();
+
+  res.status(201).json({
+    redemption: saved,
+    updatedUser: {
+      email: user.email,
+      points: user.points,
+      vipLevel: user.vipLevel,
+    },
+  });
+});
+
+
+
+function updateVIPLevel(user) {
+  const points = user.points;
+  if (points >= 1000) user.vipLevel = 'Platinum';
+  else if (points >= 500) user.vipLevel = 'Gold';
+  else if (points >= 250) user.vipLevel = 'Silver';
+  else user.vipLevel = 'Bronze';
+}
