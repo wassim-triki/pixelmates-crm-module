@@ -119,6 +119,25 @@ const RedemptionsPage = () => {
     }
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [vipFilter, setVipFilter] = useState('');
+  const [rewardFilter, setRewardFilter] = useState('');
+  
+  const filteredRedemptions = redemptions
+  .filter((r) => 
+    (!search || r.reward?.name?.toLowerCase().includes(search.toLowerCase())) &&
+    (!vipFilter || r.user?.vipLevel === vipFilter) &&
+    (!rewardFilter || r.reward?._id === rewardFilter)
+  );
+
+const indexOfLast = currentPage * itemsPerPage;
+const indexOfFirst = indexOfLast - itemsPerPage;
+const currentRedemptions = filteredRedemptions.slice(indexOfFirst, indexOfLast);
+
+const totalPages = Math.ceil(filteredRedemptions.length / itemsPerPage);
+
+
   return (
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -126,13 +145,46 @@ const RedemptionsPage = () => {
         <Button onClick={() => setShowModal(true)}>+ New Redemption</Button>
       </div>
 
-      <Form.Control
-        type="text"
-        placeholder="Search rewards..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="mb-3"
-      />
+      <Form className="d-flex gap-2 mb-3">
+  <Form.Control
+    type="text"
+    placeholder="Search rewards..."
+    value={search}
+    onChange={(e) => {
+      setSearch(e.target.value);
+      setCurrentPage(1);
+    }}
+  />
+
+  <Form.Select
+    value={vipFilter}
+    onChange={(e) => {
+      setVipFilter(e.target.value);
+      setCurrentPage(1);
+    }}
+  >
+    <option value="">All VIP Levels</option>
+    {[...new Set(redemptions.map(r => r.user?.vipLevel))].map(level => (
+      <option key={level} value={level}>{level}</option>
+    ))}
+  </Form.Select>
+
+  <Form.Select
+    value={rewardFilter}
+    onChange={(e) => {
+      setRewardFilter(e.target.value);
+      setCurrentPage(1);
+    }}
+  >
+    <option value="">All Rewards</option>
+    {rewards.map((r) => (
+      <option key={r._id} value={r._id}>
+        {r.name}
+      </option>
+    ))}
+  </Form.Select>
+</Form>
+
 
       {error && <Alert variant="danger">{error}</Alert>}
       {loading ? (
@@ -154,7 +206,8 @@ const RedemptionsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {redemptions.map((redemption) => (
+            {currentRedemptions.map((redemption) => (
+
                 <tr key={redemption._id} className="text-center">
                   <td>{redemption.user?.email}</td>
 
@@ -187,6 +240,27 @@ const RedemptionsPage = () => {
               ))}
             </tbody>
           </Table>
+          <div className="d-flex justify-content-center mt-3">
+  <Button
+    variant="outline-primary"
+    size="sm"
+    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+    disabled={currentPage === 1}
+  >
+    Previous
+  </Button>
+  <span className="mx-3 align-self-center">
+    Page {currentPage} of {totalPages}
+  </span>
+  <Button
+    variant="outline-primary"
+    size="sm"
+    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+    disabled={currentPage === totalPages}
+  >
+    Next
+  </Button>
+</div>
 
           <Modal show={showModal} onHide={() => setShowModal(false)}>
             <Form onSubmit={handleSubmit}>
