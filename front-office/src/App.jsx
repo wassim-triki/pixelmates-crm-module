@@ -22,6 +22,7 @@ import ReservationForm from './pages/ReservationForm';
 import ComplaintForm from './pages/ComplaintForm';
 import UserComplaints from './pages/UserComplaints';
 import RestaurantDetails from './pages/RestaurantDetails/RestaurantDetails';
+import { ModalProvider } from './context/modalContext';
 const App = () => {
   const location = useLocation();
   const [showFooter, setShowFooter] = useState(true);
@@ -43,91 +44,96 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <ComplaintProvider>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Register />} />
-              <Route path="/oauth-callback" element={<OAuthCallback />} />
-              <Route path="/about-us" element={<AboutUs />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/forgot-password" element={<ResetPasswordEmail />} />
-              <Route path="/verify-email" element={<VerifyCode />} />
-              <Route path="/restaurant" element={<Restaurant />} />
-              <Route
-                path="/restaurants/:restaurantId"
-                element={<RestaurantDetails />}
-              />
-              <Route
-                path="/restaurants/:restaurantId/tables/:tableId/reserve"
-                element={
-                  <ProtectedRoute>
-                    <ReservationForm />
-                  </ProtectedRoute>
-                }
-              />
+      <ModalProvider>
+        <ComplaintProvider>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Register />} />
+                <Route path="/oauth-callback" element={<OAuthCallback />} />
+                <Route path="/about-us" element={<AboutUs />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route
+                  path="/forgot-password"
+                  element={<ResetPasswordEmail />}
+                />
+                <Route path="/verify-email" element={<VerifyCode />} />
+                <Route path="/restaurant" element={<Restaurant />} />
+                <Route
+                  path="/restaurants/:restaurantId"
+                  element={<RestaurantDetails />}
+                />
+                <Route
+                  path="/restaurants/:restaurantId/tables/:tableId/reserve"
+                  element={
+                    <ProtectedRoute>
+                      <ReservationForm />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* <Route
+                {/* <Route
                 path="/restaurants/:restaurantId"
                 element={<ReservationPage />}
               /> */}
-              <Route path="/complaint" element={<ComplaintForm />} />
-              <Route
-                path="/my-complaints"
-                element={
-                  <ProtectedRoute>
-                    <UserComplaints />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/edit-profile"
-                element={
-                  <ProtectedRoute>
-                    <EditProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    {/* AdminDashboard */}
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/superadmin"
-                element={
-                  <ProtectedRoute requiredRole="superadmin">
-                    {/* SuperAdminPanel */}
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </main>
-          {showFooter && <Footer />}
-        </div>
-      </ComplaintProvider>
+                <Route path="/complaint" element={<ComplaintForm />} />
+                <Route
+                  path="/my-complaints"
+                  element={
+                    <ProtectedRoute>
+                      <UserComplaints />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/edit-profile"
+                  element={
+                    <ProtectedRoute>
+                      <EditProfile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute requiredRole="admin">
+                      {/* AdminDashboard */}
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/superadmin"
+                  element={
+                    <ProtectedRoute requiredRole="superadmin">
+                      {/* SuperAdminPanel */}
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </main>
+            {showFooter && <Footer />}
+          </div>
+        </ComplaintProvider>
+      </ModalProvider>
     </AuthProvider>
   );
 };

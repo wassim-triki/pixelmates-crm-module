@@ -44,7 +44,7 @@ export default function FloorConfiguration() {
         number: String(t.number),
         minCovers: t.minCovers,
         maxCovers: t.maxCovers,
-        online: t.online,
+        isAvailable: t.isAvailable,
         x: t.x,
         y: t.y,
         w: t.w,
@@ -103,7 +103,7 @@ export default function FloorConfiguration() {
       number: getNextNumber(),
       minCovers: 1,
       maxCovers: 4,
-      online: true,
+      isAvailable: true,
       // qrcode: uuidv4(),
     };
     setTables((ts) => [...ts, newTable]);
@@ -162,16 +162,18 @@ export default function FloorConfiguration() {
         errorMsg={errorMsg}
       />
 
-      <Canvas
-        tables={tables}
-        selectedId={selectedId}
-        onDrop={handleDrop}
-        onSelect={handleSelect}
-        onUpdate={handleUpdate}
-        onDuplicate={handleDuplicate}
-        onDelete={handleDelete}
-        onToggleShape={handleToggleShape}
-      />
+      <div className="canvas-wrapper">
+        <Canvas
+          tables={tables}
+          selectedId={selectedId}
+          onDrop={handleDrop}
+          onSelect={handleSelect}
+          onUpdate={handleUpdate}
+          onDuplicate={handleDuplicate}
+          onDelete={handleDelete}
+          onToggleShape={handleToggleShape}
+        />
+      </div>
     </div>
   );
 }

@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import axiosInstance from '../../config/axios'; // ← adjust to where you keep your axios setup
 import styled from 'styled-components';
 import './RestaurantDetails.css';
+import { useModal } from '../../context/modalContext';
+import BookingForm from './BookingForm';
 
 // styled‐components for the booking button
 const FlexContainer = styled.div`
@@ -41,6 +43,15 @@ export default function RestaurantDetails() {
   const { restaurantId } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [error, setError] = useState('');
+
+  const { openModal } = useModal();
+
+  const handleBookATable = () => {
+    openModal(
+      <BookingForm restaurant={restaurant} />,
+      `Book - “${restaurant.name}”`
+    );
+  };
 
   useEffect(() => {
     axiosInstance
@@ -99,9 +110,7 @@ export default function RestaurantDetails() {
           </div>
         </div>
         <FlexContainer>
-          <BookButton to={`/restaurant/${restaurantId}`}>
-            BOOK A TABLE
-          </BookButton>
+          <BookButton onClick={handleBookATable}>BOOK A TABLE</BookButton>
         </FlexContainer>
       </div>
 

@@ -65,12 +65,17 @@
 .shape-count {
   position: absolute;
   bottom: -8px;
-  right: -8px;
   background: var(--color-text);
   color: #fff;
   font-size: 0.75rem;
-  padding: 2px 6px;
-  border-radius: 12px;
+  /* padding: 6px 6px; */
+  width: 0.4rem;
+  height: 0.4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.7rem;
+  border-radius: 50%;
 }
 .table-details.no-selection .field {
   opacity: 0.5;
@@ -146,6 +151,7 @@
 .slider {
   position: absolute;
   cursor: pointer;
+  height: 100%;
   top: 0;
   left: 0;
   right: 0;

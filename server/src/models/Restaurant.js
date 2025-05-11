@@ -25,7 +25,7 @@ const restaurantSchema = new mongoose.Schema(
     },
     workTo: {
       type: String,
-      default: '23:45',
+      default: '22:00',
       match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'must be HH:mm'],
     },
     isPublished: {

@@ -42,7 +42,7 @@ const weekdays = [
 const generateTimeSlots = () => {
   const slots = [];
   for (let h = 0; h < 24; h++) {
-    for (let m of [0, 15, 30, 45]) {
+    for (let m of [0, 30]) {
       const hh = String(h).padStart(2, '0');
       const mm = String(m).padStart(2, '0');
       slots.push(`${hh}:${mm}`);
@@ -536,30 +536,34 @@ const MyRestaurant = () => {
           <label className="form-label">Work Schedule (all week)</label>
           <div className="d-flex align-items-center gap-2">
             <span>From</span>
-            <select
-              className="form-select form-select-sm w-auto"
-              value={workFrom}
-              onChange={(e) => setWorkFrom(e.target.value)}
-            >
-              {timeSlots.map((t) => (
-                <option key={t} value={t}>
-                  {format12(t)}
-                </option>
-              ))}
-            </select>
-
+            <div className="form-group">
+              <select
+                value={workFrom}
+                onChange={(e) => setWorkFrom(e.target.value)}
+                className="form-control form-control-sm"
+              >
+                {timeSlots.map((t) => (
+                  <option key={t} value={t}>
+                    {format12(t)}
+                  </option>
+                ))}
+              </select>
+            </div>
             <span>To</span>
-            <select
-              className="form-select form-select-sm w-auto"
-              value={workTo}
-              onChange={(e) => setWorkTo(e.target.value)}
-            >
-              {timeSlots.map((t) => (
-                <option key={t} value={t}>
-                  {format12(t)}
-                </option>
-              ))}
-            </select>
+
+            <div className="form-group">
+              <select
+                value={workTo}
+                onChange={(e) => setWorkTo(e.target.value)}
+                className="form-control form-control-sm"
+              >
+                {timeSlots.map((t) => (
+                  <option key={t} value={t}>
+                    {format12(t)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
         {/* ─── PUBLICATION SWITCH ─── */}
@@ -572,7 +576,7 @@ const MyRestaurant = () => {
             onChange={(e) => setIsPublished(e.target.checked)}
           />
           <label className="form-check-label" htmlFor="publishedSwitch">
-            Published
+            Publish
           </label>
         </div>
         <button

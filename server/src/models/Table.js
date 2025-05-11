@@ -24,10 +24,9 @@ const TableSchema = new mongoose.Schema(
       min: [1, 'Maximum covers must be at least 1'],
       default: 1,
     },
-    online: {
+    isAvailable: {
       type: Boolean,
       default: true,
-      required: [true, 'Online status is required'],
     },
     x: {
       type: Number,
