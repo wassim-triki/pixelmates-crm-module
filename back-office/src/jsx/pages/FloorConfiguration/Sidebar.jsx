@@ -1,7 +1,7 @@
 // src/components/Sidebar.jsx
 import React from 'react';
 import './Sidebar.css';
-import { FaGlobe } from 'react-icons/fa';
+import { FaChair, FaGlobe, FaTable } from 'react-icons/fa';
 
 const SHAPES = [
   { id: 'rectangle', label: 'Square' },
@@ -34,8 +34,8 @@ export default function Sidebar({
                 onShapeDragStart(shape.id);
               }}
             >
-              <div className="shape-icon">
-                <FaGlobe />
+              <div className="shape-icon fs-5">
+                <FaChair />
               </div>
               <span className="shape-count">{tableCounts[shape.id] || 0}</span>
             </div>
@@ -113,12 +113,14 @@ export default function Sidebar({
               </div>
             </div>
             <div className="field toggle-field">
-              <label>Online</label>
+              <label>Available</label>
               <label className="switch">
                 <input
                   type="checkbox"
-                  checked={selectedTable.online}
-                  onChange={(e) => onDetailChange('online', e.target.checked)}
+                  checked={selectedTable.isAvailable}
+                  onChange={(e) =>
+                    onDetailChange('isAvailable', e.target.checked)
+                  }
                 />
                 <span className="slider" />
               </label>

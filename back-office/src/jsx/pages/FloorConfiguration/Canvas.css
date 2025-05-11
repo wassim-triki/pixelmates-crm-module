@@ -1,19 +1,33 @@
+/*Canvas.css*/
+/* force your grid to be a “room-size” instead of filling the browser */
 .canvas {
-  flex: 1;
-  position: relative;
+  /* flex: 1; */
+  width: 550px; /* or whatever fits your restaurant floor */
+  height: 550px; /* pick an aspect ratio that makes sense */
   background-color: #fdfdfd;
-  background-size: 20px 20px;
+  background-size: 10px 10px !important;
+  border-radius: 0.8rem;
   background-image: linear-gradient(to right, #ddd 1px, transparent 1px),
     linear-gradient(to bottom, #ddd 1px, transparent 1px);
+  position: relative;
+  /* center inside its wrapper via flexbox above */
+}
+.canvas-wrapper {
+  flex: 1; /* take the remaining width */
+  display: flex;
+  justify-content: center; /* center horizontally */
+  align-self: start; /* center vertically *only this child* */
+  overflow: auto; /* scroll if you drag/tables go outside */
+  padding: 0 2rem;
 }
 
 .table-instance {
-  border: 2px solid var(--color-primary);
+  border: 2px solid #fd6e57;
   background: #fff;
 }
 
 .table-instance.rectangle {
-  border-radius: var(--radius);
+  border-radius: 0.35rem;
 }
 .table-instance.circle {
   border-radius: 50%;
@@ -23,12 +37,22 @@
   box-shadow: 0 0 0 2px rgba(239, 125, 112, 0.4);
 }
 
+/* Gray border for view mode */
+.canvas.view-only .table-instance {
+  border-color: #ccc;
+}
+
+/* Keep the orange border for selected in view mode */
+.canvas.view-only .table-instance.selected {
+  border-color: #fd6e57 !important;
+}
+
 /* Resize handles styling */
 .react-resizable-handle {
   visibility: hidden;
   width: 10px;
   height: 10px;
-  background: var(--color-primary);
+  background: #fd6e57;
   border: 2px solid #fff;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
   border-radius: 50%;
@@ -84,15 +108,21 @@
   cursor: w-resize;
 }
 
-.online-icon {
+.status-icon {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: var(--color-primary);
   font-size: 1.5rem;
 }
-
+/* available = primary color; unavailable = greyed out */
+.available-icon {
+  color: #fd6e57;
+}
+.unavailable-icon {
+  color: #fd6e57;
+  opacity: 0.6;
+}
 .label-top,
 .label-bottom {
   position: absolute;
@@ -129,9 +159,16 @@
   padding: 8px;
   cursor: pointer;
   font-size: 1rem;
-  color: var(--color-text);
+  color: #484848;
 }
 
 .toolbar button:hover {
   background: #f5f5f5;
+}
+
+.canvas.view-only .table-instance:hover {
+  cursor: pointer !important;
+  border-color: #aaa;
+  box-shadow: 0 0 0 2px rgba(170, 170, 170, 0.5);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }

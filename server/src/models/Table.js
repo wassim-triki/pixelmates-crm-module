@@ -38,45 +38,7 @@ const TableSchema = new mongoose.Schema(
       min: [1, 'Maximum covers must be at least 1'],
       default: 1,
     },
-    // Common fields
-    shape: {
-      type: String,
-      enum: ['rectangle', 'circle', 'square'],
-      default: 'rectangle',
-    },
-    // Fields for Restaurant.jsx
-    view: {
-      type: String,
-      enum: ['none', 'window', 'garden', 'street', 'bar', 'pool', 'terrace'],
-      default: 'none',
-    },
-    location: {
-      type: String,
-      enum: ['center', 'corner', 'window', 'entrance', 'bar', 'terrace'],
-      default: 'center',
-    },
-    features: {
-      type: [String],
-      default: [],
-    },
-    // Fields for FloorConfiguration.jsx
-    x: {
-      type: Number,
-      default: 0,
-    },
-    y: {
-      type: Number,
-      default: 0,
-    },
-    w: {
-      type: Number,
-      default: 64,
-    },
-    h: {
-      type: Number,
-      default: 64,
-    },
-    online: {
+    isAvailable: {
       type: Boolean,
       default: true,
     },
