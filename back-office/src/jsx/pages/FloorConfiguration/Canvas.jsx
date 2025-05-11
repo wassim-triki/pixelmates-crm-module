@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
-import { FaGlobe, FaClone, FaTrash, FaSquare, FaCircle } from 'react-icons/fa';
+// src/jsx/pages/FloorConfiguration/Canvas.jsx
+import React, { useRef, useEffect } from 'react';
+import { FaClone, FaTrash, FaSquare, FaCircle } from 'react-icons/fa';
 import { Rnd } from 'react-rnd';
 import './Canvas.css';
-import { useEffect } from 'react';
 
 export default function Canvas({
   tables,
@@ -22,47 +22,42 @@ export default function Canvas({
     e.preventDefault();
   };
 
-  useEffect(() => {
-    console.log('TABLES CANVAS', tables);
-  }, [tables]);
-
   const handleDrop = (e) => {
     if (!interactive) return;
     e.preventDefault();
     const shape = e.dataTransfer.getData('shapeId');
     if (!shape) return;
-
     const rect = ref.current.getBoundingClientRect();
     const x = e.clientX - rect.left - 32;
     const y = e.clientY - rect.top - 32;
-    onDrop && onDrop(shape, x, y);
+    onDrop?.(shape, x, y);
     e.stopPropagation();
   };
 
+  // only deselect on canvas in interactive mode
   const handleCanvasClick = (e) => {
     if (!interactive) return;
-    if (e.target === ref.current) onSelect && onSelect(null);
+    if (e.target === ref.current) onSelect?.(null);
   };
 
-  // add 'view-only' class when not interactive
   const canvasClass = interactive ? 'canvas interactive' : 'canvas view-only';
+  const canvasProps = interactive
+    ? {
+        onDragOver: handleDragOver,
+        onDrop: handleDrop,
+        onClick: handleCanvasClick,
+      }
+    : {};
+
+  useEffect(() => {
+    console.log('TABLES CANVAS', tables);
+  }, [tables]);
 
   return (
-    <div
-      ref={ref}
-      className={canvasClass}
-      {...(interactive
-        ? {
-            onDragOver: handleDragOver,
-            onDrop: handleDrop,
-            onClick: handleCanvasClick,
-          }
-        : {})}
-    >
+    <div ref={ref} className={canvasClass} {...canvasProps}>
       {tables.map((table) => {
         const isSelected = table.id === selectedId;
 
-        // only show resize handles when interactive AND this table is selected
         const resizeHandleStyles =
           interactive && isSelected
             ? {
@@ -192,10 +187,9 @@ export default function Canvas({
             {...(interactive
               ? {
                   onDragStop: (e, d) =>
-                    onUpdate && onUpdate(table.id, { x: d.x, y: d.y }),
+                    onUpdate?.(table.id, { x: d.x, y: d.y }),
                   onResizeStop: (e, dir, refEl, delta, pos) =>
-                    onUpdate &&
-                    onUpdate(table.id, {
+                    onUpdate?.(table.id, {
                       x: pos.x,
                       y: pos.y,
                       w: refEl.offsetWidth,
@@ -205,25 +199,27 @@ export default function Canvas({
               : {})}
             onClick={(e) => {
               e.stopPropagation();
-              if (interactive) onSelect && onSelect(table.id);
+              if (interactive) {
+                onSelect?.(table.id);
+              } else {
+                // view-only toggle logic:
+                onSelect?.(isSelected ? null : table.id);
+              }
             }}
           >
-            {/* {table.online && <FaGlobe className="online-icon" />} */}
             <div className="label-top">
               #{table.minCovers}-{table.maxCovers}
             </div>
             <div className="label-bottom">{table.number}</div>
             {interactive && isSelected && (
               <div className="toolbar">
-                <button
-                  onClick={() => onToggleShape && onToggleShape(table.id)}
-                >
+                <button onClick={() => onToggleShape?.(table.id)}>
                   {table.shape === 'circle' ? <FaSquare /> : <FaCircle />}
                 </button>
-                <button onClick={() => onDuplicate && onDuplicate(table.id)}>
+                <button onClick={() => onDuplicate?.(table.id)}>
                   <FaClone />
                 </button>
-                <button onClick={() => onDelete && onDelete(table.id)}>
+                <button onClick={() => onDelete?.(table.id)}>
                   <FaTrash />
                 </button>
               </div>

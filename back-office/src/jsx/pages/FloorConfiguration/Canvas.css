@@ -1,3 +1,4 @@
+/*Canvas.css*/
 /* force your grid to be a “room-size” instead of filling the browser */
 .canvas {
   /* flex: 1; */
@@ -43,7 +44,7 @@
 
 /* Keep the orange border for selected in view mode */
 .canvas.view-only .table-instance.selected {
-  border-color: var(--color-primary);
+  border-color: #fd6e57 !important;
 }
 
 /* Resize handles styling */
@@ -116,10 +117,10 @@
 }
 /* available = primary color; unavailable = greyed out */
 .available-icon {
-  color: var(--color-primary);
+  color: #fd6e57;
 }
 .unavailable-icon {
-  color: var(--color-border);
+  color: #fd6e57;
   opacity: 0.6;
 }
 .label-top,
@@ -158,9 +159,16 @@
   padding: 8px;
   cursor: pointer;
   font-size: 1rem;
-  color: var(--color-text);
+  color: #484848;
 }
 
 .toolbar button:hover {
   background: #f5f5f5;
+}
+
+.canvas.view-only .table-instance:hover {
+  cursor: pointer !important;
+  border-color: #aaa;
+  box-shadow: 0 0 0 2px rgba(170, 170, 170, 0.5);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }

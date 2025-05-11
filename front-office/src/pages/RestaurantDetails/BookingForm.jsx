@@ -10,7 +10,6 @@ const generateSlots = (open, close) => {
   const slots = [];
   let minutes = oh * 60 + om;
   const end = ch * 60 + cm;
-
   while (minutes < end) {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
@@ -29,41 +28,44 @@ const formatTime = (time) => {
 };
 
 const BookingForm = ({ restaurant }) => {
-  // form state
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    guests: 2,
+    guests: 0,
     date: '',
     time: '',
     tableId: '',
   });
-
-  // fetched tables for layout & min/max covers
   const [tables, setTables] = useState([]);
-  const [tablesLoading, setTablesLoading] = useState(false);
-  const [tablesError, setTablesError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isValid, setIsValid] = useState(false);
 
-  // slots from workFrom/workTo
+  // 1) fetch
+  useEffect(() => {
+    if (!restaurant?._id) return;
+    setLoading(true);
+    axiosInstance
+      .get(`/restaurants/${restaurant._id}/tables`)
+      .then((res) => {
+        // map _id → id for each table
+        setTables(
+          res.data.map((t) => ({
+            ...t,
+            id: t._id,
+          }))
+        );
+      })
+      .catch(() => setError('Failed to load tables.'))
+      .finally(() => setLoading(false));
+  }, [restaurant]);
+
+  // 2) all possible slots
   const slots = useMemo(() => {
     if (!restaurant?.workFrom || !restaurant?.workTo) return [];
     return generateSlots(restaurant.workFrom, restaurant.workTo);
   }, [restaurant]);
 
-  // submit state
-  const [isLoading, setIsLoading] = useState(false);
-  const [isValid, setIsValid] = useState(false);
-
-  // fetch tables on mount
-  useEffect(() => {
-    if (!restaurant?._id) return;
-    setTablesLoading(true);
-    axiosInstance
-      .get(`/restaurants/${restaurant._id}/tables`)
-      .then((res) => setTables(res.data))
-      .catch(() => setTablesError('Failed to load tables.'))
-      .finally(() => setTablesLoading(false));
-  }, [restaurant]);
-
-  // validate form
+  // 3) form validation (step 2)
   useEffect(() => {
     const { guests, date, time, tableId } = formData;
     setIsValid(
@@ -83,141 +85,144 @@ const BookingForm = ({ restaurant }) => {
       [name]: name === 'guests' ? parseInt(value, 10) : value,
     }));
   };
-  const handleTableSelect = (id) => {
-    setFormData((f) => ({ ...f, tableId: id }));
-  };
-  const handleSlotClick = (slot) => {
-    setFormData((f) => ({ ...f, time: slot }));
-  };
-
-  const handleSubmit = async (e) => {
+  const handleTableSelect = (id) => setFormData((f) => ({ ...f, tableId: id }));
+  const handleSlotClick = (slot) => setFormData((f) => ({ ...f, time: slot }));
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!isValid) return;
-    setIsLoading(true);
-    const payload = {
+    console.log('Submitting reservation:', {
       restaurantId: restaurant._id,
       ...formData,
-    };
-    console.log('Would submit:', payload);
-    // TODO: await axiosInstance.post('/reservations', payload)
-    setIsLoading(false);
+    });
+    // await axiosInstance.post('/reservations', { restaurantId: restaurant._id, ...formData });
   };
 
-  // only show tables matching guest count & online
-  const availableTables = tables.filter(
-    (t) =>
-      t.isAvailable &&
-      formData.guests >= t.minCovers &&
-      formData.guests <= t.maxCovers
-  );
+  // 4) filter available & build guest options
+  const availableTables = tables.filter((t) => t.isAvailable);
+  const selectedTable = tables.find((t) => t.id === formData.tableId) || {};
+  const guestOptions = selectedTable.minCovers
+    ? Array.from(
+        { length: selectedTable.maxCovers - selectedTable.minCovers + 1 },
+        (_, i) => selectedTable.minCovers + i
+      )
+    : [];
+
+  // 5) today for date min
+  const today = new Date().toISOString().split('T')[0];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 relative">
-      {/* --- Step 1: Guests & Date --- */}
-      {/* <div className="bg-white p-4 grid grid-cols-2 gap-4 rounded shadow">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Step 1 */}
+      {step === 1 && (
         <div>
-          <label className="block text-sm font-medium">Guests</label>
-          <select
-            name="guests"
-            value={formData.guests}
-            onChange={handleChange}
-            className="mt-1 block w-full border px-3 py-2 rounded"
+          <label className="block text-sm font-medium mb-2">
+            Choose a table
+          </label>
+          {loading && <p className="text-gray-500">Loading layout…</p>}
+          {error && <p className="text-red-500">{error}</p>}
+          {!loading && !error && (
+            <div className="w-full flex justify-center overflow-auto p-4 xbg-gray-50 rounded">
+              <Canvas
+                tables={availableTables}
+                selectedId={formData.tableId}
+                onSelect={handleTableSelect}
+                interactive={false}
+              />
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setStep(2)}
+            disabled={!formData.tableId}
+            className={`w-full mt-4 py-3 cursor-pointer bg-[#ef7d70] text-white font-semibold rounded transition-opacity ${
+              !formData.tableId
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:opacity-90'
+            }`}
           >
-            {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+            Continue
+          </button>
         </div>
+      )}
+
+      {/* Step 2 */}
+      {step === 2 && (
         <div>
-          <label className="block text-sm font-medium">Date</label>
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="mt-1 block w-full border px-3 py-2 rounded"
-          />
-        </div>
-      </div> */}
-
-      {/* --- Step 2: Visual table picker --- */}
-      <div>
-        <label className="block text-sm font-medium mb-2">Choose a table</label>
-        {tablesLoading && <p>Loading layout…</p>}
-        {tablesError && <p className="text-red-500">{tablesError}</p>}
-        {!tablesLoading && !tablesError && (
-          <div className="canvas-wrapper">
-            <Canvas
-              tables={availableTables}
-              selectedId={formData.tableId}
-              onSelect={handleTableSelect}
-              interactive={false}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* --- Step 3: Time slots --- */}
-      {/* <div>
-        <span className="block text-base font-semibold text-center">
-          Select a time
-        </span>
-        <div className="mt-3 grid grid-cols-4 gap-3">
-          {slots.map((slot) => {
-            const isChosen = formData.time === slot;
-            return (
-              <button
-                key={slot}
-                type="button"
-                onClick={() => handleSlotClick(slot)}
-                className={`px-3 py-2 border rounded text-sm font-medium transition-colors ${
-                  isChosen
-                    ? 'bg-green-100 border-green-500'
-                    : 'bg-white hover:border-gray-400'
-                }`}
+          <div className="bg-white p-4 grid grid-cols-2 gap-4 rounded shadow">
+            <div>
+              <label className="block text-sm font-medium">Guests</label>
+              <select
+                name="guests"
+                value={formData.guests}
+                onChange={handleChange}
+                className="mt-1 block w-full border px-3 py-2 rounded"
               >
-                {formatTime(slot)}
-              </button>
-            );
-          })}
+                <option value="">Select</option>
+                {guestOptions.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Date</label>
+              <input
+                type="date"
+                name="date"
+                min={today}
+                value={formData.date}
+                onChange={handleChange}
+                className="mt-1 block w-full border px-3 py-2 rounded"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <span className="block text-base font-semibold text-center">
+              Select a time
+            </span>
+            <div className="mt-3 grid grid-cols-4 gap-3">
+              {slots.map((slot) => {
+                const isChosen = formData.time === slot;
+                return (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={() => handleSlotClick(slot)}
+                    className={`px-3 py-2 border rounded cursor-pointer text-sm font-medium transition-colors ${
+                      isChosen
+                        ? 'bg-green-100 border-green-500'
+                        : 'bg-white hover:border-gray-400'
+                    }`}
+                  >
+                    {formatTime(slot)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex justify-between cursor-pointer items-center mt-6">
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="px-4 py-2 border rounded hover:bg-gray-100"
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              disabled={!isValid}
+              className={`px-6 py-3 bg-[#ef7d70] cursor-pointer text-white font-semibold rounded transition-opacity ${
+                !isValid ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
+              }`}
+            >
+              Reserve
+            </button>
+          </div>
         </div>
-      </div> */}
-
-      <hr className="border-gray-200 my-4" />
-
-      {/* --- Submit --- */}
-      <button
-        type="submit"
-        disabled={!isValid || isLoading}
-        className="w-full py-3 bg-[#ef7d70] text-white font-semibold rounded disabled:opacity-50 flex justify-center items-center"
-      >
-        {isLoading ? (
-          <svg
-            className="animate-spin h-5 w-5"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            />
-          </svg>
-        ) : (
-          'Continue'
-        )}
-      </button>
+      )}
     </form>
   );
 };
