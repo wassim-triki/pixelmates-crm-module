@@ -1,4 +1,5 @@
 .floor-config {
   display: flex;
   height: 100vh;
+  /* vertically center the canvas + sidebar */
 }

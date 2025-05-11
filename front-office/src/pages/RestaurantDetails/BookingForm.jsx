@@ -148,7 +148,7 @@ const BookingForm = ({ restaurant }) => {
         {tablesLoading && <p>Loading layout…</p>}
         {tablesError && <p className="text-red-500">{tablesError}</p>}
         {!tablesLoading && !tablesError && (
-          <div className="overflow-auto border rounded" style={{ height: 300 }}>
+          <div className="canvas-wrapper">
             <Canvas
               tables={availableTables}
               selectedId={formData.tableId}

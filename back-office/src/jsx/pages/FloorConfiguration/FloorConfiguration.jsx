@@ -162,16 +162,18 @@ export default function FloorConfiguration() {
         errorMsg={errorMsg}
       />
 
-      <Canvas
-        tables={tables}
-        selectedId={selectedId}
-        onDrop={handleDrop}
-        onSelect={handleSelect}
-        onUpdate={handleUpdate}
-        onDuplicate={handleDuplicate}
-        onDelete={handleDelete}
-        onToggleShape={handleToggleShape}
-      />
+      <div className="canvas-wrapper">
+        <Canvas
+          tables={tables}
+          selectedId={selectedId}
+          onDrop={handleDrop}
+          onSelect={handleSelect}
+          onUpdate={handleUpdate}
+          onDuplicate={handleDuplicate}
+          onDelete={handleDelete}
+          onToggleShape={handleToggleShape}
+        />
+      </div>
     </div>
   );
 }
