@@ -36,7 +36,6 @@ async function ensureLogoExists() {
     // Check if the logo already exists
     try {
       await fs.access(logoDestPath);
-      console.log('✅ Logo file already exists in public directory');
     } catch (error) {
       // Logo doesn't exist, try to copy it from the back-office directory
       try {
@@ -141,6 +140,7 @@ app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/restaurants', restaurantRoutes);
+// Use mergeParams to access restaurantId in table routes
 app.use('/api/restaurants/:restaurantId/tables', tablesRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
