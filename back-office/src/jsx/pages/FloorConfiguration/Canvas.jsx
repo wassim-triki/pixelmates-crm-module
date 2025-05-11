@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { FaGlobe, FaClone, FaTrash, FaSquare, FaCircle } from 'react-icons/fa';
 import { Rnd } from 'react-rnd';
 import './Canvas.css';
+import { useEffect } from 'react';
 
 export default function Canvas({
   tables,
@@ -21,6 +22,10 @@ export default function Canvas({
     e.preventDefault();
   };
 
+  useEffect(() => {
+    console.log('TABLES CANVAS', tables);
+  }, [tables]);
+
   const handleDrop = (e) => {
     if (!interactive) return;
     e.preventDefault();
@@ -39,10 +44,13 @@ export default function Canvas({
     if (e.target === ref.current) onSelect && onSelect(null);
   };
 
+  // add 'view-only' class when not interactive
+  const canvasClass = interactive ? 'canvas interactive' : 'canvas view-only';
+
   return (
     <div
       ref={ref}
-      className="canvas"
+      className={canvasClass}
       {...(interactive
         ? {
             onDragOver: handleDragOver,
@@ -200,7 +208,7 @@ export default function Canvas({
               if (interactive) onSelect && onSelect(table.id);
             }}
           >
-            {table.online && <FaGlobe className="online-icon" />}
+            {/* {table.online && <FaGlobe className="online-icon" />} */}
             <div className="label-top">
               #{table.minCovers}-{table.maxCovers}
             </div>

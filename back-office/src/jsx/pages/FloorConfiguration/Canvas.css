@@ -36,6 +36,16 @@
   box-shadow: 0 0 0 2px rgba(239, 125, 112, 0.4);
 }
 
+/* Gray border for view mode */
+.canvas.view-only .table-instance {
+  border-color: #ccc;
+}
+
+/* Keep the orange border for selected in view mode */
+.canvas.view-only .table-instance.selected {
+  border-color: var(--color-primary);
+}
+
 /* Resize handles styling */
 .react-resizable-handle {
   visibility: hidden;
@@ -97,15 +107,21 @@
   cursor: w-resize;
 }
 
-.online-icon {
+.status-icon {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #fd6e57;
   font-size: 1.5rem;
 }
-
+/* available = primary color; unavailable = greyed out */
+.available-icon {
+  color: var(--color-primary);
+}
+.unavailable-icon {
+  color: var(--color-border);
+  opacity: 0.6;
+}
 .label-top,
 .label-bottom {
   position: absolute;

@@ -106,7 +106,7 @@ const BookingForm = ({ restaurant }) => {
   // only show tables matching guest count & online
   const availableTables = tables.filter(
     (t) =>
-      t.online &&
+      t.isAvailable &&
       formData.guests >= t.minCovers &&
       formData.guests <= t.maxCovers
   );
