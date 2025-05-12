@@ -1,9 +1,9 @@
 .restaurant-details {
-  max-width: 1200px;
-  margin: 0 auto;
-  margin-top: 3.8rem;
-  padding: 20px;
   font-family: sans-serif;
+  /* Removed background: rgba(255, 255, 255, 0.9) to blend with the artistic background */
+  padding: 20px;
+  position: relative;
+  z-index: 10; /* Ensure content stays above the overlay */
 }
 
 .image-gallery {
@@ -50,15 +50,16 @@
 .text h1 {
   margin: 0;
   font-size: 24px;
+  color: #fff; /* White text for contrast against dark background */
 }
 
 .text .address {
   margin: 4px 0;
-  color: #555;
+  color: #ddd; /* Lighter gray for readability */
 }
 
 .text .meta {
-  color: #777;
+  color: #bbb; /* Even lighter gray */
 }
 
 .description-section {
@@ -67,6 +68,11 @@
 
 .description-section h2 {
   margin-bottom: 8px;
+  color: #fff; /* White for headers */
+}
+
+.description-section p {
+  color: #ddd; /* Lighter gray for body text */
 }
 
 .tags-section {
@@ -77,12 +83,20 @@
 }
 
 .tag {
-  background: #f1f1f1;
+  background: rgba(255, 255, 255, 0.2); /* Semi-transparent white for tags */
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 14px;
+  color: #fff; /* White text */
+  backdrop-filter: blur(2px); /* Subtle blur effect */
 }
 
 .map-section iframe {
   border-radius: 8px;
+}
+
+.error {
+  color: #fff; /* White for error messages */
+  text-align: center;
+  padding: 20px;
 }
