@@ -44,7 +44,7 @@ const GuestPrediction = () => {
     const endTime = `${dateStr}T${workTo}`;
 
     axios
-      .post('http://192.168.70.126:5001/predict', {
+      .post('http://192.168.46.126:5001/predict', {
         start_time: startTime,
         end_time: endTime,
         special_event: specialEvent,

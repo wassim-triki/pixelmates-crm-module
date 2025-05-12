@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axiosInstance from '../../config/axios';
 import Canvas from '../../../../back-office/src/jsx/pages/FloorConfiguration/Canvas';
+import { toast } from 'react-toastify'; // Import toast
+import { ThreeDots } from 'react-loader-spinner'; // Import spinner
 
 // Utility: generate 30-min slots between two "HH:mm" strings
 const generateSlots = (open, close) => {
@@ -27,7 +29,7 @@ const formatTime = (time) => {
   return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
 };
 
-const BookingForm = ({ restaurant }) => {
+const BookingForm = ({ restaurant, closeModal }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     guests: 0,
@@ -90,11 +92,14 @@ const BookingForm = ({ restaurant }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isValid) return;
-    console.log('Submitting reservation:', {
-      restaurantId: restaurant._id,
-      ...formData,
-    });
-    // await axiosInstance.post('/reservations', { restaurantId: restaurant._id, ...formData });
+
+    // Fake request: simulate delay
+    setLoading(true);
+    setTimeout(() => {
+      toast.success('Reservation successful!'); // Show toast
+      setLoading(false);
+      closeModal(); // Close the modal completely after the request
+    }, 2000);
   };
 
   // 4) filter available & build guest options
@@ -213,12 +218,25 @@ const BookingForm = ({ restaurant }) => {
             </button>
             <button
               type="submit"
-              disabled={!isValid}
+              disabled={!isValid || loading}
               className={`px-6 py-3 bg-[#ef7d70] cursor-pointer text-white font-semibold rounded transition-opacity ${
-                !isValid ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
+                !isValid || loading
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:opacity-90'
               }`}
             >
-              Reserve
+              {loading ? (
+                <ThreeDots
+                  height="30"
+                  width="30"
+                  color="#fff"
+                  ariaLabel="three-dots-loading"
+                  wrapperStyle={{}}
+                  visible={true}
+                />
+              ) : (
+                'Reserve'
+              )}
             </button>
           </div>
         </div>
