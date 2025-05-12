@@ -3,7 +3,7 @@ import { useAuth } from '../../../context/authContext';
 import { Table, Button, Modal, Form, Spinner, Alert, Pagination } from 'react-bootstrap';
 
 const RewardsPage = () => {
-  const { user } = useAuth(); // ✅ current authenticated user
+  const { user } = useAuth();
   const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,18 +22,21 @@ const RewardsPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
 
+  const [showRedemptionsModal, setShowRedemptionsModal] = useState(false);
+  const [redemptions, setRedemptions] = useState([]);
+  const [redemptionsLoading, setRedemptionsLoading] = useState(false);
+
   const fetchRewards = async () => {
     try {
       setLoading(true);
       const res = await fetch('http://localhost:5000/api/rewards');
       const data = await res.json();
-  
-      // ✅ Filter by user's restaurant ID (either string or object _id)
+
       const restaurantId = user?.restaurant?._id || user?.restaurantId;
-      const filteredData = data.filter((reward) =>
-        reward.restaurant?._id === restaurantId || reward.restaurant === restaurantId
+      const filteredData = data.filter(
+        (reward) => reward.restaurant?._id === restaurantId || reward.restaurant === restaurantId
       );
-  
+
       setRewards(filteredData);
     } catch (err) {
       setError('Failed to fetch rewards');
@@ -41,40 +44,23 @@ const RewardsPage = () => {
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
-    console.log('User from useAuth:', user); // Log entire user object
-    if (user?.restaurant) {
-      console.log('User restaurant object:', user.restaurant); // Debug restaurant details
-    } else {
-      console.log('Restaurant not found in user context');
-    }
-    fetchRewards();
-  }, [user]); // Ensure data is fetched once the user is available
-  
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
+    if (user) fetchRewards();
+  }, [user]);
 
   const handleShowModal = (reward = null) => {
     setEditMode(!!reward);
     setSelectedReward(reward);
-    
-    const userRestaurantId = user?.restaurant?._id || '';  // Use _id here
-    console.log('User Restaurant ID (in modal):', userRestaurantId);
-  
+
+    const restaurantId = user?.restaurant?._id || '';
     if (reward) {
       setFormData({
         name: reward.name || '',
         description: reward.description || '',
         pointsCost: reward.pointsCost || '',
         isActive: reward.isActive ?? true,
-        restaurant: reward.restaurant?._id || userRestaurantId,  // Ensure this is set correctly
+        restaurant: reward.restaurant?._id || restaurantId,
       });
     } else {
       setFormData({
@@ -82,54 +68,56 @@ const RewardsPage = () => {
         description: '',
         pointsCost: '',
         isActive: true,
-        restaurant: userRestaurantId,  // Correctly set the restaurantId
+        restaurant: restaurantId,
       });
     }
-    
+
     setShowModal(true);
   };
-  
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Log formData and user info
-    console.log('Form Data:', formData);
-    console.log('User Restaurant ID:', user?.restaurant?.id); // Log user info
-  
-    // Ensure that restaurantId is set correctly
-    if (!formData.restaurant && !user?.restaurant?.id) {
-      setError('Restaurant is required');
-      return;
-    }
-  
-    const method = editMode ? 'PUT' : 'POST';
-    const url = editMode
-      ? `http://localhost:5000/api/rewards/${selectedReward._id}`
-      : `http://localhost:5000/api/rewards`;
-  
-      const payload = {
-        ...formData,
-        restaurant: user?.restaurant?._id || '',  // Ensure the restaurantId is correctly set
-      };
-      
-  
+    setLoading(true);
+    const { name, description, pointsCost, isActive, restaurant } = formData;
+
+    const rewardData = {
+      name,
+      description,
+      pointsCost: parseInt(pointsCost, 10),
+      isActive,
+      restaurant,
+    };
+
     try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-  
-      if (!res.ok) throw new Error('Failed to save reward');
+      if (editMode) {
+        // Update existing reward
+        const res = await fetch(`http://localhost:5000/api/rewards/${selectedReward._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(rewardData),
+        });
+        if (!res.ok) throw new Error('Failed to update reward');
+      } else {
+        // Add new reward
+        const res = await fetch('http://localhost:5000/api/rewards', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(rewardData),
+        });
+        if (!res.ok) throw new Error('Failed to add reward');
+      }
       await fetchRewards();
       setShowModal(false);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this reward?')) return;
@@ -141,6 +129,21 @@ const RewardsPage = () => {
       await fetchRewards();
     } catch (err) {
       setError(err.message);
+    }
+  };
+
+  const handleShowRedemptions = async (rewardId) => {
+    setRedemptionsLoading(true);
+    setShowRedemptionsModal(true);
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/rewards/${rewardId}/redemptions`);
+      const data = await res.json();
+      setRedemptions(data);
+    } catch (err) {
+      setError('Failed to fetch redemptions');
+    } finally {
+      setRedemptionsLoading(false);
     }
   };
 
@@ -203,25 +206,32 @@ const RewardsPage = () => {
                   </td>
                   <td>{reward.restaurant?.name || 'N/A'}</td>
                   <td>
-                          <Button
-          variant="warning"
-          size="sm"
-          style={{ backgroundColor: '#ffc107', color: 'black' }}
-          onClick={() => handleShowModal(reward)}
-          disabled={loading}
-        >
-          <i className="fas fa-pen" />
-        </Button>{' '}
-        <Button
-          variant="danger"
-          size="sm"
-          style={{ backgroundColor: '#dc3545', color: 'white' }}
-          onClick={() => handleDelete(reward._id)}
-          disabled={loading}
-        >
-          <i className="fas fa-trash" />
-        </Button>
-
+                  <Button
+                      variant="info"
+                      size="sm"
+                      onClick={() => handleShowRedemptions(reward._id)}
+                      disabled={loading}
+                    >
+                      <i className="fas fa-eye" /> 
+                    </Button>{' '}
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      style={{ backgroundColor: '#ffc107', color: 'black' }}
+                      onClick={() => handleShowModal(reward)}
+                      disabled={loading}
+                    >
+                      <i className="fas fa-pen" />
+                    </Button>{' '}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(reward._id)}
+                      disabled={loading}
+                    >
+                      <i className="fas fa-trash" />
+                    </Button>{' '}
+                    
                   </td>
                 </tr>
               ))}
@@ -246,68 +256,102 @@ const RewardsPage = () => {
         </>
       )}
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Form onSubmit={handleSubmit}>
-          <Modal.Header closeButton>
-            <Modal.Title>{editMode ? 'Edit Reward' : 'Add Reward'}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form.Group className="mb-2">
+      {/* Modal for Add/Update Reward */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{editMode ? 'Edit Reward' : 'Add New Reward'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group>
               <Form.Label>Name</Form.Label>
               <Form.Control
-                name="name"
+                type="text"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
             </Form.Group>
-
-            <Form.Group className="mb-2">
+            <Form.Group>
               <Form.Label>Description</Form.Label>
               <Form.Control
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
                 as="textarea"
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-2">
-              <Form.Label>Points Required</Form.Label>
-              <Form.Control
-                name="pointsCost"
-                type="number"
-                value={formData.pointsCost}
-                onChange={handleChange}
+                rows={3}
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 required
               />
             </Form.Group>
-
-            <Form.Group className="mb-2">
+            <Form.Group>
+              <Form.Label>Points Cost</Form.Label>
+              <Form.Control
+                type="number"
+                value={formData.pointsCost}
+                onChange={(e) => setFormData({ ...formData, pointsCost: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group>
               <Form.Check
                 type="checkbox"
                 label="Active"
-                name="isActive"
                 checked={formData.isActive}
-                onChange={handleChange}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
               />
             </Form.Group>
+            <Button variant="primary" type="submit" disabled={loading}>
+              {editMode ? 'Update' : 'Add'} Reward
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
 
-            {user?.restaurantId && (
-              <div className="mb-2">
-                <strong>Restaurant ID:</strong> {user.restaurantId}
-              </div>
-            )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" type="submit">
-              {editMode ? 'Update' : 'Create'}
-            </Button>
-          </Modal.Footer>
-        </Form>
+      {/* Modal for Redemptions */}
+      <Modal show={showRedemptionsModal} onHide={() => setShowRedemptionsModal(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Redemptions for Reward</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {redemptionsLoading ? (
+            <div className="text-center my-5">
+              <Spinner animation="border" variant="primary" />
+            </div>
+          ) : (
+            <Table bordered hover responsive="sm" striped>
+              <thead className="text-center bg-light">
+                <tr>
+                  <th>User</th>
+                  <th>Points</th>
+                  <th>Reservation Date</th>
+                  <th>Redeem Date</th>
+                </tr>
+              </thead>
+              <tbody className="text-center">
+                {redemptions.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="text-center">
+                      No redemptions found.
+                    </td>
+                  </tr>
+                ) : (
+                  redemptions.map((redemption) => (
+                    <tr key={redemption._id}>
+                      <td>{redemption.user?.email || 'N/A'}</td>
+                      <td>{redemption.user?.points || '0'}</td>
+                      <td>{redemption.reservation?.createdAt ? new Date(redemption.reservation.createdAt).toLocaleString() : 'N/A'}</td>
+                      <td>{redemption.redeemedAt ? new Date(redemption.redeemedAt).toLocaleString() : 'N/A'}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRedemptionsModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

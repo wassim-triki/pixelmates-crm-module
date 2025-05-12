@@ -334,14 +334,14 @@ const Markup = () => {
             }
           />
 
-        <Route
+        {/* <Route
           path="/admin/loyalty-users"
           element={
             <ProtectedRoute requiredRole="Admin">
               <LoyaltyUsersPage />
             </ProtectedRoute>
           } 
-        />
+        /> */}
   
 
         

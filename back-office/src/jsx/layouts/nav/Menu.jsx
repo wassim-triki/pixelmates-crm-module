@@ -27,12 +27,10 @@ export const AdminMenuList = [
         title: 'Complaints',
         to: '/admin/complaints',
       },
-    
-      {
-        title: 'Loyalty Users',
-        to: '/admin/loyalty-users',
-      },
-
+      // {
+      //   title: 'Loyalty Users',
+      //   to: '/admin/loyalty-users',
+      // },
       {
         title: 'Rewards',
         to: '/admin/rewards',
