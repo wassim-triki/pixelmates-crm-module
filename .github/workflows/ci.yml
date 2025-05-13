@@ -6,13 +6,16 @@ on:
       - main
       - dev
       - feature/adjust-form-position
+      - devops
   pull_request:
     branches:
       - main
+      - dev
+      - devops
 
 jobs:
   backend:
-    name: Backend Build
+    name: Backend Build & Test
     runs-on: ubuntu-latest
 
     services:
@@ -22,89 +25,79 @@ jobs:
           - 27017:27017
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: server/package-lock.json
 
-      - name: Install dependencies (Backend)
-        run: |
+      - run: |
           cd server
-          npm ci  # Utilisation de npm ci pour des installations plus rapides et reproductibles
-
-      - name: Run seed (Backend)
-        env:
-          MONGODB_URI: mongodb://localhost:27017/test
-        run: |
-          cd server
+          npm ci
           npm run seed
-
-      - name: Run tests (Backend)
-        run: |
-          cd server
-          npm test || echo "No tests found"
+          npm test
 
   back-office:
-    name: Back Office Build
+    name: Back Office Build & Test
     runs-on: ubuntu-latest
+    needs: backend  # S'exécute seulement si le backend réussit
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: back-office/package-lock.json
 
-      - name: Install dependencies (Back Office)
-        run: |
+      - run: |
           cd back-office
-          npm ci  # Utilisation de npm ci
-
-      - name: Build Project (Back Office)
-        run: |
-          cd back-office
-          npm run build || echo "Build failed, check logs"
-
-      - name: Run tests (Back Office)
-        run: |
-          cd back-office
-          npm test || echo "No tests found"
+          npm ci
+          npm run build
+          npm test
 
   front-office:
-    name: Front Office Build
+    name: Front Office Build & Test
     runs-on: ubuntu-latest
+    needs: backend  # S'exécute seulement si le backend réussit
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: front-office/package-lock.json
 
-      - name: Install dependencies (Front Office)
-        run: |
+      - run: |
           cd front-office
-          npm ci  # Utilisation de npm ci
+          npm ci
+          npm run build
+          npm test
 
-      - name: Build Project (Front Office)
+  docker-build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [backend, back-office, front-office]  # S'exécute après tous les tests
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build backend image
+        run: |
+          cd server
+          docker build -t backend .
+          
+      - name: Build back-office image
+        run: |
+          cd back-office
+          docker build -t backoffice .
+          
+      - name: Build front-office image
         run: |
           cd front-office
-          npm run build || echo "Build failed, check logs"
-
-      - name: Run tests (Front Office)
-        run: |
-          cd front-office
-          npm test || echo "No tests found"
+          docker build -t frontoffice .

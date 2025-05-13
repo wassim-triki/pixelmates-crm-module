@@ -1,0 +1,54 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: prod
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./server
+    container_name: backend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: "mongodb://root:example@mongodb:27017/prod?authSource=admin"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+    command: npm run dev
+
+  frontoffice:
+    build:
+      context: ./front-office
+    container_name: frontoffice
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backoffice:
+    build:
+      context: ./back-office
+    container_name: backoffice
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:

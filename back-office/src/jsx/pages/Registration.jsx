@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { connect, useDispatch } from 'react-redux';
-import logo from '../../assets/images/logo-officiel-menufy.png';
+import logo from '../../assets/images/Logo-officiel-MenuFy.png';
 import {
     loadingToggleAction,
     signupAction,

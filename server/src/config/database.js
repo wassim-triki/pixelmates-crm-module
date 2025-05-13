@@ -7,20 +7,26 @@ const mongoURI =
 
 mongoose.set("strictQuery", false); // Avoid future deprecation warnings
 
-const connectDB = async () => {
+async function connectDB() {
   try {
     await mongoose.connect(mongoURI);
-    console.log(`✅ MongoDB Connected to ${mongoURI}`);
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`✅ MongoDB Connected to ${mongoURI}`);
+    }
   } catch (error) {
     console.error("❌ MongoDB Connection Error:", error);
     process.exit(1);
   }
-};
+}
 
-// Handle auto-reconnection in case of disconnection
-mongoose.connection.on("disconnected", () => {
-  console.warn("⚠️ MongoDB Disconnected! Attempting to Reconnect...");
-  connectDB();
-});
+// Désactivez la reconnexion automatique en mode test
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connection.on("disconnected", () => {
+    console.warn("⚠️ MongoDB Disconnected! Attempting to Reconnect...");
+    connectDB();
+  });
+}
+
+
 
 module.exports = connectDB;

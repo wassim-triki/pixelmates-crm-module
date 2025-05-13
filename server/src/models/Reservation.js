@@ -38,10 +38,16 @@ const reservationSchema = new mongoose.Schema({
     enum: ['pending', 'confirmed', 'cancelled', 'completed', 'waiting'], 
     default: 'pending' 
   },
+  predictedValue: {
+    type: Number,
+    default: 0,
+  },
+  
   specialRequests: { type: String },
   createdAt: { type: Date, default: Date.now },
   waitingListPosition: Number
 });
+
 
 reservationSchema.index({ restaurant: 1, reservationDate: 1 });
 reservationSchema.index({ table: 1, reservationDate: 1 });
