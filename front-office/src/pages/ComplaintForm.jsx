@@ -22,6 +22,7 @@ const ComplaintForm = () => {
     priority: 'Medium',
     images: [],
   });
+  const [imageUploadLoading, setImageUploadLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [fetchError, setFetchError] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(true);
@@ -111,6 +112,47 @@ const ComplaintForm = () => {
     return errors;
   };
 
+  // Function to upload images to server
+  const uploadImages = async (images) => {
+    // Filter out images that are already URLs (not Files)
+    const filesToUpload = images.filter(img => img instanceof File);
+
+    if (filesToUpload.length === 0) {
+      // If no new files to upload, return existing URLs
+      return images.filter(img => !(img instanceof File));
+    }
+
+    setImageUploadLoading(true);
+
+    try {
+      // Create FormData for image upload
+      const formData = new FormData();
+      filesToUpload.forEach(file => {
+        formData.append('images', file);
+      });
+
+      // Upload images to server
+      const response = await axiosInstance.post('/upload/images', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Get image URLs from response
+      const uploadedImageUrls = response.data.imageUrls || [];
+
+      // Combine existing URLs with new uploaded URLs
+      const existingUrls = images.filter(img => !(img instanceof File));
+      return [...existingUrls, ...uploadedImageUrls];
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error('Failed to upload images. Please try again.');
+      throw error;
+    } finally {
+      setImageUploadLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -127,21 +169,33 @@ const ComplaintForm = () => {
       return;
     }
 
-    const complaintData = {
-      user: user._id,
-      restaurant: formData.restaurant,
-      title: formData.title,
-      description: formData.description,
-      category: formData.category,
-      priority: formData.priority,
-      images: Array.isArray(formData.images)
-        ? formData.images.map((file) =>
-            file instanceof File ? URL.createObjectURL(file) : file
-          )
-        : [],
-    };
-
     try {
+      // First upload images if there are any
+      let imageUrls = [];
+      if (formData.images && formData.images.length > 0) {
+        try {
+          // Show toast for image upload
+          toast.info('Uploading images...');
+          imageUrls = await uploadImages(formData.images);
+        } catch (uploadError) {
+          // If image upload fails, show error but continue with complaint submission
+          console.error('Image upload failed:', uploadError);
+          toast.error('Image upload failed, continuing without images');
+        }
+      }
+
+      // Prepare complaint data with uploaded image URLs
+      const complaintData = {
+        user: user._id,
+        restaurant: formData.restaurant,
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        priority: formData.priority,
+        images: imageUrls,
+      };
+
+      // Submit complaint
       if (isEditMode) {
         await updateComplaint(complaintId, complaintData);
         toast.success('Complaint updated successfully!');
@@ -333,7 +387,7 @@ const ComplaintForm = () => {
               </div>
             ))}
 
-          
+
 
             <div className="flex flex-col">
               <label htmlFor="images" className="text-sm font-semibold mb-1 text-white">
@@ -349,7 +403,7 @@ const ComplaintForm = () => {
                 className="p-3 rounded-lg bg-white/10 border border-gray-300 text-white focus:outline-none focus:ring-2 focus:ring-[#FA8072]"
               />
               <p className="text-sm text-gray-300 mt-1">
-                Note: Images are converted to URLs locally. Backend should handle file uploads and return URLs.
+                Upload images for your complaint. Multiple images allowed.
               </p>
               {formData.images.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -383,9 +437,9 @@ const ComplaintForm = () => {
               <Button
                 type="submit"
                 className="!bg-[#FA8072] hover:!bg-[#e0685a] text-white py-2 px-6 rounded-full transition-all duration-300"
-                disabled={loading || fetchLoading || restaurants.length === 0}
+                disabled={loading || fetchLoading || imageUploadLoading || restaurants.length === 0}
               >
-                {loading
+                {loading || imageUploadLoading
                   ? isEditMode
                     ? 'Updating...'
                     : 'Submitting...'

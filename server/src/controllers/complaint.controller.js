@@ -58,9 +58,7 @@ const createComplaint = async (req, res) => {
           savedComplaint._id,
           restaurantExists.name
         );
-        console.log(`SMS notification sent to ${userDetails.phone} for complaint ${savedComplaint._id}`);
       } catch (smsError) {
-        console.error('Failed to send SMS notification:', smsError);
         // Don't fail the request if SMS sending fails
       }
     }
@@ -217,9 +215,7 @@ const updateComplaint = async (req, res) => {
               status,
               complaint.restaurant.name
             );
-            console.log(`Status update SMS sent to ${complaint.user.phone} for complaint ${updatedComplaint._id}`);
           } catch (smsError) {
-            console.error('Failed to send status update SMS:', smsError);
             // Don't fail the request if SMS sending fails
           }
         }
@@ -321,10 +317,14 @@ const sendSMS = async (req, res) => {
       return res.status(400).json({ message: 'User has no phone number registered' });
     }
 
+    // Manual SMS notification requested
+
     const result = await sendResolvedSMS(
       complaint.user.phone,
       complaint._id
     );
+
+    // SMS notification sent successfully
 
     res.json({
       message: 'SMS notification sent successfully',

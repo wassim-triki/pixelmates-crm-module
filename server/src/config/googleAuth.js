@@ -16,6 +16,8 @@ passport.use(
 
         if (!user) {
           // New Google user, create account
+          const defaultRole = await require('../models/Role').findOne({ name: 'Client' });
+
           user = await User.create({
             firstName: profile.name.givenName,
             lastName: profile.name.familyName,
@@ -24,7 +26,25 @@ passport.use(
             provider: 'google',
             providerId: profile.id,
             isVerified: true,
+            role: defaultRole ? defaultRole._id : null
           });
+        } else {
+          // User exists but might not have Google provider info
+          // Update the user with Google provider info if needed
+          if (user.provider !== 'google') {
+            user.provider = 'google';
+            user.providerId = profile.id;
+            user.isVerified = true;
+
+            // Don't update the user's name or email as they might have customized it
+            // But we can update the profile picture if they don't have one
+            if (!user.image && profile.photos[0]?.value) {
+              user.image = profile.photos[0].value;
+            }
+
+            // Save the changes but don't use findOneAndUpdate to avoid the duplicate key error
+            await user.save();
+          }
         }
 
         // Generate JWT tokens
