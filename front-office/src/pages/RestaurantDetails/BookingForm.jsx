@@ -89,17 +89,18 @@ const BookingForm = ({ restaurant, closeModal }) => {
   };
   const handleTableSelect = (id) => setFormData((f) => ({ ...f, tableId: id }));
   const handleSlotClick = (slot) => setFormData((f) => ({ ...f, time: slot }));
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid) return;
 
     // Fake request: simulate delay
     setLoading(true);
-    setTimeout(() => {
-      toast.success('Reservation successful!'); // Show toast
-      setLoading(false);
-      closeModal(); // Close the modal completely after the request
-    }, 2000);
+    console.log('Reservation data:', formData);
+    const response = await axiosInstance.post(`/reservations`, formData);
+
+    toast.success('Reservation successful!');
+
+    setLoading(false);
   };
 
   // 4) filter available & build guest options

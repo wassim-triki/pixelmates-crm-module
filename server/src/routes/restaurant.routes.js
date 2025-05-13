@@ -41,14 +41,14 @@ router.put(
 router.route('/:id/images').post(uploadImage);
 
 // Table routes
-router.route('/:restauId/tables')
-  .get(getTablesByRestaurant)
-  .post(createTable);
+// router.route('/:restauId/tables')
+//   .get(getTablesByRestaurant)
+//   .post(createTable);
 
-router
-  .route('/:restauId/tables/:id')
-  .get(getTableById)
-  .put(updateTable)
-  .delete(deleteTable);
+// router
+//   .route('/:restauId/tables/:id')
+//   .get(getTableById)
+//   .put(updateTable)
+//   .delete(deleteTable);
 
 module.exports = router;
