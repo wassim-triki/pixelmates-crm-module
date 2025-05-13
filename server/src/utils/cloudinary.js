@@ -8,12 +8,27 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Determine folder based on request path
+const getFolder = (req) => {
+  if (req.originalUrl.includes('/upload/images')) {
+    return 'complaint_images';
+  }
+  if (req.originalUrl.includes('/auth/me/update')) {
+    return 'profile_pictures';
+  }
+  if (req.originalUrl.includes('/restaurants')) {
+    return 'restaurant_images';
+  }
+  // Default folder
+  return 'uploads';
+};
+
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'profile_pictures',
-    allowed_formats: ['jpg', 'jpeg', 'png'],
-    transformation: [{ width: 300, height: 300, crop: 'limit' }],
+    folder: getFolder,
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif'],
+    transformation: [{ width: 1200, height: 1200, crop: 'limit' }],
   },
 });
 

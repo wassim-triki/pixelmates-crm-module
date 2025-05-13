@@ -41,7 +41,9 @@ router.put(
 router.route('/:id/images').post(uploadImage);
 
 // Table routes
-// router.route('/:restauId/tables').get(getTablesByRestaurant).post(createTable);
+router.route('/:restauId/tables')
+  .get(getTablesByRestaurant)
+  .post(createTable);
 
 router
   .route('/:restauId/tables/:id')

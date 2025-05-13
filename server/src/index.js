@@ -7,6 +7,7 @@ const restaurantRoutes = require('./routes/restaurant.routes.js');
 const complaintRoutes = require('./routes/complaint.routes.js');
 const complaintAnalyticsRoutes = require('./routes/complaint-analytics.routes.js');
 const userRoutes = require('./routes/user.routes.js');
+const uploadRoutes = require('./routes/upload.routes.js');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes.js');
@@ -36,7 +37,6 @@ async function ensureLogoExists() {
     // Check if the logo already exists
     try {
       await fs.access(logoDestPath);
-      console.log('✅ Logo file already exists in public directory');
     } catch (error) {
       // Logo doesn't exist, try to copy it from the back-office directory
       try {
@@ -56,7 +56,6 @@ async function ensureLogoExists() {
             // If we get here, the file exists
             const logoData = await fs.readFile(sourcePath);
             await fs.writeFile(logoDestPath, logoData);
-            console.log(`✅ Logo file copied from ${sourcePath} to public directory`);
             copied = true;
             break;
           } catch (err) {
@@ -141,6 +140,7 @@ app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/restaurants', restaurantRoutes);
+// Use mergeParams to access restaurantId in table routes
 app.use('/api/restaurants/:restaurantId/tables', tablesRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
@@ -151,6 +151,7 @@ app.use('/api/complaint-analytics', complaintAnalyticsRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/redemptions', redemptionRoutes);
+app.use('/api/upload', uploadRoutes);
 
 
 
