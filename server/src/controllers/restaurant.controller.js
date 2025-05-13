@@ -1,10 +1,6 @@
 const Restaurant = require('../models/Restaurant.js');
 const Table = require('../models/Table.js');
-const QRCode = require('qrcode');
-const { v4: uuidv4 } = require('uuid');
-const path = require('path');
 const asyncHandler = require('../utils/asyncHandler.js');
-const fs = require('fs').promises;
 
 // @desc    Create a new restaurant
 // @route   POST /api/restaurants
@@ -21,7 +17,6 @@ const createRestaurant = async (req, res) => {
       logo = '',
       promotion = '',
       payCashMethod = 'not-accepted',
-      images = [],
     } = req.body;
 
     if (
@@ -69,7 +64,7 @@ const createRestaurant = async (req, res) => {
 // @desc    Get all restaurants
 // @route   GET /api/restaurants
 // @access  Public
-const getRestaurants = async (req, res) => {
+const getRestaurants = async (_, res) => {
   try {
     const restaurants = await Restaurant.find().populate('tables');
     res.status(200).json({ count: restaurants.length, restaurants });
@@ -233,7 +228,14 @@ const deleteRestaurant = async (req, res) => {
       return res.status(404).json({ message: 'Restaurant not found' });
     }
 
-    await Table.deleteMany({ restauId: id });
+    // Delete tables associated with this restaurant using either field
+    await Table.deleteMany({
+      $or: [
+        { restauId: id },
+        { restaurant: id }
+      ]
+    });
+
     await Restaurant.findByIdAndDelete(id);
 
     res
@@ -305,10 +307,17 @@ const createTable = async (req, res) => {
     const { restauId } = req.params;
     const { nbtable, chairnb, shape, view, features, location } = req.body;
 
-    if (!nbtable || !chairnb) {
+    // Validate nbtable and chairnb are valid numbers
+    if (!nbtable || isNaN(parseInt(nbtable)) || parseInt(nbtable) < 1) {
       return res
         .status(400)
-        .json({ message: 'Missing table number or chair count' });
+        .json({ message: 'Table number is required and must be a positive number' });
+    }
+
+    if (!chairnb || isNaN(parseInt(chairnb)) || parseInt(chairnb) < 1) {
+      return res
+        .status(400)
+        .json({ message: 'Chair count is required and must be a positive number' });
     }
 
     const restaurant = await Restaurant.findById(restauId);
@@ -316,45 +325,59 @@ const createTable = async (req, res) => {
       return res.status(404).json({ message: 'Restaurant not found' });
     }
 
-    const qrcodeToken = uuidv4();
-    const qrContent = JSON.stringify({
-      restaurantId: restauId,
-      tableNumber: nbtable,
-      chairCount: chairnb,
-      token: qrcodeToken,
+    // Check if a table with this number already exists for this restaurant
+    const parsedNbtable = parseInt(nbtable);
+    const existingTable = await Table.findOne({
+      restauId: restauId,
+      nbtable: parsedNbtable
     });
 
-    const qrFileName = `table-${restauId}-${nbtable}-${qrcodeToken.slice(0, 8)}.png`;
-    const qrPath = path.join(__dirname, '../public/qrcodes', qrFileName);
-    await fs.mkdir(path.dirname(qrPath), { recursive: true });
-    await QRCode.toFile(qrPath, qrContent);
+    if (existingTable) {
+      return res.status(400).json({
+        message: `Table number ${nbtable} already exists for this restaurant`
+      });
+    }
 
-    const table = await Table.create({
-      nbtable,
-      chairnb,
-      shape,
-      view,
-      features,
-      location,
-      qrcode: qrcodeToken,
-      restauId,
-    });
+    // Create the table with both restaurant and restauId fields for compatibility
+    const tableData = {
+      // Fields for Restaurant.jsx
+      nbtable: parsedNbtable,
+      chairnb: parseInt(chairnb),
+      shape: shape || 'rectangle',
+      view: view || 'none',
+      features: features || [],
+      location: location || 'center',
 
+      // Fields for FloorConfiguration.jsx
+      number: String(parsedNbtable),
+      minCovers: 1,
+      maxCovers: parseInt(chairnb),
+
+      // Common fields
+      restaurant: restauId,
+      restauId: restauId,
+      isReserved: false
+    };
+
+    const table = await Table.create(tableData);
+
+    // Update the restaurant to include this table
     await Restaurant.findByIdAndUpdate(restauId, {
       $addToSet: { tables: table._id },
     });
 
     res.status(201).json({
       message: 'Table created',
-      table,
-      qrImagePath: `/qrcodes/${qrFileName}`,
+      table
     });
   } catch (error) {
+    console.error('Error creating table:', error);
+
     const duplicate = error.code === 11000;
     res.status(500).json({
       message: duplicate
-        ? 'Table number or QR code already exists'
-        : 'Error creating table',
+        ? 'Table number already exists for this restaurant'
+        : 'Error creating table: ' + error.message,
       error: error.message,
     });
   }
@@ -363,11 +386,14 @@ const createTable = async (req, res) => {
 // @desc    Get all tables
 // @route   GET /api/tables
 // @access  Public
-const getAllTables = async (req, res) => {
+const getAllTables = async (_, res) => {
   try {
+    // Populate both restaurant fields for compatibility
     const tables = await Table.find()
       .populate('restauId', 'name address')
-      .sort({ restauId: 1, nbtable: 1 });
+      .populate('restaurant', 'name address')
+      .sort({ nbtable: 1 });
+
     res.status(200).json(tables);
   } catch (error) {
     res
@@ -388,7 +414,13 @@ const getTablesByRestaurant = async (req, res) => {
       return res.status(404).json({ message: 'Restaurant not found' });
     }
 
-    const tables = await Table.find({ restauId })
+    // Query using both restaurant and restauId fields for compatibility
+    const tables = await Table.find({
+      $or: [
+        { restauId: restauId },
+        { restaurant: restauId }
+      ]
+    })
       .populate('restauId', 'name address')
       .sort({ nbtable: 1 });
 
@@ -406,13 +438,26 @@ const getTablesByRestaurant = async (req, res) => {
 const getTableById = async (req, res) => {
   try {
     const { id, restauId } = req.params;
-    const table = await Table.findById(id).populate('restauId', 'name address');
+    // Populate both restaurant fields for compatibility
+    const table = await Table.findById(id)
+      .populate('restauId', 'name address')
+      .populate('restaurant', 'name address');
 
     if (!table) {
       return res.status(404).json({ message: 'Table not found' });
     }
 
-    if (table.restauId._id.toString() !== restauId) {
+    // Check if table belongs to this restaurant using either field
+    let tableRestaurantId;
+    if (table.restauId && typeof table.restauId === 'object') {
+      tableRestaurantId = table.restauId._id.toString();
+    } else if (table.restaurant && typeof table.restaurant === 'object') {
+      tableRestaurantId = table.restaurant._id.toString();
+    } else {
+      tableRestaurantId = table.restauId?.toString() || table.restaurant?.toString();
+    }
+
+    if (tableRestaurantId !== restauId) {
       return res
         .status(400)
         .json({ message: 'Table does not belong to this restaurant' });
@@ -433,31 +478,86 @@ const updateTable = async (req, res) => {
   try {
     const { id, restauId } = req.params;
     const { nbtable, chairnb, shape, view, features, location } = req.body;
+
+    // Validate nbtable if provided
+    if (nbtable !== undefined) {
+      if (isNaN(parseInt(nbtable)) || parseInt(nbtable) < 1) {
+        return res
+          .status(400)
+          .json({ message: 'Table number must be a positive number' });
+      }
+    }
+
+    // Validate chairnb if provided
+    if (chairnb !== undefined) {
+      if (isNaN(parseInt(chairnb)) || parseInt(chairnb) < 1) {
+        return res
+          .status(400)
+          .json({ message: 'Chair count must be a positive number' });
+      }
+    }
+
     const table = await Table.findById(id);
+
     if (!table) {
       return res.status(404).json({ message: 'Table not found' });
     }
 
-    if (table.restauId.toString() !== restauId) {
+    // Check if table belongs to this restaurant using either field
+    const tableRestaurantId = table.restauId?.toString() || table.restaurant?.toString();
+    if (tableRestaurantId !== restauId) {
       return res
         .status(400)
         .json({ message: 'Table does not belong to this restaurant' });
     }
 
-    table.nbtable = nbtable ?? table.nbtable;
-    table.chairnb = chairnb ?? table.chairnb;
-    table.shape = shape ?? table.shape;
-    table.view = view ?? table.view;
-    table.features = features ?? table.features;
-    table.location = location ?? table.location;
+    // If changing table number, check if it already exists
+    if (nbtable !== undefined && parseInt(nbtable) !== table.nbtable) {
+      const parsedNbtable = parseInt(nbtable);
+      const existingTable = await Table.findOne({
+        restauId: restauId,
+        nbtable: parsedNbtable,
+        _id: { $ne: id } // Exclude current table
+      });
+
+      if (existingTable) {
+        return res.status(400).json({
+          message: `Table number ${nbtable} already exists for this restaurant`
+        });
+      }
+    }
+
+    // Update fields
+    if (nbtable !== undefined) {
+      const parsedNbtable = parseInt(nbtable);
+      table.nbtable = parsedNbtable;
+      table.number = String(parsedNbtable); // Update number field for FloorConfiguration
+    }
+
+    if (chairnb !== undefined) {
+      const parsedChairnb = parseInt(chairnb);
+      table.chairnb = parsedChairnb;
+      table.maxCovers = parsedChairnb; // Update maxCovers field for FloorConfiguration
+      table.minCovers = 1; // Set minCovers to 1
+    }
+
+    if (shape !== undefined) table.shape = shape;
+    if (view !== undefined) table.view = view;
+    if (features !== undefined) table.features = features;
+    if (location !== undefined) table.location = location;
+
+    // Ensure both restaurant fields are set for compatibility
+    table.restauId = restauId;
+    table.restaurant = restauId;
 
     await table.save();
 
     res.status(200).json({ message: 'Table updated', table });
   } catch (error) {
+    console.error('Error updating table:', error);
     res
       .status(500)
-      .json({ message: 'Error updating table', error: error.message });
+      .json({ message: 'Error updating table: ' + error.message, error: error.message });
   }
 };
 
@@ -473,7 +573,9 @@ const deleteTable = async (req, res) => {
       return res.status(404).json({ message: 'Table not found' });
     }
 
-    if (table.restauId.toString() !== restauId) {
+    // Check if table belongs to this restaurant using either field
+    const tableRestaurantId = table.restauId?.toString() || table.restaurant?.toString();
+    if (tableRestaurantId !== restauId) {
       return res
         .status(400)
         .json({ message: 'Table does not belong to this restaurant' });
@@ -481,6 +583,7 @@ const deleteTable = async (req, res) => {
 
     await Table.findByIdAndDelete(id);
 
+    // Remove the table reference from the restaurant
     await Restaurant.findByIdAndUpdate(restauId, {
       $pull: { tables: id },
     });

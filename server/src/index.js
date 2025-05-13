@@ -140,6 +140,7 @@ app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/restaurants', restaurantRoutes);
+// Use mergeParams to access restaurantId in table routes
 app.use('/api/restaurants/:restaurantId/tables', tablesRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);

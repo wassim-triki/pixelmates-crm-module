@@ -32,8 +32,8 @@ const RestaurantList = () => {
   const [selectedTable, setSelectedTable] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [tables, setTables] = useState([]);
-  const [newTable, setNewTable] = useState({ 
-    nbtable: '', 
+  const [newTable, setNewTable] = useState({
+    nbtable: '',
     chairnb: '',
     shape: 'rectangle',
     location: 'center',
@@ -90,7 +90,7 @@ const RestaurantList = () => {
     console.log("Fetching loyalty users for restaurantId:", restaurantId);
     setLoading(true);
     try {
-  
+
       const res = await getLoyaltyUsers(restaurantId);
     console.log("API Response:", res.data);
     const filtered = res.data.filter(loyalty => loyalty.points > 0);
@@ -104,16 +104,16 @@ const RestaurantList = () => {
       setLoading(false);
     }
   };
-  
-  
+
+
   const handleCloseLoyaltyModal = () => {
     setShowLoyaltyModal(false);
     setLoyaltyUsers([]);
   };
-  
 
 
-  
+
+
   const fetchRestaurants = async () => {
     setLoading(true);
     setError(null);
@@ -246,11 +246,13 @@ const RestaurantList = () => {
   const validateTableForm = (data) => {
     const errors = {};
     if (!data.nbtable) errors.nbtable = 'Table number is required';
-    else if (isNaN(data.nbtable) || data.nbtable < 1)
-      errors.nbtable = 'Must be a number greater than or equal to 1';
+    else if (isNaN(parseInt(data.nbtable)) || parseInt(data.nbtable) < 1)
+      errors.nbtable = 'Must be a positive number';
+
     if (!data.chairnb) errors.chairnb = 'Number of chairs is required';
-    else if (isNaN(data.chairnb) || data.chairnb < 1 || data.chairnb > 20)
+    else if (isNaN(parseInt(data.chairnb)) || parseInt(data.chairnb) < 1 || parseInt(data.chairnb) > 20)
       errors.chairnb = 'Must be a number between 1 and 20';
+
     if (!data.shape) errors.shape = 'Shape is required';
     if (!data.location) errors.location = 'Location is required';
     if (!data.view) errors.view = 'View is required';
@@ -350,8 +352,8 @@ const RestaurantList = () => {
       });
       const response = await getTablesByRestaurant(selectedRestaurant._id);
       setTables(response.data || []);
-      setNewTable({ 
-        nbtable: '', 
+      setNewTable({
+        nbtable: '',
         chairnb: '',
         shape: 'rectangle',
         location: 'center',
@@ -373,23 +375,22 @@ const RestaurantList = () => {
       setTableValidationErrors(errors);
       return;
     }
-  
+
     setLoading(true);
     setError(null);
-  
+
     try {
       console.log('Updating table with data:', editingTable);
-  
+
       await updateTable(selectedRestaurant._id, editingTable._id, {
         nbtable: parseInt(editingTable.nbtable),
         chairnb: parseInt(editingTable.chairnb),
         shape: editingTable.shape,
         location: editingTable.location,
         view: editingTable.view,
-        qrcode: editingTable.qrcode,
         features: editingTable.features || [], // tableau de strings
       });
-  
+
       const response = await getTablesByRestaurant(selectedRestaurant._id);
       setTables(response.data || []);
       setEditingTable(null);
@@ -401,14 +402,14 @@ const RestaurantList = () => {
       setLoading(false);
     }
   };
-  
+
 
   const handleCloseTablesModal = () => {
     setShowTablesModal(false);
     setSelectedRestaurant(null);
     setTables([]);
-    setNewTable({ 
-      nbtable: '', 
+    setNewTable({
+      nbtable: '',
       chairnb: '',
       shape: 'rectangle',
       location: 'center',
@@ -527,7 +528,7 @@ const RestaurantList = () => {
                     >
                       <option value="rectangle">Rectangle</option>
                       <option value="square">Square</option>
-                      <option value="round">Round</option>
+                      <option value="circle">Circle</option>
                     </Form.Select>
                   </td>
                   <td>
@@ -535,10 +536,12 @@ const RestaurantList = () => {
                       value={editingTable.location}
                       onChange={(e) => setEditingTable({ ...editingTable, location: e.target.value })}
                     >
-                      <option value="window">Window</option>
                       <option value="center">Center</option>
+                      <option value="corner">Corner</option>
+                      <option value="window">Window</option>
+                      <option value="entrance">Entrance</option>
+                      <option value="bar">Bar</option>
                       <option value="terrace">Terrace</option>
-                      <option value="main lounge">Main Lounge</option>
                     </Form.Select>
                   </td>
                   <td>
@@ -547,10 +550,12 @@ const RestaurantList = () => {
                       onChange={(e) => setEditingTable({ ...editingTable, view: e.target.value })}
                     >
                       <option value="none">None</option>
-                      <option value="sea">Sea</option>
-                      <option value="pool">Pool</option>
-                      <option value="city">City</option>
+                      <option value="window">Window</option>
                       <option value="garden">Garden</option>
+                      <option value="street">Street</option>
+                      <option value="bar">Bar</option>
+                      <option value="pool">Pool</option>
+                      <option value="terrace">Terrace</option>
                     </Form.Select>
                   </td>
                   <td>
@@ -611,7 +616,7 @@ const RestaurantList = () => {
                       <i className="fas fa-edit" />
                     </Button>
 
-                   
+
                     <Button
                       variant="danger"
                       size="sm"
@@ -659,9 +664,9 @@ const RestaurantList = () => {
       )}
 
       <div className="d-flex justify-content-between align-items-center mb-4 px-3 flex-nowrap gap-2">
-        <Button 
-          variant="success" 
-          onClick={handleShowCreateModal} 
+        <Button
+          variant="success"
+          onClick={handleShowCreateModal}
           style={{ height: '52px' }}
           className="flex-shrink-0"
         >
@@ -690,14 +695,14 @@ const RestaurantList = () => {
         </div>
 
         <Dropdown className="flex-shrink-0">
-          <Dropdown.Toggle 
-            variant="outline-primary" 
+          <Dropdown.Toggle
+            variant="outline-primary"
             disabled={loading}
             className="shadow-sm"
             style={{
               fontSize: '0.9rem',
               padding: '6px 12px',
-              height: '52px', 
+              height: '52px',
               maxWidth: '200px',
             }}
           >
@@ -767,7 +772,7 @@ const RestaurantList = () => {
                       console.warn('Invalid restaurant ID:', restaurant);
                     }
                   }}
-                  
+
                 >
                   <i className="fas fa-star" />
                 </Button>
@@ -814,7 +819,7 @@ const RestaurantList = () => {
               {Math.min((currentPage + 1) * itemsPerPage, restaurants.length)} of{' '}
               {restaurants.length} entries
             </div>
-            
+
             <div className="dataTables_paginate paging_simple_numbers">
               <button
                 className="btn btn-outline-primary btn-sm me-2"
@@ -854,7 +859,7 @@ const RestaurantList = () => {
 
 
 
- 
+
 
 
       <Modal show={showLoyaltyModal} onHide={handleCloseLoyaltyModal} centered size="md">
@@ -1332,7 +1337,7 @@ const RestaurantList = () => {
                 >
                   <option value="rectangle">Rectangle</option>
                   <option value="square">Square</option>
-                  <option value="round">Round</option>
+                  <option value="circle">Circle</option>
                 </Form.Select>
               </div>
               <div className="col-md-3">
@@ -1341,10 +1346,12 @@ const RestaurantList = () => {
                   value={newTable.location}
                   onChange={(e) => setNewTable({ ...newTable, location: e.target.value })}
                 >
-                  <option value="window">Window</option>
                   <option value="center">Center</option>
+                  <option value="corner">Corner</option>
+                  <option value="window">Window</option>
+                  <option value="entrance">Entrance</option>
+                  <option value="bar">Bar</option>
                   <option value="terrace">Terrace</option>
-                  <option value="main lounge">Main Lounge</option>
                 </Form.Select>
               </div>
               <div className="col-md-4">
@@ -1354,10 +1361,12 @@ const RestaurantList = () => {
                   onChange={(e) => setNewTable({ ...newTable, view: e.target.value })}
                 >
                   <option value="none">None</option>
-                  <option value="sea">Sea</option>
-                  <option value="pool">Pool</option>
-                  <option value="city">City</option>
+                  <option value="window">Window</option>
                   <option value="garden">Garden</option>
+                  <option value="street">Street</option>
+                  <option value="bar">Bar</option>
+                  <option value="pool">Pool</option>
+                  <option value="terrace">Terrace</option>
                 </Form.Select>
               </div>
               <div className="col-md-8">
@@ -1400,8 +1409,8 @@ const RestaurantList = () => {
         </Modal.Footer>
       </Modal>
 
-      <TableDetailModal 
-        table={selectedTable} 
+      <TableDetailModal
+        table={selectedTable}
         onHide={() => {
           setShowTableDetailModal(false);
           setSelectedTable(null);
