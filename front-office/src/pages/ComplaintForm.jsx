@@ -30,7 +30,41 @@ const ComplaintForm = () => {
   const [initialFormData, setInitialFormData] = useState(null);
 
   // Categories to match ComplaintList
-  const categories = ['Food Quality', 'Service', 'Cleanliness', 'Billing', 'Other'];
+const categories = [
+  'Food Quality',
+  'Service',
+  'Cleanliness',
+  'Billing',
+  'Delivery Delay',
+  'Order Missing',
+  'Wrong Order',
+  'Cold Food',
+  'Rude Staff',
+  'Long Wait Time',
+  'Unhygienic Packaging',
+  'Spoiled Food',
+  'Overpriced Items',
+  'Unavailable Menu Item',
+  'Small Portions',
+  'Late Response',
+  'Technical Issue',
+  'App Crash',
+  'Promo Code Issue',
+  'Double Charge',
+  'Missing Utensils',
+  'Incorrect Billing',
+  'Bad Online Experience',
+  'Inadequate Seating',
+  'Noisy Environment',
+  'Parking Issues',
+  'Unfriendly Reception',
+  'Food Allergy Ignored',
+  'Food Not Fresh',
+  'Delivery Personnel Misbehavior',
+  'Unclear Menu',
+  'Poor Customer Support',
+  'Other'
+];
 
   // Check for editId query parameter to determine edit mode
   useEffect(() => {
