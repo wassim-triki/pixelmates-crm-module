@@ -2,9 +2,9 @@ require('dotenv').config();
 const twilio = require('twilio');
 
 // Use the exact credentials provided by the user
-const accountSid = 'AC4abd5c701e576ac1a4599557bc0dcc3d';
-const authToken = '93858e8b62090cb5f2008b54f2f09578';
-const twilioPhone = '+18316536130';
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
 // Twilio configuration is set up
 
