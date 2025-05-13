@@ -116,8 +116,24 @@ const Navbar = () => {
               </div>
               <div className="flex-shrink-0 min-w-[100px]">
                 <span className="block text-white font-bold text-xs sm:text-sm md:text-base truncate">
-    {user.firstName || 'User'} {user.lastName || ''} ({user.points ?? 0} pts)
-  </span>
+          {user.firstName || 'User'} {user.lastName || ''} ({user.points ?? 0} pts)
+        </span>
+
+
+              <span className="block px-4 py-1 text-gray-500 text-xs italic">
+          VIP Level: 
+          <span 
+            className={`ml-1 px-2 py-0.5 rounded-full text-white text-xs font-bold ${
+              user.vipLevel === 'Silver' ? 'bg-gray-400' :
+              user.vipLevel === 'Gold' ? 'bg-yellow-500' :
+              user.vipLevel === 'Platinum' ? 'bg-blue-500' :
+              'bg-gray-300'
+            }`}
+          >
+            {user.vipLevel}
+          </span>
+        </span>
+
 
               </div>
             </button>

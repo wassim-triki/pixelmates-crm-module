@@ -313,6 +313,8 @@ exports.getMe = asyncHandler(async (req, res) => {
       permissions: user.role.permissions,
     },
     restaurant: user.restaurantId || null,
+    vipLevel : user.vipLevel,
+    points: user.points,  
   };
 
   res.status(200).json(userData);

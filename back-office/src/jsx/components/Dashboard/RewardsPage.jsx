@@ -26,6 +26,7 @@ const RewardsPage = () => {
   const [redemptions, setRedemptions] = useState([]);
   const [redemptionsLoading, setRedemptionsLoading] = useState(false);
 
+/*
   const fetchRewards = async () => {
     try {
       setLoading(true);
@@ -43,7 +44,30 @@ const RewardsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };*/
+
+  const fetchRewards = async () => {
+  try {
+    setLoading(true);
+    const res = await fetch('http://localhost:5000/api/rewards');
+    if (!res.ok) {
+      throw new Error('Failed to fetch rewards');
+    }
+    const data = await res.json();
+
+    const restaurantId = user?.restaurant?._id || user?.restaurantId;
+    const filteredData = data.filter(
+      (reward) => reward.restaurant?._id === restaurantId || reward.restaurant === restaurantId
+    );
+
+    setRewards(filteredData.length > 0 ? filteredData : []); // Ensure rewards is an empty array if no data
+  } catch (err) {
+    setError(err.message || 'Failed to fetch rewards');
+    setRewards([]); // Set rewards to an empty array on error
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     if (user) fetchRewards();
@@ -132,7 +156,7 @@ const RewardsPage = () => {
     }
   };
 
-  const handleShowRedemptions = async (rewardId) => {
+  /*const handleShowRedemptions = async (rewardId) => {
     setRedemptionsLoading(true);
     setShowRedemptionsModal(true);
 
@@ -145,7 +169,26 @@ const RewardsPage = () => {
     } finally {
       setRedemptionsLoading(false);
     }
-  };
+  };*/
+
+const handleShowRedemptions = async (rewardId) => {
+  setRedemptionsLoading(true);
+  setShowRedemptionsModal(true);
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/rewards/${rewardId}/redemptions`);
+    if (!res.ok) {
+      throw new Error('Failed to fetch redemptions');
+    }
+    const data = await res.json();
+    setRedemptions(data.length > 0 ? data : []); // Ensure redemptions is an empty array if no data
+  } catch (err) {
+    setError(err.message || 'Failed to fetch redemptions');
+    setRedemptions([]); // Set redemptions to an empty array on error
+  } finally {
+    setRedemptionsLoading(false);
+  }
+};
 
   const filteredRewards = rewards.filter((r) =>
     r.name.toLowerCase().includes(search.toLowerCase())
@@ -307,52 +350,48 @@ const RewardsPage = () => {
       </Modal>
 
       {/* Modal for Redemptions */}
-      <Modal show={showRedemptionsModal} onHide={() => setShowRedemptionsModal(false)} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Redemptions for Reward</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {redemptionsLoading ? (
-            <div className="text-center my-5">
-              <Spinner animation="border" variant="primary" />
-            </div>
-          ) : (
-            <Table bordered hover responsive="sm" striped>
-              <thead className="text-center bg-light">
-                <tr>
-                  <th>User</th>
-                  <th>Points</th>
-                  <th>Reservation Date</th>
-                  <th>Redeem Date</th>
-                </tr>
-              </thead>
-              <tbody className="text-center">
-                {redemptions.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="text-center">
-                      No redemptions found.
-                    </td>
-                  </tr>
-                ) : (
-                  redemptions.map((redemption) => (
-                    <tr key={redemption._id}>
-                      <td>{redemption.user?.email || 'N/A'}</td>
-                      <td>{redemption.user?.points || '0'}</td>
-                      <td>{redemption.reservation?.createdAt ? new Date(redemption.reservation.createdAt).toLocaleString() : 'N/A'}</td>
-                      <td>{redemption.redeemedAt ? new Date(redemption.redeemedAt).toLocaleString() : 'N/A'}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </Table>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowRedemptionsModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+    <Modal show={showRedemptionsModal} onHide={() => setShowRedemptionsModal(false)} centered size="lg">
+  <Modal.Header closeButton>
+    <Modal.Title>Redemptions for Reward</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {redemptionsLoading ? (
+      <div className="text-center my-5">
+        <Spinner animation="border" variant="primary" />
+      </div>
+    ) : redemptions.length === 0 ? (
+      <div className="text-center my-5">
+        <Alert variant="info">No redemptions found for this reward.</Alert>
+      </div>
+    ) : (
+      <Table bordered hover responsive="sm" striped>
+        <thead className="text-center bg-light">
+          <tr>
+            <th>User</th>
+            <th>Points</th>
+            <th>Reservation Date</th>
+            <th>Redeem Date</th>
+          </tr>
+        </thead>
+        <tbody className="text-center">
+          {redemptions.map((redemption) => (
+            <tr key={redemption._id}>
+              <td>{redemption.user?.email || 'N/A'}</td>
+              <td>{redemption.user?.points || '0'}</td>
+              <td>{redemption.reservation?.createdAt ? new Date(redemption.reservation.createdAt).toLocaleString() : 'N/A'}</td>
+              <td>{redemption.redeemedAt ? new Date(redemption.redeemedAt).toLocaleString() : 'N/A'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowRedemptionsModal(false)}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
     </div>
   );
 };
