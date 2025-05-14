@@ -181,3 +181,21 @@ function updateVIPLevel(user) {
   else if (points >= 250) user.vipLevel = 'Silver';
   else user.vipLevel = 'Bronze';
 }
+
+
+// Delete a redemption
+// Delete a redemption
+exports.deleteRedemption = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ message: 'Redemption ID is required' });
+  }
+
+  const redemption = await Redemption.findByIdAndDelete(id);
+  if (!redemption) {
+    return res.status(404).json({ message: 'Redemption not found' });
+  }
+
+  res.status(200).json({ message: 'Redemption deleted successfully' });
+});

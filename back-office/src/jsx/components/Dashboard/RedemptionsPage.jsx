@@ -98,7 +98,7 @@ const RedemptionsPage = () => {
       setError(err.message);
     }
   };
-
+/*
   const handleDelete = async (id) => {
     try {
       const res = await fetch(`http://localhost:5000/api/redemptions/${id}`, {
@@ -117,7 +117,28 @@ const RedemptionsPage = () => {
       console.error('Delete failed:', err);
       setError('Failed to delete redemption');
     }
-  };
+  };*/
+
+const handleDelete = async (id) => {
+  if (!window.confirm('Are you sure you want to delete this redemption?')) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/redemptions/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || 'Failed to delete redemption');
+    }
+
+    console.log('Redemption deleted successfully');
+    setRedemptions((prev) => prev.filter((redemption) => redemption._id !== id)); // Update state
+  } catch (err) {
+    console.error('Delete failed:', err);
+    setError(err.message || 'Failed to delete redemption');
+  }
+};
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
@@ -226,14 +247,14 @@ const totalPages = Math.ceil(filteredRedemptions.length / itemsPerPage);
           >
             <i className="fas fa-pen" />
           </Button>{' '}
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => handleDelete(redemption._id)}
-            disabled={loading}
-          >
-            <i className="fas fa-trash" />
-          </Button>
+         <Button
+          variant="danger"
+          size="sm"
+          onClick={() => handleDelete(redemption._id)}
+          disabled={loading}
+        >
+          <i className="fas fa-trash" />
+        </Button>
 
                   </td>
                 </tr>
