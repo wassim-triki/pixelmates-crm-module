@@ -38,6 +38,10 @@ const restaurantSchema = new mongoose.Schema(
     payCashMethod: { type: String },
     tables: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Table' }],
     waitingList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reservation' }],
+    tags: {
+      type: [String],
+      default: []
+    },
   },
   {
     timestamps: true,

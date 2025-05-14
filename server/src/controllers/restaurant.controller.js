@@ -40,6 +40,26 @@ const createRestaurant = async (req, res) => {
         .json({ message: 'Taxe TPS and Taxe TVQ must be valid numbers' });
     }
 
+    // Parse tags if provided
+    let tags = [];
+    if (req.body.tags) {
+      try {
+        // Tags might come as a JSON string
+        let parsedTags = req.body.tags;
+        if (typeof parsedTags === 'string') {
+          parsedTags = JSON.parse(parsedTags);
+        }
+
+        // Make sure we have an array of tags
+        if (Array.isArray(parsedTags)) {
+          tags = parsedTags;
+        }
+      } catch (error) {
+        console.error('Error parsing tags:', error);
+        // Continue with empty tags if parsing fails
+      }
+    }
+
     const restaurant = await Restaurant.create({
       name,
       address,
@@ -52,6 +72,7 @@ const createRestaurant = async (req, res) => {
       payCashMethod,
       images: [],
       tables: [],
+      tags: tags,
     });
 
     res.status(201).json(restaurant);
@@ -210,6 +231,26 @@ const updateRestaurant = asyncHandler(async (req, res) => {
     updates.isPublished =
       req.body.isPublished === true || req.body.isPublished === 'true';
   }
+
+  // Handle tags if provided
+  if (req.body.tags) {
+    try {
+      // Tags might come as a JSON string from FormData
+      let parsedTags = req.body.tags;
+      if (typeof parsedTags === 'string') {
+        parsedTags = JSON.parse(parsedTags);
+      }
+
+      // Make sure we have an array of tags
+      if (Array.isArray(parsedTags)) {
+        updates.tags = parsedTags;
+      }
+    } catch (error) {
+      console.error('Error parsing tags:', error);
+      // Don't fail the whole request if tags parsing fails
+    }
+  }
+
   // 4) Apply our simple scalar updates
   Object.assign(restaurant, updates);
   const saved = await restaurant.save();
@@ -253,12 +294,22 @@ const deleteRestaurant = async (req, res) => {
 // @access  Public
 const searchRestaurants = async (req, res) => {
   try {
-    const { name, cuisineType, location } = req.query;
+    const { name, cuisineType, location, tags } = req.query;
     const query = {};
 
     if (name) query.name = { $regex: name, $options: 'i' };
     if (cuisineType) query.cuisineType = cuisineType;
     if (location) query.address = { $regex: location, $options: 'i' };
+
+    // Handle tags search
+    if (tags) {
+      // If tags is a string, convert to array
+      const tagArray = Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim());
+      if (tagArray.length > 0) {
+        // Find restaurants that have at least one of the specified tags
+        query.tags = { $in: tagArray };
+      }
+    }
 
     const results = await Restaurant.find(query).populate('tables');
     res.status(200).json(results);

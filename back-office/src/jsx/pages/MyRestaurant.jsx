@@ -1,6 +1,7 @@
 // src/components/MyRestaurant.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
+import Select from 'react-select';
 import { useAuth } from '../../context/authContext';
 import { getRestaurantById } from '../../services/RestaurantService';
 import { FaTrash } from 'react-icons/fa';
@@ -36,6 +37,39 @@ const weekdays = [
   'Thursday',
   'Friday',
   'Saturday',
+];
+
+// Define tag options for react-select
+const tagOptions = [
+  { value: 'Serves alcohol', label: 'Serves alcohol' },
+  { value: 'Valet parking available', label: 'Valet parking available' },
+  { value: 'Smoking allowed', label: 'Smoking allowed' },
+  { value: 'Outdoor seating', label: 'Outdoor seating' },
+  { value: 'Brunch', label: 'Brunch' },
+  { value: 'Dinner', label: 'Dinner' },
+  { value: 'Smart Casual', label: 'Smart Casual' },
+  { value: 'Credit Cards', label: 'Credit Cards' },
+  { value: 'Cash', label: 'Cash' },
+  { value: 'Wheelchair accessible', label: 'Wheelchair accessible' },
+  { value: 'Family-friendly', label: 'Family-friendly' },
+  { value: 'Vegan options', label: 'Vegan options' },
+  { value: 'Gluten-free options', label: 'Gluten-free options' },
+  { value: 'Takeout available', label: 'Takeout available' },
+  { value: 'Live music', label: 'Live music' },
+  { value: 'Pet-friendly', label: 'Pet-friendly' },
+  { value: 'Wi-Fi available', label: 'Wi-Fi available' },
+  { value: 'Reservations required', label: 'Reservations required' },
+  { value: 'Happy hour', label: 'Happy hour' },
+  { value: 'Breakfast', label: 'Breakfast' },
+  { value: 'Lunch', label: 'Lunch' },
+  { value: 'Late-night dining', label: 'Late-night dining' },
+  { value: 'Casual dining', label: 'Casual dining' },
+  { value: 'Fine dining', label: 'Fine dining' },
+  { value: 'Buffet', label: 'Buffet' },
+  { value: 'Organic ingredients', label: 'Organic ingredients' },
+  { value: 'Halal options', label: 'Halal options' },
+  { value: 'Kosher options', label: 'Kosher options' },
+  { value: 'Waterfront view', label: 'Waterfront view' },
 ];
 
 // generate "HH:mm" slots every 15min
@@ -83,6 +117,8 @@ const MyRestaurant = () => {
   const [isPublished, setIsPublished] = useState(false);
   // default to Tunis coordinates
   const [location, setLocation] = useState({ lat: 36.8065, lng: 10.1815 });
+  // State for selected tags
+  const [selectedTags, setSelectedTags] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -135,6 +171,7 @@ const MyRestaurant = () => {
           workFrom: data.workFrom || '07:00',
           workTo: data.workTo || '23:45',
           isPublished: data.isPublished,
+          tags: data.tags || [],
         });
         setFormData({
           name: data.name || '',
@@ -143,6 +180,10 @@ const MyRestaurant = () => {
         });
         setWorkFrom(data.workFrom || '09:00');
         setWorkTo(data.workTo || '23:00');
+        // Initialize selected tags as react-select format
+        setSelectedTags(
+          (data.tags || []).map((tag) => ({ value: tag, label: tag }))
+        );
       } catch {
         setErrorMessage('Could not load restaurant data.');
       }
@@ -226,6 +267,11 @@ const MyRestaurant = () => {
     }
   };
 
+  // Handle tag selection with react-select
+  const handleTagChange = (selected) => {
+    setSelectedTags(selected || []);
+  };
+
   // form validation
   const isFormValid = formData.name.trim() !== '';
   const isModified =
@@ -242,7 +288,9 @@ const MyRestaurant = () => {
           location.lng !== originalLocation.lng)) ||
       workFrom !== originalData.workFrom ||
       workTo !== originalData.workTo ||
-      isPublished !== originalData.isPublished);
+      isPublished !== originalData.isPublished ||
+      JSON.stringify(selectedTags.map((t) => t.value).sort()) !==
+        JSON.stringify((originalData.tags || []).sort()));
 
   const pubToggled = originalData?.isPublished !== isPublished;
   const buttonText = pubToggled
@@ -268,6 +316,10 @@ const MyRestaurant = () => {
       payload.append('workTo', workTo);
       payload.append('isPublished', isPublished);
 
+      // Add tags to form data
+      const tagValues = selectedTags.map((tag) => tag.value);
+      payload.append('tags', JSON.stringify(tagValues));
+
       if (removeThumbnail && !thumbnailFile) payload.append('thumbnail', '');
       if (thumbnailFile) payload.append('thumbnail', thumbnailFile);
 
@@ -289,6 +341,7 @@ const MyRestaurant = () => {
         workFrom: data.workFrom,
         workTo: data.workTo,
         isPublished: data.isPublished,
+        tags: data.tags || [],
       });
       setOriginalLocation({
         lat: data.location.latitude,
@@ -566,6 +619,29 @@ const MyRestaurant = () => {
             </div>
           </div>
         </div>
+        {/* Tags Selection with react-select */}
+        <div className="mb-4">
+          <label className="form-label">Tags</label>
+          <Select
+            isMulti
+            value={selectedTags}
+            onChange={handleTagChange}
+            options={tagOptions}
+            placeholder="Select tags..."
+            styles={{
+              control: (base) => ({
+                ...base,
+                lineHeight: '40px',
+                color: '#7e7e7e',
+                paddingLeft: '15px',
+              }),
+            }}
+          />
+          <div className="form-text">
+            Select tags that describe your restaurant's features and services.
+          </div>
+        </div>
+
         {/* ─── PUBLICATION SWITCH ─── */}
         <div className={`form-check form-switch mb-3 ${styles.publishSwitch}`}>
           <input
