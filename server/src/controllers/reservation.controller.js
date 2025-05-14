@@ -88,7 +88,7 @@ exports.checkAvailability = async (req, res) => {
 };
 
 const RESERVATION_DURATION_MINUTES = 90;
-
+/*
 exports.createReservation = asyncHandler(async (req, res) => {
   const { guests, date, time, tableId, userId: bodyUserId } = req.body;
 
@@ -183,6 +183,112 @@ exports.createReservation = asyncHandler(async (req, res) => {
   });
 
   return res.status(201).json(reservation);
+});
+
+*/
+exports.createReservation = asyncHandler(async (req, res) => {
+  const { guests, date, time, tableId, userId: bodyUserId } = req.body;
+
+  // ─── A) DETERMINE WHO THIS RESERVATION IS FOR ─────────────
+  let targetUserId = req.user.userId;
+
+  const callerRole = await Role.findById(req.user.role);
+  const roleName = callerRole?.name || 'Client';
+
+  if (
+    bodyUserId &&
+    bodyUserId !== targetUserId &&
+    (roleName === 'Admin' || roleName === 'SuperAdmin')
+  ) {
+    if (!mongoose.Types.ObjectId.isValid(bodyUserId)) {
+      return res.status(400).json({ message: 'Invalid override userId' });
+    }
+    targetUserId = bodyUserId;
+  }
+
+  // ─── B) PARSE & VALIDATE START ─────────────────────────────
+  const start = new Date(`${date}T${time}:00`);
+  if (isNaN(start)) {
+    return res.status(400).json({ message: 'Invalid date or time format' });
+  }
+  if (start < Date.now()) {
+    return res.status(400).json({ message: 'Cannot book in the past' });
+  }
+
+  // ─── C) COMPUTE END ────────────────────────────────────────
+  const end = new Date(start.getTime() + RESERVATION_DURATION_MINUTES * 60_000);
+
+  // ─── D) LOAD & CHECK TABLE ─────────────────────────────────
+  const table = await Table.findById(tableId);
+  if (!table || table.isAvailable === false) {
+    return res.status(404).json({ message: 'Table not found or unavailable' });
+  }
+
+  // ─── E) LOAD & CHECK RESTAURANT ────────────────────────────
+  const restaurant = await Restaurant.findById(table.restaurant);
+  if (!restaurant || restaurant.isPublished === false) {
+    return res
+      .status(403)
+      .json({ message: 'Restaurant not accepting reservations' });
+  }
+
+  // ─── F) ENFORCE OPEN HOURS ─────────────────────────────────
+  const [openH, openM] = restaurant.workFrom.split(':').map(Number);
+  const [closeH, closeM] = restaurant.workTo.split(':').map(Number);
+  const open = new Date(start);
+  open.setHours(openH, openM, 0, 0);
+  const close = new Date(start);
+  close.setHours(closeH, closeM, 0, 0);
+
+  if (start < open || end > close) {
+    return res.status(400).json({
+      message: `Reservations are between ${restaurant.workFrom} and ${restaurant.workTo}`,
+    });
+  }
+
+  // ─── G) VALIDATE GUEST COUNT ───────────────────────────────
+  if (guests < table.minCovers || guests > table.maxCovers) {
+    return res.status(400).json({
+      message: `Guests must be between ${table.minCovers} and ${table.maxCovers}`,
+    });
+  }
+
+  // ─── H) CHECK FOR OVERLAPS ─────────────────────────────────
+  const conflict = await Reservation.findOne({
+    table: table._id,
+    status: { $ne: 'cancelled' },
+    start: { $lt: end },
+    end: { $gt: start },
+  });
+  if (conflict) {
+    return res
+      .status(409)
+      .json({ message: 'That time slot is already booked' });
+  }
+
+  // ─── I) CALCULATE POINTS ───────────────────────────────────
+  const earnedPoints = guests * 10;
+
+  // ─── J) CREATE & RESPOND ───────────────────────────────────
+  const reservation = await Reservation.create({
+    user: targetUserId,
+    restaurant: restaurant._id,
+    table: table._id,
+    covers: guests,
+    start,
+    end,
+  });
+
+  // ─── K) UPDATE USER POINTS ─────────────────────────────────
+  await User.findByIdAndUpdate(targetUserId, {
+    $inc: { points: earnedPoints },
+  });
+
+  return res.status(201).json({
+    reservation,
+    message: 'Reservation created successfully',
+    earnedPoints,
+  });
 });
 
 exports.updateReservation = asyncHandler(async (req, res) => {
