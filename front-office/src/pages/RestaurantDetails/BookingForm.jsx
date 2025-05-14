@@ -115,74 +115,76 @@ const BookingForm = ({ restaurant, closeModal = () => {} }) => {
   const handleRewardSelect = (rewardId) =>
     setFormData((f) => ({ ...f, rewardId }));
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!user) {
-    console.error('User is not logged in.');
-    navigate('/login', {
-      state: {
-        from: {
-          pathname: `/restaurants/${restaurant._id}`,
-        },
-      },
-    });
-    return;
-  }
+    if (!user) {
+      console.error('User is not logged in.');
 
-  if (!isValid) {
-    console.error('Form is not valid.');
-    return;
-  }
-
-  setLoading(true);
-  try {
-    // Step 1: Create the reservation
-    const payload = {
-      userId: user.id,
-      ...formData,
-    };
-    console.log('Reservation payload:', payload);
-
-    const reservationResponse = await axiosInstance.post('/reservations', payload);
-    console.log('Reservation response:', reservationResponse.data);
-
-    const reservationId = reservationResponse.data.reservation?._id || reservationResponse.data._id;
-    if (!reservationId) {
-      throw new Error('Reservation ID is missing in the response.');
+      return;
     }
 
-    toast.success('Reservation successful!');
-    console.log('Reservation ID:', reservationId);
+    if (!isValid) {
+      console.error('Form is not valid.');
+      return;
+    }
 
-    // Step 2: Redeem the reward (if selected)
-    if (formData.rewardId) {
-      console.log('Redeeming reward with ID:', formData.rewardId);
-      const redemptionPayload = {
-        userEmail: user.email,
-        rewardId: formData.rewardId,
-        reservationId,
+    setLoading(true);
+    try {
+      // Step 1: Create the reservation
+      const payload = {
+        userId: user.id,
+        ...formData,
       };
-      console.log('Redemption payload:', redemptionPayload);
+      console.log('Reservation payload:', payload);
 
-      const redemptionResponse = await axiosInstance.post('/redemptions/redeem', redemptionPayload);
-      console.log('Reward redemption response:', redemptionResponse.data);
-      toast.success('Reward redeemed successfully!');
+      const reservationResponse = await axiosInstance.post(
+        '/reservations',
+        payload
+      );
+      console.log('Reservation response:', reservationResponse.data);
+
+      const reservationId =
+        reservationResponse.data.reservation?._id ||
+        reservationResponse.data._id;
+      if (!reservationId) {
+        throw new Error('Reservation ID is missing in the response.');
+      }
+
+      toast.success('Reservation successful!');
+      console.log('Reservation ID:', reservationId);
+
+      // Step 2: Redeem the reward (if selected)
+      if (formData.rewardId) {
+        console.log('Redeeming reward with ID:', formData.rewardId);
+        const redemptionPayload = {
+          userEmail: user.email,
+          rewardId: formData.rewardId,
+          reservationId,
+        };
+        console.log('Redemption payload:', redemptionPayload);
+
+        const redemptionResponse = await axiosInstance.post(
+          '/redemptions/redeem',
+          redemptionPayload
+        );
+        console.log('Reward redemption response:', redemptionResponse.data);
+        toast.success('Reward redeemed successfully!');
+      }
+
+      // Close the modal after successful reservation and reward redemption
+      closeModal();
+    } catch (err) {
+      console.error('Error during reservation or redemption:', err.message);
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Reservation failed. Please try again.';
+      toast.error(message);
+    } finally {
+      setLoading(false);
     }
-
-    // Close the modal after successful reservation and reward redemption
-    closeModal();
-  } catch (err) {
-    console.error('Error during reservation or redemption:', err.message);
-    const message =
-      err.response?.data?.message ||
-      err.message ||
-      'Reservation failed. Please try again.';
-    toast.error(message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const availableTables = tables.filter((t) => t.isAvailable);
   const selectedTable = tables.find((t) => t.id === formData.tableId) || {};
@@ -199,7 +201,9 @@ const BookingForm = ({ restaurant, closeModal = () => {} }) => {
       {/* Step 1: Select a Table */}
       {step === 1 && (
         <div>
-          <label className="block text-sm font-medium mb-2">Choose a table</label>
+          <label className="block text-sm font-medium mb-2">
+            Choose a table
+          </label>
           {loading && <p className="text-gray-500">Loading layout…</p>}
           {error && <p className="text-red-500">{error}</p>}
           {!loading && !error && (
@@ -319,12 +323,12 @@ const BookingForm = ({ restaurant, closeModal = () => {} }) => {
                   className={`p-3 border rounded cursor-pointer ${
                     formData.rewardId === reward._id
                       ? 'bg-green-100 border-green-500'
-                      : reward.pointsCost > user.points
+                      : reward.pointsCost > user?.points
                       ? 'bg-gray-200 border-gray-400 cursor-not-allowed'
                       : 'bg-gray-50 hover:bg-gray-100'
                   }`}
                   onClick={() =>
-                    reward.pointsCost <= user.points &&
+                    reward.pointsCost <= user?.points &&
                     handleRewardSelect(reward._id)
                   }
                 >
@@ -337,7 +341,9 @@ const BookingForm = ({ restaurant, closeModal = () => {} }) => {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500">No rewards available for this restaurant.</p>
+            <p className="text-gray-500">
+              No rewards available for this restaurant.
+            </p>
           )}
 
           <div className="flex justify-between cursor-pointer items-center mt-6">

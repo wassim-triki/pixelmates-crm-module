@@ -26,6 +26,7 @@ import { ModalProvider } from './context/modalContext';
 import FoodGame from './pages/FoodGame';
 import ComplaintGame from './pages/ComplaintGame';
 import ReservationGame from './pages/ReservationGame';
+import Reservations from './pages/Reservations';
 
 const App = () => {
   const location = useLocation();
@@ -65,7 +66,7 @@ const App = () => {
                   element={<ResetPasswordEmail />}
                 />
                 <Route path="/verify-email" element={<VerifyCode />} />
-                <Route path="/restaurant" element={<Restaurant />} />
+                <Route path="/restaurants" element={<Restaurant />} />
                 <Route
                   path="/restaurants/:restaurantId"
                   element={<RestaurantDetails />}
@@ -78,9 +79,20 @@ const App = () => {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/my-reservations"
+                  element={
+                    <ProtectedRoute>
+                      <Reservations />
+                    </ProtectedRoute>
+                  }
+                />
 
                 <Route path="/games/food" element={<FoodGame />} />
-                <Route path="/games/reservation" element={<ReservationGame />} />
+                <Route
+                  path="/games/reservation"
+                  element={<ReservationGame />}
+                />
                 <Route path="/games/complaint" element={<ComplaintGame />} />
 
                 {/* <Route

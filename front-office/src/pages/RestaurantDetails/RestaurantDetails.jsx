@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../config/axios';
 import styled from 'styled-components';
 import './RestaurantDetails.css';
 import { useModal } from '../../context/modalContext';
 import BookingForm from './BookingForm';
+import { useAuth } from '../../context/authContext';
 
 // Styled-components for the booking button and background
 const FlexContainer = styled.div`
@@ -78,10 +79,18 @@ export default function RestaurantDetails() {
   const { restaurantId } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const { openModal } = useModal();
 
-  const handleBookATable = () => {
+  const handleBookATable = (e) => {
+    e.preventDefault();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     openModal(
       <BookingForm restaurant={restaurant} />,
       `Book - “${restaurant.name}”`
@@ -98,7 +107,8 @@ export default function RestaurantDetails() {
       });
   }, [restaurantId]);
 
-  if (error) return <div className="error">Failed to load restaurant details.</div>;
+  if (error)
+    return <div className="error">Failed to load restaurant details.</div>;
   if (!restaurant) return <div>Loading…</div>;
 
   // Pick up to 3 images (falling back to placeholder if needed)
@@ -147,7 +157,9 @@ export default function RestaurantDetails() {
             </div>
           </div>
           <FlexContainer>
-            <BookButton onClick={handleBookATable}>BOOK A TABLE</BookButton>
+            <BookButton type="button" onClick={handleBookATable}>
+              BOOK A TABLE
+            </BookButton>
           </FlexContainer>
         </div>
 

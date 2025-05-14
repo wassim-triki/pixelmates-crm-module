@@ -13,7 +13,10 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
         setIsProfileOpen(false);
       }
     };
@@ -60,20 +63,32 @@ const Navbar = () => {
 
         {/* Navigation desktop */}
         <div className="hidden md:flex items-center space-x-4 lg:space-x-6 flex-shrink-0">
-          <Link to="/about-us" className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap">
+          <Link
+            to="/about-us"
+            className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap"
+          >
             About Us
           </Link>
           {user && !loading && (
             <>
-              <Link to="/reservation" className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap">
-                Reservation
+              <Link
+                to="/my-reservations"
+                className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap"
+              >
+                Reservations
               </Link>
-              <Link to="/my-complaints" className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap">
+              <Link
+                to="/my-complaints"
+                className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap"
+              >
                 Complaints
               </Link>
             </>
           )}
-          <Link to="/restaurant" className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap">
+          <Link
+            to="/restaurant"
+            className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap"
+          >
             Restaurants
           </Link>
         </div>
@@ -81,7 +96,10 @@ const Navbar = () => {
         {/* Section droite desktop */}
         <div className="hidden md:flex items-center space-x-4 lg:space-x-6 flex-shrink-0">
           {!user && !loading && (
-            <Link to="/login" className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap">
+            <Link
+              to="/login"
+              className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap"
+            >
               Login
             </Link>
           )}
@@ -94,49 +112,53 @@ const Navbar = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search className="absolute right-3 top-2 text-gray-500" size={20} />
+            <Search
+              className="absolute right-3 top-2 text-gray-500"
+              size={20}
+            />
           </div>
 
           {user && !loading && (
-          <div ref={profileDropdownRef} className="relative flex-shrink-0">
-            <button
-              className="flex items-center space-x-1 hover:bg-[#FA8072]/30 p-1 lg:p-1.5 rounded-full transition"
-              onClick={() => setIsProfileOpen((prev) => !prev)}
-            >
-              <div className="relative w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 flex items-center justify-center bg-gray-200 rounded-full overflow-hidden">
-                {user.image ? (
-                  <img
-                    src={user.image}
-                    alt="User profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="text-gray-700" size={18} />
-                )}
-              </div>
-              <div className="flex-shrink-0 min-w-[100px]">
-                <span className="block text-white font-bold text-xs sm:text-sm md:text-base truncate">
-          {user.firstName || 'User'} {user.lastName || ''} ({user.points ?? 0} pts)
-        </span>
+            <div ref={profileDropdownRef} className="relative flex-shrink-0">
+              <button
+                className="flex items-center space-x-1 hover:bg-[#FA8072]/30 p-1 lg:p-1.5 rounded-full transition"
+                onClick={() => setIsProfileOpen((prev) => !prev)}
+              >
+                <div className="relative w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 flex items-center justify-center bg-gray-200 rounded-full overflow-hidden">
+                  {user.image ? (
+                    <img
+                      src={user.image}
+                      alt="User profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="text-gray-700" size={18} />
+                  )}
+                </div>
+                <div className="flex-shrink-0 min-w-[100px]">
+                  <span className="block text-white font-bold text-xs sm:text-sm md:text-base truncate">
+                    {user.firstName || 'User'} {user.lastName || ''} (
+                    {user.points ?? 0} pts)
+                  </span>
 
-
-              <span className="block px-4 py-1 text-gray-500 text-xs italic">
-          VIP Level: 
-          <span 
-            className={`ml-1 px-2 py-0.5 rounded-full text-white text-xs font-bold ${
-              user.vipLevel === 'Silver' ? 'bg-gray-400' :
-              user.vipLevel === 'Gold' ? 'bg-yellow-500' :
-              user.vipLevel === 'Platinum' ? 'bg-blue-500' :
-              'bg-gray-300'
-            }`}
-          >
-            {user.vipLevel}
-          </span>
-        </span>
-
-
-              </div>
-            </button>
+                  <span className="block px-4 py-1 text-gray-500 text-xs italic">
+                    VIP Level:
+                    <span
+                      className={`ml-1 px-2 py-0.5 rounded-full text-white text-xs font-bold ${
+                        user.vipLevel === 'Silver'
+                          ? 'bg-gray-400'
+                          : user.vipLevel === 'Gold'
+                          ? 'bg-yellow-500'
+                          : user.vipLevel === 'Platinum'
+                          ? 'bg-blue-500'
+                          : 'bg-gray-300'
+                      }`}
+                    >
+                      {user.vipLevel}
+                    </span>
+                  </span>
+                </div>
+              </button>
 
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg py-2 z-10">
@@ -158,7 +180,6 @@ const Navbar = () => {
                     onClick={handleLogout}
                     className="block  w-full px-4 py-2 text-gray-700 hover:text-[#FA8072] hover:bg-[#FA8072]/10 text-sm text-left"
                   >
-
                     Logout
                   </button>
                 </div>
@@ -172,54 +193,74 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-black/90 text-white w-full flex flex-col items-center py-6 space-y-6 relative">
           {/* Liens mobiles */}
-          <Link to="/about-us" className="text-white text-lg font-bold hover:text-[#FA8072]" onClick={() => setIsMobileMenuOpen(false)}>
+          <Link
+            to="/about-us"
+            className="text-white text-lg font-bold hover:text-[#FA8072]"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
             About Us
           </Link>
-          <Link to="/restaurant" className="text-white text-lg font-bold hover:text-[#FA8072]" onClick={() => setIsMobileMenuOpen(false)}>
+          <Link
+            to="/restaurant"
+            className="text-white text-lg font-bold hover:text-[#FA8072]"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
             Restaurants
           </Link>
           {user && !loading && (
             <>
-              <Link to="/reservation" className="text-white text-lg font-bold hover:text-[#FA8072]" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link
+                to="/reservation"
+                className="text-white text-lg font-bold hover:text-[#FA8072]"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 Reservation
               </Link>
-              <Link to="/my-complaints" className="text-white text-lg font-bold hover:text-[#FA8072]" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link
+                to="/my-complaints"
+                className="text-white text-lg font-bold hover:text-[#FA8072]"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 Complaints
               </Link>
             </>
           )}
           {!user && !loading && (
-            <Link to="/login" className="text-white text-lg font-bold hover:text-[#FA8072]" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link
+              to="/login"
+              className="text-white text-lg font-bold hover:text-[#FA8072]"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
               Login
             </Link>
           )}
 
           {/* Section profil mobile */}
           {user && !loading && (
-              <div className="w-full px-4 text-center">
-                <div className="relative" ref={profileDropdownRef}>
-                  <button
-                    className="flex items-center justify-center space-x-2 w-full"
-                    onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  >
-                    <div className="relative w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full overflow-hidden">
-                      {user.image ? (
-                        <img
-                          src={user.image}
-                          alt="User profile"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <User className="text-gray-700" size={20} />
-                      )}
-                    </div>
-                    <div className="flex-shrink-0 max-w-[160px]">
-           <span className="block text-[#FA8072] font-bold text-sm sm:text-base truncate">
-          {user.firstName || 'User'} {user.lastName || ''} ({user.points ?? 0} pts)
-        </span>
-
-                    </div>
-                  </button>
+            <div className="w-full px-4 text-center">
+              <div className="relative" ref={profileDropdownRef}>
+                <button
+                  className="flex items-center justify-center space-x-2 w-full"
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                >
+                  <div className="relative w-9 h-9 flex items-center justify-center bg-gray-200 rounded-full overflow-hidden">
+                    {user.image ? (
+                      <img
+                        src={user.image}
+                        alt="User profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="text-gray-700" size={20} />
+                    )}
+                  </div>
+                  <div className="flex-shrink-0 max-w-[160px]">
+                    <span className="block text-[#FA8072] font-bold text-sm sm:text-base truncate">
+                      {user.firstName || 'User'} {user.lastName || ''} (
+                      {user.points ?? 0} pts)
+                    </span>
+                  </div>
+                </button>
 
                 {isProfileOpen && (
                   <div className="mt-4 w-full bg-black/50 rounded-lg py-2">

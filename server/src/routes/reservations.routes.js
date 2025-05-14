@@ -5,6 +5,7 @@ const {
   createReservation,
   getReservations,
   updateReservation,
+  deleteReservation,
 } = require('../controllers/reservation.controller');
 
 // Create a new reservation
@@ -12,7 +13,10 @@ router
   .route('/')
   .post(protect, createReservation)
   .get(protect, getReservations);
-router.route('/:id').patch(protect, updateReservation);
+router
+  .route('/:id')
+  .patch(protect, updateReservation)
+  .delete(protect, deleteReservation);
 
 // Get all reservations for a restaurant
 // router.get(

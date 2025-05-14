@@ -436,3 +436,47 @@ exports.getReservations = asyncHandler(async (req, res) => {
   // 4) send it back
   res.json({ success: true, count: reservations.length, data: reservations });
 });
+
+/**
+ * @desc    Delete a reservation
+ * @route   DELETE /api/reservations/:id
+ * @access  Protected (Client can delete their own, Admin their restaurant’s, SuperAdmin any)
+ */
+exports.deleteReservation = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // A) Fetch the reservation
+  const reservation = await Reservation.findById(id);
+  if (!reservation) {
+    return res.status(404).json({ message: 'Reservation not found' });
+  }
+
+  // B) Determine caller’s role
+  const callerRole = await Role.findById(req.user.role);
+  const roleName = callerRole?.name || 'Client';
+
+  // C) Permission checks (same as before)…
+  if (roleName === 'Admin') {
+    const caller = await User.findById(req.user.userId);
+    if (
+      !caller?.restaurantId ||
+      reservation.restaurant.toString() !== caller.restaurantId.toString()
+    ) {
+      return res
+        .status(403)
+        .json({ message: 'Not allowed to delete this reservation' });
+    }
+  } else if (roleName === 'Client') {
+    if (reservation.user.toString() !== req.user.userId) {
+      return res
+        .status(403)
+        .json({ message: 'Not allowed to delete this reservation' });
+    }
+  }
+  // SuperAdmin can delete anything
+
+  // D) Delete using findByIdAndDelete
+  await Reservation.findByIdAndDelete(id);
+
+  res.status(200).json({ success: true, message: 'Reservation deleted' });
+});
