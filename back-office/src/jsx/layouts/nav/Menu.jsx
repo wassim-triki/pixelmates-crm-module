@@ -40,85 +40,89 @@ export const AdminMenuList = [
         title: 'Redemptions',
         to: '/admin/redemptions',
       },
+      {
+        title: 'Reservations',
+        to: '/admin/reservations',
+      },
     ],
   },
-  // //Apps
-  // {
-  //   title: 'Apps',
-  //   classsChange: 'mm-collapse',
-  //   iconStyle: <i className="flaticon-381-television" />,
-  //   content: [
-  //     {
-  //       title: 'Profile',
-  //       to: 'app-profile',
-  //     },
-  //     {
-  //       title: 'Update Profile',
-  //       to: 'update-profile',
-  //     },
+  //Apps
+  {
+    title: 'Apps',
+    classsChange: 'mm-collapse',
+    iconStyle: <i className="flaticon-381-television" />,
+    content: [
+      {
+        title: 'Profile',
+        to: 'app-profile',
+      },
+      {
+        title: 'Update Profile',
+        to: 'update-profile',
+      },
 
-  //     {
-  //       title: 'Post Details',
-  //       to: 'post-details',
-  //     },
-  //     {
-  //       title: 'Email',
-  //       hasMenu: true,
-  //       content: [
-  //         {
-  //           title: 'Compose',
-  //           to: 'email-compose',
-  //         },
-  //         {
-  //           title: 'Index',
-  //           to: 'email-inbox',
-  //         },
-  //         {
-  //           title: 'Read',
-  //           to: 'email-read',
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: 'Calendar',
-  //       to: 'app-calender',
-  //     },
-  //     {
-  //       title: 'Shop',
-  //       hasMenu: true,
-  //       content: [
-  //         {
-  //           title: 'Product Grid',
-  //           to: 'ecom-product-grid',
-  //         },
-  //         {
-  //           title: 'Product List',
-  //           to: 'ecom-product-list',
-  //         },
-  //         {
-  //           title: 'Product Details',
-  //           to: 'ecom-product-detail',
-  //         },
-  //         {
-  //           title: 'Order',
-  //           to: 'ecom-product-order',
-  //         },
-  //         {
-  //           title: 'Checkout',
-  //           to: 'ecom-checkout',
-  //         },
-  //         {
-  //           title: 'Invoice',
-  //           to: 'ecom-invoice',
-  //         },
-  //         {
-  //           title: 'Customers',
-  //           to: 'ecom-customers',
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
+      {
+        title: 'Post Details',
+        to: 'post-details',
+      },
+      {
+        title: 'Email',
+        hasMenu: true,
+        content: [
+          {
+            title: 'Compose',
+            to: 'email-compose',
+          },
+          {
+            title: 'Index',
+            to: 'email-inbox',
+          },
+          {
+            title: 'Read',
+            to: 'email-read',
+          },
+        ],
+      },
+      {
+        title: 'Calendar',
+        to: 'app-calender',
+      },
+      {
+        title: 'Shop',
+        hasMenu: true,
+        content: [
+          {
+            title: 'Product Grid',
+            to: 'ecom-product-grid',
+          },
+          {
+            title: 'Product List',
+            to: 'ecom-product-list',
+          },
+          {
+            title: 'Product Details',
+            to: 'ecom-product-detail',
+          },
+          {
+            title: 'Order',
+            to: 'ecom-product-order',
+          },
+          {
+            title: 'Checkout',
+            to: 'ecom-checkout',
+          },
+          {
+            title: 'Invoice',
+            to: 'ecom-invoice',
+          },
+          {
+            title: 'Customers',
+            to: 'ecom-customers',
+          },
+        ],
+      },
+    ],
+  },
 
   // {
   //   title: 'CMS',
