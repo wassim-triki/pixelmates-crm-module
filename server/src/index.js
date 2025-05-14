@@ -42,11 +42,23 @@ async function ensureLogoExists() {
       try {
         // Try to find the logo in various possible locations
         const possibleSourcePaths = [
-          path.join(__dirname, '../../../back-office/src/assets/images/Logo-officiel-MenuFy.png'),
-          path.join(__dirname, '../../back-office/src/assets/images/Logo-officiel-MenuFy.png'),
-          path.join(__dirname, '../back-office/src/assets/images/Logo-officiel-MenuFy.png'),
-          path.join(__dirname, '../../../public/images/Logo-officiel-MenuFy.png'),
-          path.join(__dirname, '../../public/images/Logo-officiel-MenuFy.png')
+          path.join(
+            __dirname,
+            '../../../back-office/src/assets/images/Logo-officiel-MenuFy.png'
+          ),
+          path.join(
+            __dirname,
+            '../../back-office/src/assets/images/Logo-officiel-MenuFy.png'
+          ),
+          path.join(
+            __dirname,
+            '../back-office/src/assets/images/Logo-officiel-MenuFy.png'
+          ),
+          path.join(
+            __dirname,
+            '../../../public/images/Logo-officiel-MenuFy.png'
+          ),
+          path.join(__dirname, '../../public/images/Logo-officiel-MenuFy.png'),
         ];
 
         let copied = false;
@@ -66,7 +78,9 @@ async function ensureLogoExists() {
 
         if (!copied) {
           // If we couldn't find the logo, create a placeholder file
-          console.warn('⚠️ Could not find logo file to copy. Creating a placeholder.');
+          console.warn(
+            '⚠️ Could not find logo file to copy. Creating a placeholder.'
+          );
           // Create a simple placeholder file
           await fs.writeFile(logoDestPath, 'Placeholder for logo file');
         }
@@ -153,9 +167,6 @@ app.use('/api/rewards', rewardRoutes);
 app.use('/api/redemptions', redemptionRoutes);
 app.use('/api/upload', uploadRoutes);
 
-
-
-
 // Default route
 app.get('/', (req, res) => {
   res.send('Pixelmates CRM Backend is running...');
@@ -165,6 +176,8 @@ app.use(errorHandler);
 // Ensure the logo exists before starting the server
 ensureLogoExists().then(() => {
   app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    console.log(
+      `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+    );
   });
 });
