@@ -1,6 +1,6 @@
 // src/pages/Reservations.jsx
 import React, { useState, useEffect } from 'react';
-import { Spinner, Dropdown, Form, Alert } from 'react-bootstrap';
+import { Spinner, Dropdown, Form, Alert, Button } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
 import axiosInstance from '../../config/axios';
 import { useAuth } from '../../context/authContext';
@@ -14,7 +14,18 @@ const Reservations = () => {
   const { user } = useAuth();
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
-  // — Modal state —
+  // — Create Modal state —
+  const [showCreate, setShowCreate] = useState(false);
+  const [createData, setCreateData] = useState({
+    guests: 1,
+    date: '',
+    time: '',
+    tableId: '',
+    userId: '',
+  });
+  const [createError, setCreateError] = useState('');
+
+  // — Edit & View Modal state —
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState({
     id: '',
@@ -40,8 +51,8 @@ const Reservations = () => {
   useEffect(() => {
     (async () => {
       try {
-        const response = await axiosInstance.get('/reservations');
-        setReservations(response.data.data || response.data);
+        const res = await axiosInstance.get('/reservations');
+        setReservations(res.data.data || res.data);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
@@ -63,7 +74,7 @@ const Reservations = () => {
       .catch((err) => console.error('Failed to load tables', err));
   }, [user, isSuperAdmin]);
 
-  // Map status to badge
+  // Status badge renderer
   const renderStatus = (status) => {
     const map = {
       pending: { label: 'Pending', badge: 'warning', icon: 'fa-stream' },
@@ -78,12 +89,45 @@ const Reservations = () => {
     );
   };
 
-  // Handlers
-  const handleViewClick = (r) => {
-    setViewData(r);
-    setShowView(true);
+  // — Handlers for Create modal —
+  const openCreate = () => {
+    setCreateError('');
+    setCreateData({
+      guests: 1,
+      date: new Date().toISOString().slice(0, 10),
+      time: new Date().toISOString().substring(11, 16),
+      tableId: tablesList[0]?._id || '',
+      userId: user?._id || '',
+    });
+    setShowCreate(true);
   };
 
+  const handleCreateChange = (e) => {
+    const { name, value } = e.target;
+    setCreateData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateSave = async () => {
+    try {
+      const payload = {
+        guests: createData.guests,
+        date: createData.date,
+        time: createData.time,
+        tableId: createData.tableId,
+      };
+      if (isSuperAdmin && createData.userId) {
+        payload.userId = createData.userId;
+      }
+      const res = await axiosInstance.post('/reservations', payload);
+      const created = res.data.data || res.data;
+      setReservations((prev) => [created, ...prev]);
+      setShowCreate(false);
+    } catch (err) {
+      setCreateError(err.response?.data?.message || err.message);
+    }
+  };
+
+  // — Handlers for Edit modal —
   const handleEditClick = (r) => {
     const d = new Date(r.start);
     setEditData({
@@ -114,20 +158,24 @@ const Reservations = () => {
         status: editData.status,
       };
       if (isSuperAdmin && editData.userId) payload.userId = editData.userId;
-
-      const response = await axiosInstance.patch(
+      const res = await axiosInstance.patch(
         `/reservations/${editData.id}`,
         payload
       );
-      const updated = response.data;
+      const updated = res.data;
       setReservations((prev) =>
         prev.map((r) => (r._id === updated._id ? updated : r))
       );
       setShowEdit(false);
     } catch (err) {
-      console.error(err);
       setModalError(err.response?.data?.message || err.message);
     }
+  };
+
+  // — Handlers for View & Delete —
+  const handleViewClick = (r) => {
+    setViewData(r);
+    setShowView(true);
   };
 
   const handleDelete = async (id) => {
@@ -151,7 +199,13 @@ const Reservations = () => {
 
   return (
     <>
-      <PageTitle activeMenu="Reservations" motherMenu="Admin" />
+      {/* Header with title + New button */}
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <PageTitle activeMenu="Reservations" motherMenu="Admin" />
+        <Button variant="primary" onClick={openCreate}>
+          + New Reservation
+        </Button>
+      </div>
 
       <div className="table-responsive">
         <table className="table table-sm mb-0 text-black">
@@ -251,6 +305,72 @@ const Reservations = () => {
           </tbody>
         </table>
       </div>
+
+      {/* — Create Modal — */}
+      <CustomModal
+        title="New Reservation"
+        show={showCreate}
+        onHide={() => setShowCreate(false)}
+        onSave={handleCreateSave}
+        saveLabel="Create"
+      >
+        {createError && <Alert variant="danger">{createError}</Alert>}
+        <Form>
+          <Form.Group className="mb-2" controlId="createDate">
+            <Form.Label>Date</Form.Label>
+            <Form.Control
+              type="date"
+              name="date"
+              value={createData.date}
+              onChange={handleCreateChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-2" controlId="createTime">
+            <Form.Label>Time</Form.Label>
+            <Form.Control
+              type="time"
+              name="time"
+              value={createData.time}
+              onChange={handleCreateChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-2" controlId="createGuests">
+            <Form.Label>Guests</Form.Label>
+            <Form.Control
+              type="number"
+              name="guests"
+              min="1"
+              value={createData.guests}
+              onChange={handleCreateChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-2" controlId="createTable">
+            <Form.Label>Table</Form.Label>
+            <Form.Select
+              name="tableId"
+              value={createData.tableId}
+              onChange={handleCreateChange}
+            >
+              {tablesList.map((t) => (
+                <option key={t._id} value={t._id}>
+                  {t.number}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+          {isSuperAdmin && (
+            <Form.Group className="mb-2" controlId="createUser">
+              <Form.Label>Override User ID</Form.Label>
+              <Form.Control
+                type="text"
+                name="userId"
+                value={createData.userId}
+                onChange={handleCreateChange}
+              />
+            </Form.Group>
+          )}
+        </Form>
+      </CustomModal>
 
       {/* — Edit Modal — */}
       <CustomModal
