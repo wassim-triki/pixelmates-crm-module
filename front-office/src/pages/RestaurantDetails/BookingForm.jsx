@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../config/axios';
 import Canvas from '../../../../back-office/src/jsx/pages/FloorConfiguration/Canvas';
 import { toast } from 'react-toastify';
-import { ThreeDots } from 'react-loader-spinner';
 import { useAuth } from '../../context/authContext';
-import { useModal } from '../../context/modalContext';
 
 const generateSlots = (open, close) => {
   const [oh, om] = open.split(':').map(Number);
@@ -29,14 +27,14 @@ const formatTime = (time) => {
   return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
 };
 
-const BookingForm = ({ restaurant, closeModal }) => {
+const BookingForm = ({ restaurant, closeModal = () => {} }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     guests: 0,
     date: '',
     time: '',
     tableId: '',
-    rewardId: null, // Add rewardId to the form data
+    rewardId: null,
   });
   const [tables, setTables] = useState([]);
   const [rewards, setRewards] = useState([]);
@@ -46,10 +44,13 @@ const BookingForm = ({ restaurant, closeModal }) => {
 
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { openModal } = useModal();
 
- /* useEffect(() => {
-    if (!restaurant?._id) return;
+  useEffect(() => {
+    if (!restaurant?._id) {
+      console.error('Restaurant ID is missing.');
+      return;
+    }
+
     setLoading(true);
     axiosInstance
       .get(`/restaurants/${restaurant._id}/tables`)
@@ -61,61 +62,29 @@ const BookingForm = ({ restaurant, closeModal }) => {
           }))
         );
       })
-      .catch(() => setError('Failed to load tables.'))
+      .catch((err) => {
+        console.error('Failed to load tables:', err.message);
+        setError('Failed to load tables.');
+      })
       .finally(() => setLoading(false));
-  }, [restaurant]);*/
-useEffect(() => {
-  if (!restaurant?._id) {
-    console.error('Restaurant ID is missing.');
-    return;
-  }
+  }, [restaurant]);
 
-  setLoading(true);
-  axiosInstance
-    .get(`/restaurants/${restaurant._id}/tables`)
-    .then((res) => {
-      console.log('Tables response:', res.data);
-      setTables(
-        res.data.map((t) => ({
-          ...t,
-          id: t._id,
-        }))
-      );
-    })
-    .catch((err) => {
-      console.error('Failed to load tables:', err.message);
-      setError('Failed to load tables.');
-    })
-    .finally(() => setLoading(false));
-}, [restaurant]);
+  useEffect(() => {
+    if (!restaurant?._id) {
+      console.error('Restaurant ID is missing.');
+      return;
+    }
 
-
-
-  /*useEffect(() => {
-    if (!restaurant?._id) return;
     axiosInstance
       .get(`/rewards/restaurant/${restaurant._id}`)
-      .then((res) => setRewards(res.data))
-      .catch(() => setError('Failed to load rewards.'));
+      .then((res) => {
+        setRewards(res.data);
+      })
+      .catch((err) => {
+        console.error('Failed to load rewards:', err.message);
+        setError('Failed to load rewards.');
+      });
   }, [restaurant]);
-*/
-useEffect(() => {
-  if (!restaurant?._id) {
-    console.error('Restaurant ID is missing.');
-    return;
-  }
-
-  axiosInstance
-    .get(`/rewards/restaurant/${restaurant._id}`)
-    .then((res) => {
-      console.log('Rewards response:', res.data);
-      setRewards(res.data);
-    })
-    .catch((err) => {
-      console.error('Failed to load rewards:', err.message);
-      setError('Failed to load rewards.');
-    });
-}, [restaurant]);
 
   const slots = useMemo(() => {
     if (!restaurant?.workFrom || !restaurant?.workTo) return [];
@@ -145,61 +114,8 @@ useEffect(() => {
   const handleSlotClick = (slot) => setFormData((f) => ({ ...f, time: slot }));
   const handleRewardSelect = (rewardId) =>
     setFormData((f) => ({ ...f, rewardId }));
-/*
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    if (!user) {
-      navigate('/login', {
-        state: {
-          from: {
-            pathname: `/restaurants/${restaurant._id}`,
-          },
-        },
-      });
-      return;
-    }
-
-    if (!isValid) return;
-
-    setLoading(true);
-    try {
-      let redemptionResponse = null;
-
-      // If a reward is selected, redeem it
-      if (formData.rewardId) {
-        redemptionResponse = await axiosInstance.post('/redeem', {
-          userEmail: user.email,
-          rewardId: formData.rewardId,
-        });
-
-        toast.success('Reward redeemed successfully!');
-      }
-
-      // Proceed with the reservation
-      const payload = {
-        userId: user.id,
-        ...formData,
-      };
-
-      await axiosInstance.post('/reservations', payload);
-
-      toast.success('Reservation successful!');
-      closeModal();
-    } catch (err) {
-      console.error(err);
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        'Reservation failed. Please try again.';
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };*/
-
-  /*
-const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (!user) {
@@ -231,71 +147,7 @@ const handleSubmit = async (e) => {
     const reservationResponse = await axiosInstance.post('/reservations', payload);
     console.log('Reservation response:', reservationResponse.data);
 
-    const reservationId = reservationResponse.data._id; // Assuming the reservation ID is returned in the response
-
-    toast.success('Reservation successful!');
-
-    // Step 2: Redeem the reward (if selected)
-    if (formData.rewardId) {
-      console.log('Redeeming reward with ID:', formData.rewardId);
-      const redemptionResponse = await axiosInstance.post('/redemptions/redeem', {
-        userEmail: user.email,
-        rewardId: formData.rewardId,
-        reservationId, // Pass the reservation ID to the backend
-      });
-      console.log('Reward redemption response:', redemptionResponse.data);
-      toast.success('Reward redeemed successfully!');
-    }
-
-    closeModal();
-  } catch (err) {
-    console.error('Error during reservation or redemption:', err.message);
-    const message =
-      err.response?.data?.message ||
-      err.message ||
-      'Reservation failed. Please try again.';
-    toast.error(message);
-  } finally {
-    setLoading(false);
-  }
-};
-*/
-
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!user) {
-    console.error('User is not logged in.');
-    navigate('/login', {
-      state: {
-        from: {
-          pathname: `/restaurants/${restaurant._id}`,
-        },
-      },
-    });
-    return;
-  }
-
-  if (!isValid) {
-    console.error('Form is not valid.');
-    return;
-  }
-
-  setLoading(true);
-  try {
-    // Step 1: Create the reservation
-    const payload = {
-      userId: user.id,
-      ...formData,
-    };
-    console.log('Reservation payload:', payload);
-
-    const reservationResponse = await axiosInstance.post('/reservations', payload);
-    console.log('Reservation response:', reservationResponse.data);
-
-    // Extract the reservation ID
-    const reservationId = reservationResponse.data.reservation?._id || reservationResponse.data._id; // Ensure `_id` exists in the response
+    const reservationId = reservationResponse.data.reservation?._id || reservationResponse.data._id;
     if (!reservationId) {
       throw new Error('Reservation ID is missing in the response.');
     }
@@ -309,7 +161,7 @@ const handleSubmit = async (e) => {
       const redemptionPayload = {
         userEmail: user.email,
         rewardId: formData.rewardId,
-        reservationId, // Pass the reservation ID to the backend
+        reservationId,
       };
       console.log('Redemption payload:', redemptionPayload);
 
@@ -318,6 +170,7 @@ const handleSubmit = async (e) => {
       toast.success('Reward redeemed successfully!');
     }
 
+    // Close the modal after successful reservation and reward redemption
     closeModal();
   } catch (err) {
     console.error('Error during reservation or redemption:', err.message);
@@ -346,9 +199,7 @@ const handleSubmit = async (e) => {
       {/* Step 1: Select a Table */}
       {step === 1 && (
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Choose a table
-          </label>
+          <label className="block text-sm font-medium mb-2">Choose a table</label>
           {loading && <p className="text-gray-500">Loading layout…</p>}
           {error && <p className="text-red-500">{error}</p>}
           {!loading && !error && (

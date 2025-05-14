@@ -234,7 +234,7 @@ const totalPages = Math.ceil(filteredRedemptions.length / itemsPerPage);
 
                   <td>{redemption.reward?.name}</td>
                   <td>{redemption.user?.vipLevel}</td>
-                  <td>{redemption.reservation ? redemption.reservation.name : 'N/A'}</td>
+                  <td>{redemption.reservation ? redemption.reservation.createdAt : 'N/A'}</td>
                   <td>{redemption.user?.points}</td>
                   <td>{new Date(redemption.redeemedAt).toLocaleString()}</td>
                   <td>
