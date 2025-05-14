@@ -283,7 +283,7 @@ const HomePage = () => {
                   </div>
                 ))}
               </div>
-              
+
               {/* Quiz Section */}
               <div className="bg-black/10 py-16 px-4 sm:px-6 lg:px-16 backdrop-blur-md rounded-xl">
                 <div className="max-w-7xl mx-auto text-center">
@@ -353,6 +353,89 @@ const HomePage = () => {
                   )}
                 </div>
               </div>
+
+{/* Enhanced Mini Games Section */}
+<section className="mt-20 flex flex-col items-center space-y-12">
+  <h1 className="text-4xl font-bold text-center text-white">🎮 Play & Earn Reward Points</h1>
+  <p className="text-white max-w-x3l text-center">Complete fun challenges to earn points you can redeem for discounts and special offers!</p>
+  
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl px-4">
+    {/* Food Catch Game */}
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:scale-[1.02] transition-all duration-300">
+      <div className="relative h-40 bg-gradient-to-r from-orange-400 to-pink-500 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+        <span className="text-6xl z-10">🍣</span>
+      </div>
+      <div className="p-6">
+        <h3 className="text-xl font-semibold mb-2 text-center">🍽️ Dish Dash</h3>
+        <p className="text-gray-600 mb-4">Catch falling dishes before they hit the ground!</p>
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-sm font-medium">High Score: <span className="text-[#FA8072]">250</span></span>
+          <span className="text-sm font-medium">Reward: <span className="text-green-500">10 pts</span></span>
+        </div>
+        <Button 
+          onClick={() => navigate('/games/food')} 
+          className="w-full bg-[#FA8072] hover:bg-black text-white py-2 rounded-lg flex items-center justify-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+          </svg>
+          Play Now
+        </Button>
+      </div>
+    </div>
+
+    {/* Reservation Challenge */}
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:scale-[1.02] transition-all duration-300">
+      <div className="relative h-40 bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+        <span className="text-6xl z-10">⏱️</span>
+      </div>
+      <div className="p-6">
+        <h3 className="text-xl font-semibold mb-2 text-center">⏳ Time Crunch</h3>
+        <p className="text-gray-600 mb-4">Match customers to their reservation times before time runs out!</p>
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-sm font-medium">High Score: <span className="text-[#FA8072]">18/20</span></span>
+          <span className="text-sm font-medium">Reward: <span className="text-green-500">15 pts</span></span>
+        </div>
+        <Button 
+          onClick={() => navigate('/games/reservation')} 
+          className="w-full bg-[#FA8072] hover:bg-black text-white py-2 rounded-lg flex items-center justify-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+          </svg>
+          Play Now
+        </Button>
+      </div>
+    </div>
+
+    {/* Customer Satisfaction Game */}
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:scale-[1.02] transition-all duration-300">
+      <div className="relative h-40 bg-gradient-to-r from-green-400 to-teal-500 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+        <span className="text-6xl z-10">😊</span>
+      </div>
+      <div className="p-6">
+        <h3 className="text-xl font-semibold mb-2 text-center">😃 Mood Booster</h3>
+        <p className="text-gray-600 mb-4">Turn angry customers into happy ones with your service skills!</p>
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-sm font-medium">High Score: <span className="text-[#FA8072]">95%</span></span>
+          <span className="text-sm font-medium">Reward: <span className="text-green-500">20 pts</span></span>
+        </div>
+        <Button 
+          onClick={() => navigate('/games/complaint')} 
+          className="w-full bg-[#FA8072] hover:bg-black text-white py-2 rounded-lg flex items-center justify-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+          </svg>
+          Play Now
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
 
               {/* Testimonials Section */}
               <div className="bg-black/10 py-16 px-2 sm:px-6 lg:px-16 backdrop-blur-md">

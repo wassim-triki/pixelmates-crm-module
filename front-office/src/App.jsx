@@ -23,6 +23,10 @@ import ComplaintForm from './pages/ComplaintForm';
 import UserComplaints from './pages/UserComplaints';
 import RestaurantDetails from './pages/RestaurantDetails/RestaurantDetails';
 import { ModalProvider } from './context/modalContext';
+import FoodGame from './pages/FoodGame';
+import ComplaintGame from './pages/ComplaintGame';
+import ReservationGame from './pages/ReservationGame';
+
 const App = () => {
   const location = useLocation();
   const [showFooter, setShowFooter] = useState(true);
@@ -74,6 +78,10 @@ const App = () => {
                     </ProtectedRoute>
                   }
                 />
+
+                <Route path="/games/food" element={<FoodGame />} />
+                <Route path="/games/reservation" element={<ReservationGame />} />
+                <Route path="/games/complaint" element={<ComplaintGame />} />
 
                 {/* <Route
                 path="/restaurants/:restaurantId"
