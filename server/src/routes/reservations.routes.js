@@ -1,10 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middlewares/auth.middleware');
-const { createReservation } = require('../controllers/reservation.controller');
+const { protect } = require('../middlewares/auth.middleware');
+const {
+  createReservation,
+  getReservations,
+} = require('../controllers/reservation.controller');
 
 // Create a new reservation
-router.post('/', authMiddleware.protect, createReservation);
+router
+  .route('/')
+  .post(protect, createReservation)
+  .get(protect, getReservations);
 
 // Get all reservations for a restaurant
 // router.get(

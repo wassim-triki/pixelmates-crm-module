@@ -184,6 +184,39 @@ exports.createReservation = asyncHandler(async (req, res) => {
 
   return res.status(201).json(reservation);
 });
+
+exports.getReservations = asyncHandler(async (req, res) => {
+  // 1) figure out caller’s role name
+  const callerRole = await Role.findById(req.user.role);
+  const roleName = callerRole?.name || 'Client';
+
+  // 2) build filter
+  let filter = {};
+  if (roleName === 'SuperAdmin') {
+    // no filter → all
+  } else if (roleName === 'Admin') {
+    const caller = await User.findById(req.user.userId);
+    if (!caller?.restaurantId) {
+      return res
+        .status(403)
+        .json({ message: 'No restaurant assigned to this admin' });
+    }
+    filter = { restaurant: caller.restaurantId };
+  } else {
+    // Client or any other
+    filter = { user: req.user.userId };
+  }
+
+  // 3) query + populate
+  const reservations = await Reservation.find(filter)
+    .sort('-start')
+    .populate('user', 'firstName lastName email')
+    .populate('restaurant', 'name')
+    .populate('table', 'number');
+
+  // 4) send it back
+  res.json({ success: true, count: reservations.length, data: reservations });
+});
 // added by chaher
 /*exports.createReservation = async (req, res) => {
   try {

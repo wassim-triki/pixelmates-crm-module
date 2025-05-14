@@ -1,45 +1,67 @@
-// src/jsx/pages/Admin/Reservations.jsx
-import React, { useState } from 'react';
-import { Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+// src/pages/Reservations.jsx
+import React, { useState, useEffect } from 'react';
+import { Spinner, Dropdown, Form } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
+import axiosInstance from '../../config/axios';
+import { useAuth } from '../../context/authContext';
+import CustomModal from '../layouts/CustomModal';
 
 const Reservations = () => {
-  const [reservations] = useState([
-    {
-      id: '201',
-      customer: 'Alice Smith',
-      email: 'alice@example.com',
-      restaurant: 'Chez Nous',
-      table: 'T1',
-      date: '2025-05-16',
-      time: '14:00',
-      guests: 3,
-      status: 'pending',
-    },
-    {
-      id: '202',
-      customer: 'Bob Johnson',
-      email: 'bob@example.com',
-      restaurant: 'La Table d’Or',
-      table: 'T4',
-      date: '2025-05-17',
-      time: '19:30',
-      guests: 2,
-      status: 'confirmed',
-    },
-    {
-      id: '203',
-      customer: 'Carol Lee',
-      email: 'carol@example.com',
-      restaurant: 'Ocean View',
-      table: 'T2',
-      date: '2025-05-18',
-      time: '12:00',
-      guests: 5,
-      status: 'cancelled',
-    },
-  ]);
+  const [reservations, setReservations] = useState([]);
+  const [tablesList, setTablesList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { user } = useAuth();
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  // --- Modal state ---
+  const [showEdit, setShowEdit] = useState(false);
+  const [editData, setEditData] = useState({
+    id: '',
+    date: '',
+    time: '',
+    covers: 1,
+    status: 'pending',
+    tableId: '',
+    userId: '',
+  });
+  const [showView, setShowView] = useState(false);
+  const [viewData, setViewData] = useState(null);
+
+  // Determine role
+  useEffect(() => {
+    if (user) {
+      setIsSuperAdmin(user.role.name === 'SuperAdmin');
+    }
+  }, [user]);
+
+  // Fetch reservations
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await axiosInstance.get('/reservations');
+        setReservations(data.data || data);
+      } catch (err) {
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  // Fetch tables for dropdown
+  useEffect(() => {
+    if (!user) return;
+    const restaurantId = user.restaurant?._id;
+    // Admins & clients see only their restaurant's tables; superadmins could fetch all
+    const url = isSuperAdmin
+      ? '/tables'
+      : `/restaurants/${restaurantId}/tables`;
+    axiosInstance
+      .get(url)
+      .then((res) => setTablesList(res.data.data || res.data))
+      .catch((err) => console.error('Failed to load tables', err));
+  }, [user, isSuperAdmin]);
 
   const renderStatus = (status) => {
     const map = {
@@ -50,116 +72,291 @@ const Reservations = () => {
     const s = map[status] || map.pending;
     return (
       <span className={`badge badge-${s.badge}`}>
-        {s.label} <span className={`ms-1 fa ${s.icon}`} />
+        {s.label} <i className={`ms-1 fa ${s.icon}`} />
       </span>
     );
   };
 
-  return (
-    <div className="h-80">
-      <PageTitle activeMenu="Reservations" motherMenu="Admin" />
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="card">
-            <div className="card-body" style={{ padding: '1.25rem' }}>
-              <div className="table-responsive">
-                <table className="table table-sm mb-0 table-responsive-lg text-black">
-                  <thead>
-                    <tr>
-                      <th />
-                      <th>Reservation</th>
-                      <th>Restaurant</th>
-                      <th>Table</th>
-                      <th>Date & Time</th>
-                      <th className="text-right">Guests</th>
-                      <th className="text-right">Status</th>
-                      <th className="text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reservations.map((r) => (
-                      <tr key={r.id} className="btn-reveal-trigger">
-                        <td className="py-2">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              type="checkbox"
-                              className="form-check-input"
-                              id={`chk-${r.id}`}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor={`chk-${r.id}`}
-                            />
-                          </div>
-                        </td>
-                        <td className="py-2">
-                          <strong>#{r.id}</strong> by{' '}
-                          <strong>{r.customer}</strong>
-                          <br />
-                          <a href={`mailto:${r.email}`}>{r.email}</a>
-                        </td>
-                        <td className="py-2">{r.restaurant}</td>
-                        <td className="py-2">{r.table}</td>
-                        <td className="py-2">
-                          {r.date} at {r.time}
-                        </td>
-                        <td className="py-2 text-right">{r.guests}</td>
-                        <td className="py-2 text-right">
-                          {renderStatus(r.status)}
-                        </td>
-                        <td className="py-2 text-right">
-                          <Dropdown className="dropdown text-sans-serif">
-                            <Dropdown.Toggle
-                              variant=""
-                              className="btn btn-primary i-false tp-btn-light sharp"
-                              id={`dropdown-${r.id}`}
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle cx="5" cy="12" r="2" fill="#000" />
-                                <circle cx="12" cy="12" r="2" fill="#000" />
-                                <circle cx="19" cy="12" r="2" fill="#000" />
-                              </svg>
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu
-                              className="dropdown-menu-right border py-0"
-                              aria-labelledby={`dropdown-${r.id}`}
-                            >
-                              <div className="py-2">
-                                <Link className="dropdown-item" to="#">
-                                  View
-                                </Link>
-                                <Link className="dropdown-item" to="#">
-                                  Confirm
-                                </Link>
-                                <Link className="dropdown-item" to="#">
-                                  Cancel
-                                </Link>
-                                <div className="dropdown-divider" />
-                                <Link
-                                  className="dropdown-item text-danger"
-                                  to="#"
-                                >
-                                  Delete
-                                </Link>
-                              </div>
-                            </Dropdown.Menu>
-                          </Dropdown>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+  const handleViewClick = (r) => {
+    setViewData(r);
+    setShowView(true);
+  };
+
+  const handleEditClick = (r) => {
+    const d = new Date(r.start);
+    setEditData({
+      id: r._id,
+      date: d.toISOString().slice(0, 10),
+      time: d.toISOString().substr(11, 5),
+      covers: r.covers,
+      status: r.status,
+      tableId: r.table._id || r.table,
+      userId: r.user._id,
+    });
+    setShowEdit(true);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async () => {
+    try {
+      const payload = {
+        guests: editData.covers,
+        date: editData.date,
+        time: editData.time,
+        tableId: editData.tableId,
+        status: editData.status,
+      };
+      if (isSuperAdmin && editData.userId) {
+        payload.userId = editData.userId;
+      }
+      const { data } = await axiosInstance.patch(
+        `/reservations/${editData.id}`,
+        payload
+      );
+      // update local list
+      setReservations((prev) =>
+        prev.map((r) => (r._id === data._id ? data : r))
+      );
+      setShowEdit(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center py-5">
+        <Spinner animation="border" role="status" />
       </div>
-    </div>
+    );
+  }
+  if (error) {
+    return <div className="alert alert-danger text-center">{error}</div>;
+  }
+
+  return (
+    <>
+      <PageTitle activeMenu="Reservations" motherMenu="Admin" />
+
+      <div className="table-responsive">
+        <table className="table table-sm mb-0 text-black">
+          <thead>
+            <tr>
+              <th />
+              <th>Client</th>
+              <th>Email</th>
+              {isSuperAdmin && <th>Restaurant</th>}
+              <th>Table</th>
+              <th>Date</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th className="text-right">Guests</th>
+              <th className="text-right">Status</th>
+              <th className="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reservations.map((r) => {
+              const start = new Date(r.start);
+              const end = new Date(r.end);
+              return (
+                <tr key={r._id}>
+                  <td>
+                    <input type="checkbox" />
+                  </td>
+                  <td>
+                    {r.user.firstName} {r.user.lastName}
+                  </td>
+                  <td>
+                    <a href={`mailto:${r.user.email}`}>{r.user.email}</a>
+                  </td>
+                  {isSuperAdmin && <td>{r.restaurant.name}</td>}
+                  <td>{r.table.number}</td>
+                  <td>{start.toLocaleDateString()}</td>
+                  <td>
+                    {start.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </td>
+                  <td>
+                    {end.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </td>
+                  <td className="text-right">{r.covers}</td>
+                  <td className="text-right">{renderStatus(r.status)}</td>
+                  <td className="text-right">
+                    <Dropdown>
+                      <Dropdown.Toggle
+                        variant=""
+                        className="btn btn-primary i-false tp-btn-light sharp"
+                        id={`dropdown-${r._id}`}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle cx="5" cy="12" r="2" fill="#000" />
+                          <circle cx="12" cy="12" r="2" fill="#000" />
+                          <circle cx="19" cy="12" r="2" fill="#000" />
+                        </svg>
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu className="dropdown-menu-right border py-0 z-3">
+                        <div className="py-2">
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleViewClick(r)}
+                          >
+                            View
+                          </button>
+
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleEditClick(r)}
+                          >
+                            Edit
+                          </button>
+                          <div className="dropdown-divider" />
+                          <button className="dropdown-item text-danger">
+                            Delete
+                          </button>
+                        </div>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Edit Modal */}
+      <CustomModal
+        title="Edit Reservation"
+        show={showEdit}
+        onHide={() => setShowEdit(false)}
+        onSave={handleSave}
+        saveLabel="Save changes"
+      >
+        <Form>
+          <Form.Group className="mb-2" controlId="formDate">
+            <Form.Label>Date</Form.Label>
+            <Form.Control
+              type="date"
+              name="date"
+              value={editData.date}
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-2" controlId="formTime">
+            <Form.Label>Time</Form.Label>
+            <Form.Control
+              type="time"
+              name="time"
+              value={editData.time}
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-2" controlId="formCovers">
+            <Form.Label>Guests</Form.Label>
+            <Form.Control
+              type="number"
+              name="covers"
+              min="1"
+              value={editData.covers}
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-2" controlId="formTable">
+            <Form.Label>Table</Form.Label>
+            <Form.Select
+              name="tableId"
+              value={editData.tableId}
+              onChange={handleChange}
+            >
+              {tablesList.map((t) => (
+                <option key={t._id} value={t._id}>
+                  {t.number}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+          {isSuperAdmin && (
+            <Form.Group className="mb-2" controlId="formUser">
+              <Form.Label>Override User ID</Form.Label>
+              <Form.Control
+                type="text"
+                name="userId"
+                value={editData.userId}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          )}
+          <Form.Group className="mb-2" controlId="formStatus">
+            <Form.Label>Status</Form.Label>
+            <Form.Select
+              name="status"
+              value={editData.status}
+              onChange={handleChange}
+            >
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="cancelled">Cancelled</option>
+            </Form.Select>
+          </Form.Group>
+        </Form>
+      </CustomModal>
+
+      {/* View Modal */}
+      <CustomModal
+        title="Reservation Details"
+        show={showView}
+        onHide={() => setShowView(false)}
+      >
+        {viewData && (
+          <>
+            <p>
+              <strong>Client:</strong> {viewData.user.firstName}{' '}
+              {viewData.user.lastName}
+            </p>
+            {isSuperAdmin && (
+              <p>
+                <strong>Restaurant:</strong> {viewData.restaurant.name}
+              </p>
+            )}
+            <p>
+              <strong>Table:</strong> {viewData.table.number}
+            </p>
+            <p>
+              <strong>Date:</strong>{' '}
+              {new Date(viewData.start).toLocaleDateString()}
+            </p>
+            <p>
+              <strong>Time:</strong>{' '}
+              {new Date(viewData.start).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+            <p>
+              <strong>Guests:</strong> {viewData.covers}
+            </p>
+            <p>
+              <strong>Status:</strong> {renderStatus(viewData.status)}
+            </p>
+          </>
+        )}
+      </CustomModal>
+    </>
   );
 };
 
