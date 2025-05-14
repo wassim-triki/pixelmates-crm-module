@@ -33,7 +33,40 @@ const createComplaint = async (req, res) => {
     }
 
     // Validate category
-    const validCategories = ['Food Quality', 'Service', 'Cleanliness', 'Billing', 'Other'];
+    const validCategories = [    
+    'Food Quality',
+    'Service',
+    'Cleanliness',
+    'Billing',
+    'Delivery Delay',
+    'Order Missing',
+    'Wrong Order',
+    'Cold Food',
+    'Rude Staff',
+    'Long Wait Time',
+    'Unhygienic Packaging',
+    'Spoiled Food',
+    'Overpriced Items',
+    'Unavailable Menu Item',
+    'Small Portions',
+    'Late Response',
+    'Technical Issue',
+    'App Crash',
+    'Promo Code Issue',
+    'Double Charge',
+    'Missing Utensils',
+    'Incorrect Billing',
+    'Bad Online Experience',
+    'Inadequate Seating',
+    'Noisy Environment',
+    'Parking Issues',
+    'Unfriendly Reception',
+    'Food Allergy Ignored',
+    'Food Not Fresh',
+    'Delivery Personnel Misbehavior',
+    'Unclear Menu',
+    'Poor Customer Support',
+    'Other'];
     if (!validCategories.includes(category)) {
       return res.status(400).json({ message: 'Invalid category' });
     }

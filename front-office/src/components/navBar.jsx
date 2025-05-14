@@ -86,7 +86,7 @@ const Navbar = () => {
             </>
           )}
           <Link
-            to="/restaurant"
+            to="/restaurants"
             className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap"
           >
             Restaurants
@@ -141,8 +141,8 @@ const Navbar = () => {
                     {user.points ?? 0} pts)
                   </span>
 
-                  <span className="block px-4 py-1 text-gray-500 text-xs italic">
-                    VIP Level:
+                  <span className="block px-4 py-1 text-500 text-xs italic font-bold">
+                    VIP Level :
                     <span
                       className={`ml-1 px-2 py-0.5 rounded-full text-white text-xs font-bold ${
                         user.vipLevel === 'Silver'
@@ -201,7 +201,7 @@ const Navbar = () => {
             About Us
           </Link>
           <Link
-            to="/restaurant"
+            to="/restaurants"
             className="text-white text-lg font-bold hover:text-[#FA8072]"
             onClick={() => setIsMobileMenuOpen(false)}
           >

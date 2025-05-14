@@ -47,7 +47,7 @@ export const AdminMenuList = [
     ],
   },
   //Apps
-  {
+  /*{
     title: 'Apps',
     classsChange: 'mm-collapse',
     iconStyle: <i className="flaticon-381-television" />,
@@ -122,7 +122,7 @@ export const AdminMenuList = [
         ],
       },
     ],
-  },
+  },*/
 
   // {
   //   title: 'CMS',
@@ -184,7 +184,7 @@ export const AdminMenuList = [
   //   ],
   // },
   //Boosttrap
-  {
+  /*{
     title: 'Bootstrap',
     classsChange: 'mm-collapse',
     iconStyle: <i className="flaticon-381-internet" />,
@@ -287,7 +287,7 @@ export const AdminMenuList = [
         to: 'uc-lightgallery',
       },
     ],
-  },
+  },*/
   // //Widget
   // {
   //   title: 'Widget',
