@@ -328,9 +328,9 @@ exports.updateReservation = asyncHandler(async (req, res) => {
   if (isNaN(start)) {
     return res.status(400).json({ message: 'Invalid date or time format' });
   }
-  if (start < Date.now()) {
-    return res.status(400).json({ message: 'Cannot book in the past' });
-  }
+  // if (start < Date.now()) {
+  //   return res.status(400).json({ message: 'Cannot book in the past' });
+  // }
 
   // D) Compute new end
   const end = new Date(start.getTime() + RESERVATION_DURATION_MINUTES * 60_000);
