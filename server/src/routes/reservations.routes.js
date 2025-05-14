@@ -4,6 +4,7 @@ const { protect } = require('../middlewares/auth.middleware');
 const {
   createReservation,
   getReservations,
+  updateReservation,
 } = require('../controllers/reservation.controller');
 
 // Create a new reservation
@@ -11,6 +12,7 @@ router
   .route('/')
   .post(protect, createReservation)
   .get(protect, getReservations);
+router.route('/:id').patch(protect, updateReservation);
 
 // Get all reservations for a restaurant
 // router.get(

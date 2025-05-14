@@ -185,6 +185,119 @@ exports.createReservation = asyncHandler(async (req, res) => {
   return res.status(201).json(reservation);
 });
 
+exports.updateReservation = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const {
+    guests,
+    date,
+    time,
+    tableId: newTableId,
+    status,
+    userId: bodyUserId,
+  } = req.body;
+
+  // A) Find existing
+  const reservation = await Reservation.findById(id);
+  if (!reservation) {
+    return res.status(404).json({ message: 'Reservation not found' });
+  }
+
+  // B) Determine target user
+  let targetUserId = reservation.user.toString();
+  const callerRole = await Role.findById(req.user.role);
+  const roleName = callerRole?.name || 'Client';
+  if (
+    bodyUserId &&
+    bodyUserId !== targetUserId &&
+    (roleName === 'Admin' || roleName === 'SuperAdmin')
+  ) {
+    if (!mongoose.Types.ObjectId.isValid(bodyUserId)) {
+      return res.status(400).json({ message: 'Invalid override userId' });
+    }
+    targetUserId = bodyUserId;
+  }
+
+  // C) Parse & validate new start
+  const start = new Date(`${date}T${time}:00`);
+  if (isNaN(start)) {
+    return res.status(400).json({ message: 'Invalid date or time format' });
+  }
+  if (start < Date.now()) {
+    return res.status(400).json({ message: 'Cannot book in the past' });
+  }
+
+  // D) Compute new end
+  const end = new Date(start.getTime() + RESERVATION_DURATION_MINUTES * 60_000);
+
+  // E) Load & check table
+  const tableToUse = newTableId
+    ? await Table.findById(newTableId)
+    : await Table.findById(reservation.table);
+  if (!tableToUse || tableToUse.isAvailable === false) {
+    return res.status(404).json({ message: 'Table not found or unavailable' });
+  }
+
+  // F) Load & check restaurant
+  const restaurant = await Restaurant.findById(tableToUse.restaurant);
+  if (!restaurant || restaurant.isPublished === false) {
+    return res
+      .status(403)
+      .json({ message: 'Restaurant not accepting reservations' });
+  }
+
+  // G) Enforce open hours
+  const [openH, openM] = restaurant.workFrom.split(':').map(Number);
+  const [closeH, closeM] = restaurant.workTo.split(':').map(Number);
+  const openTime = new Date(start);
+  const closeTime = new Date(start);
+  openTime.setHours(openH, openM, 0, 0);
+  closeTime.setHours(closeH, closeM, 0, 0);
+  if (start < openTime || end > closeTime) {
+    return res.status(400).json({
+      message: `Reservations are between ${restaurant.workFrom} and ${restaurant.workTo}`,
+    });
+  }
+
+  // H) Validate guest count
+  const numGuests = guests ?? reservation.covers;
+  if (numGuests < tableToUse.minCovers || numGuests > tableToUse.maxCovers) {
+    return res.status(400).json({
+      message: `Guests must be between ${tableToUse.minCovers} and ${tableToUse.maxCovers}`,
+    });
+  }
+
+  // I) Check overlaps, but ignore THIS reservation itself
+  const conflict = await Reservation.findOne({
+    table: tableToUse._id,
+    status: { $ne: 'cancelled' },
+    start: { $lt: end },
+    end: { $gt: start },
+    _id: { $ne: reservation._id },
+  });
+  // if (conflict) {
+  //   return res
+  //     .status(409)
+  //     .json({ message: 'That time slot is already booked' });
+  // }
+
+  // J) Apply & save
+  reservation.user = targetUserId;
+  reservation.table = tableToUse._id;
+  reservation.covers = numGuests;
+  reservation.start = start;
+  reservation.end = end;
+  if (status) reservation.status = status;
+  await reservation.save();
+
+  // K) Re-fetch with your usual populates
+  const populated = await Reservation.findById(reservation._id)
+    .populate('user', 'firstName lastName email')
+    .populate('restaurant', 'name')
+    .populate('table', 'number');
+
+  return res.status(200).json(populated);
+});
+
 exports.getReservations = asyncHandler(async (req, res) => {
   // 1) figure out caller’s role name
   const callerRole = await Role.findById(req.user.role);

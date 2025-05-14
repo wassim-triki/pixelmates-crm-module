@@ -405,6 +405,10 @@ export const SuperAdminMenuList = [
         title: 'Complaints',
         to: '/superadmin/complaints',
       },
+      {
+        title: 'Reservations',
+        to: '/superadmin/reservations',
+      },
     ],
   },
 ];

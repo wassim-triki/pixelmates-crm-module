@@ -1,6 +1,6 @@
 // src/pages/Reservations.jsx
 import React, { useState, useEffect } from 'react';
-import { Spinner, Dropdown, Form } from 'react-bootstrap';
+import { Spinner, Dropdown, Form, Alert } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
 import axiosInstance from '../../config/axios';
 import { useAuth } from '../../context/authContext';
@@ -14,7 +14,7 @@ const Reservations = () => {
   const { user } = useAuth();
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
-  // --- Modal state ---
+  // — Modal state —
   const [showEdit, setShowEdit] = useState(false);
   const [editData, setEditData] = useState({
     id: '',
@@ -25,22 +25,23 @@ const Reservations = () => {
     tableId: '',
     userId: '',
   });
+  const [modalError, setModalError] = useState('');
   const [showView, setShowView] = useState(false);
   const [viewData, setViewData] = useState(null);
 
-  // Determine role
+  // Determine super-admin
   useEffect(() => {
     if (user) {
       setIsSuperAdmin(user.role.name === 'SuperAdmin');
     }
   }, [user]);
 
-  // Fetch reservations
+  // Load reservations
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axiosInstance.get('/reservations');
-        setReservations(data.data || data);
+        const response = await axiosInstance.get('/reservations');
+        setReservations(response.data.data || response.data);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
@@ -49,11 +50,10 @@ const Reservations = () => {
     })();
   }, []);
 
-  // Fetch tables for dropdown
+  // Load tables for dropdown
   useEffect(() => {
     if (!user) return;
     const restaurantId = user.restaurant?._id;
-    // Admins & clients see only their restaurant's tables; superadmins could fetch all
     const url = isSuperAdmin
       ? '/tables'
       : `/restaurants/${restaurantId}/tables`;
@@ -63,6 +63,7 @@ const Reservations = () => {
       .catch((err) => console.error('Failed to load tables', err));
   }, [user, isSuperAdmin]);
 
+  // Map status to badge
   const renderStatus = (status) => {
     const map = {
       pending: { label: 'Pending', badge: 'warning', icon: 'fa-stream' },
@@ -77,6 +78,7 @@ const Reservations = () => {
     );
   };
 
+  // Handlers
   const handleViewClick = (r) => {
     setViewData(r);
     setShowView(true);
@@ -87,12 +89,13 @@ const Reservations = () => {
     setEditData({
       id: r._id,
       date: d.toISOString().slice(0, 10),
-      time: d.toISOString().substr(11, 5),
+      time: d.toISOString().substring(11, 16),
       covers: r.covers,
       status: r.status,
       tableId: r.table._id || r.table,
       userId: r.user._id,
     });
+    setModalError('');
     setShowEdit(true);
   };
 
@@ -110,33 +113,41 @@ const Reservations = () => {
         tableId: editData.tableId,
         status: editData.status,
       };
-      if (isSuperAdmin && editData.userId) {
-        payload.userId = editData.userId;
-      }
-      const { data } = await axiosInstance.patch(
+      if (isSuperAdmin && editData.userId) payload.userId = editData.userId;
+
+      const response = await axiosInstance.patch(
         `/reservations/${editData.id}`,
         payload
       );
-      // update local list
+      const updated = response.data;
       setReservations((prev) =>
-        prev.map((r) => (r._id === data._id ? data : r))
+        prev.map((r) => (r._id === updated._id ? updated : r))
       );
       setShowEdit(false);
+    } catch (err) {
+      console.error(err);
+      setModalError(err.response?.data?.message || err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Really delete this reservation?')) return;
+    try {
+      await axiosInstance.delete(`/reservations/${id}`);
+      setReservations((prev) => prev.filter((r) => r._id !== id));
     } catch (err) {
       console.error(err);
     }
   };
 
-  if (loading) {
+  if (loading)
     return (
       <div className="text-center py-5">
-        <Spinner animation="border" role="status" />
+        <Spinner animation="border" />
       </div>
     );
-  }
-  if (error) {
+  if (error)
     return <div className="alert alert-danger text-center">{error}</div>;
-  }
 
   return (
     <>
@@ -217,7 +228,6 @@ const Reservations = () => {
                           >
                             View
                           </button>
-
                           <button
                             className="dropdown-item"
                             onClick={() => handleEditClick(r)}
@@ -225,7 +235,10 @@ const Reservations = () => {
                             Edit
                           </button>
                           <div className="dropdown-divider" />
-                          <button className="dropdown-item text-danger">
+                          <button
+                            className="dropdown-item text-danger"
+                            onClick={() => handleDelete(r._id)}
+                          >
                             Delete
                           </button>
                         </div>
@@ -239,7 +252,7 @@ const Reservations = () => {
         </table>
       </div>
 
-      {/* Edit Modal */}
+      {/* — Edit Modal — */}
       <CustomModal
         title="Edit Reservation"
         show={showEdit}
@@ -247,6 +260,7 @@ const Reservations = () => {
         onSave={handleSave}
         saveLabel="Save changes"
       >
+        {modalError && <Alert variant="danger">{modalError}</Alert>}
         <Form>
           <Form.Group className="mb-2" controlId="formDate">
             <Form.Label>Date</Form.Label>
@@ -316,7 +330,7 @@ const Reservations = () => {
         </Form>
       </CustomModal>
 
-      {/* View Modal */}
+      {/* — View Modal — */}
       <CustomModal
         title="Reservation Details"
         show={showView}
@@ -341,8 +355,15 @@ const Reservations = () => {
               {new Date(viewData.start).toLocaleDateString()}
             </p>
             <p>
-              <strong>Time:</strong>{' '}
+              <strong>Start Time:</strong>{' '}
               {new Date(viewData.start).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+            <p>
+              <strong>End Time:</strong>{' '}
+              {new Date(viewData.end).toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
               })}

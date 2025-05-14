@@ -341,6 +341,14 @@ const Markup = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/superadmin/reservations"
+            element={
+              <ProtectedRoute requiredRole="SuperAdmin">
+                <Reservations />
+              </ProtectedRoute>
+            }
+          />
 
           {/* <Route
           path="/admin/loyalty-users"
