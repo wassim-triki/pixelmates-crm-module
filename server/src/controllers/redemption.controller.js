@@ -129,7 +129,7 @@ exports.getAllRewards = asyncHandler(async (req, res) => {
 
 
 
-
+/*
 exports.redeemReward = asyncHandler(async (req, res) => {
   const { userEmail, rewardId, reservationId } = req.body;
 
@@ -170,9 +170,54 @@ exports.redeemReward = asyncHandler(async (req, res) => {
       vipLevel: user.vipLevel,
     },
   });
+});*/
+
+exports.redeemReward = asyncHandler(async (req, res) => {
+  const { userEmail, rewardId, reservationId } = req.body;
+
+  console.log('Received redemption request:', { userEmail, rewardId, reservationId });
+
+  // Find user and reward
+  const user = await User.findOne({ email: userEmail });
+  const reward = await Reward.findById(rewardId);
+
+  if (!user || !reward) {
+    return res.status(404).json({ message: 'User or Reward not found' });
+  }
+
+  if (!reward.isActive) {
+    return res.status(400).json({ message: 'Reward is inactive' });
+  }
+
+  if (user.points < reward.pointsCost) {
+    return res.status(400).json({ message: 'Not enough points' });
+  }
+
+  // Deduct points and update VIP level
+  user.points -= reward.pointsCost;
+  updateVIPLevel(user);
+  await user.save();
+
+  // Create redemption record
+  const redemption = new Redemption({
+    user: user._id,
+    reward: rewardId,
+    reservation: reservationId || null, // Ensure reservationId is passed correctly
+  });
+
+  const saved = await redemption.save();
+  console.log('Redemption saved:', saved);
+
+  res.status(201).json({
+    message: 'Reward redeemed successfully!',
+    redemption: saved,
+    updatedUser: {
+      email: user.email,
+      points: user.points,
+      vipLevel: user.vipLevel,
+    },
+  });
 });
-
-
 
 function updateVIPLevel(user) {
   const points = user.points;

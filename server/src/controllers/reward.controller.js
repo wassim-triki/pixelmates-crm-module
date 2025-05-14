@@ -68,3 +68,20 @@ exports.deleteReward = asyncHandler(async (req, res) => {
 
 
 
+
+
+
+// Get rewards for a specific restaurant
+exports.getRewardsForRestaurant = asyncHandler(async (req, res) => {
+  const { restaurantId } = req.params; // Get the restaurant ID from the route parameters
+
+  // Fetch rewards related to the restaurant
+  const rewards = await Reward.find({ restaurant: restaurantId });
+
+  if (!rewards || rewards.length === 0) {
+    return res.status(404).json({ message: 'No rewards found for this restaurant' });
+  }
+
+  // Respond with the found rewards
+  res.json(rewards);
+});

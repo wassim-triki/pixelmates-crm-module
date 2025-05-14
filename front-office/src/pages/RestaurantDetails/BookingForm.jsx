@@ -1,13 +1,12 @@
-// src/components/BookingForm.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../config/axios';
 import Canvas from '../../../../back-office/src/jsx/pages/FloorConfiguration/Canvas';
-import { toast } from 'react-toastify'; // Import toast
-import { ThreeDots } from 'react-loader-spinner'; // Import spinner
+import { toast } from 'react-toastify';
+import { ThreeDots } from 'react-loader-spinner';
 import { useAuth } from '../../context/authContext';
+import { useModal } from '../../context/modalContext';
 
-// Utility: generate 30-min slots between two "HH:mm" strings
 const generateSlots = (open, close) => {
   const [oh, om] = open.split(':').map(Number);
   const [ch, cm] = close.split(':').map(Number);
@@ -23,7 +22,6 @@ const generateSlots = (open, close) => {
   return slots;
 };
 
-// Format "HH:mm" → "h:mm AM/PM"
 const formatTime = (time) => {
   const [h, m] = time.split(':').map(Number);
   const ampm = h >= 12 ? 'PM' : 'AM';
@@ -38,20 +36,24 @@ const BookingForm = ({ restaurant, closeModal }) => {
     date: '',
     time: '',
     tableId: '',
+    rewardId: null, // Add rewardId to the form data
   });
   const [tables, setTables] = useState([]);
+  const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isValid, setIsValid] = useState(false);
 
-  // 1) fetch
-  useEffect(() => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { openModal } = useModal();
+
+ /* useEffect(() => {
     if (!restaurant?._id) return;
     setLoading(true);
     axiosInstance
       .get(`/restaurants/${restaurant._id}/tables`)
       .then((res) => {
-        // map _id → id for each table
         setTables(
           res.data.map((t) => ({
             ...t,
@@ -61,15 +63,65 @@ const BookingForm = ({ restaurant, closeModal }) => {
       })
       .catch(() => setError('Failed to load tables.'))
       .finally(() => setLoading(false));
-  }, [restaurant]);
+  }, [restaurant]);*/
+useEffect(() => {
+  if (!restaurant?._id) {
+    console.error('Restaurant ID is missing.');
+    return;
+  }
 
-  // 2) all possible slots
+  setLoading(true);
+  axiosInstance
+    .get(`/restaurants/${restaurant._id}/tables`)
+    .then((res) => {
+      console.log('Tables response:', res.data);
+      setTables(
+        res.data.map((t) => ({
+          ...t,
+          id: t._id,
+        }))
+      );
+    })
+    .catch((err) => {
+      console.error('Failed to load tables:', err.message);
+      setError('Failed to load tables.');
+    })
+    .finally(() => setLoading(false));
+}, [restaurant]);
+
+
+
+  /*useEffect(() => {
+    if (!restaurant?._id) return;
+    axiosInstance
+      .get(`/rewards/restaurant/${restaurant._id}`)
+      .then((res) => setRewards(res.data))
+      .catch(() => setError('Failed to load rewards.'));
+  }, [restaurant]);
+*/
+useEffect(() => {
+  if (!restaurant?._id) {
+    console.error('Restaurant ID is missing.');
+    return;
+  }
+
+  axiosInstance
+    .get(`/rewards/restaurant/${restaurant._id}`)
+    .then((res) => {
+      console.log('Rewards response:', res.data);
+      setRewards(res.data);
+    })
+    .catch((err) => {
+      console.error('Failed to load rewards:', err.message);
+      setError('Failed to load rewards.');
+    });
+}, [restaurant]);
+
   const slots = useMemo(() => {
     if (!restaurant?.workFrom || !restaurant?.workTo) return [];
     return generateSlots(restaurant.workFrom, restaurant.workTo);
   }, [restaurant]);
 
-  // 3) form validation (step 2)
   useEffect(() => {
     const { guests, date, time, tableId } = formData;
     setIsValid(
@@ -81,7 +133,6 @@ const BookingForm = ({ restaurant, closeModal }) => {
     );
   }, [formData, slots]);
 
-  // handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((f) => ({
@@ -89,14 +140,15 @@ const BookingForm = ({ restaurant, closeModal }) => {
       [name]: name === 'guests' ? parseInt(value, 10) : value,
     }));
   };
+
   const handleTableSelect = (id) => setFormData((f) => ({ ...f, tableId: id }));
   const handleSlotClick = (slot) => setFormData((f) => ({ ...f, time: slot }));
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const handleRewardSelect = (rewardId) =>
+    setFormData((f) => ({ ...f, rewardId }));
+/*
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // redirect anonymous users
     if (!user) {
       navigate('/login', {
         state: {
@@ -112,16 +164,28 @@ const BookingForm = ({ restaurant, closeModal }) => {
 
     setLoading(true);
     try {
+      let redemptionResponse = null;
+
+      // If a reward is selected, redeem it
+      if (formData.rewardId) {
+        redemptionResponse = await axiosInstance.post('/redeem', {
+          userEmail: user.email,
+          rewardId: formData.rewardId,
+        });
+
+        toast.success('Reward redeemed successfully!');
+      }
+
+      // Proceed with the reservation
       const payload = {
         userId: user.id,
         ...formData,
       };
-      console.log('Reservation data:', payload);
 
       await axiosInstance.post('/reservations', payload);
 
       toast.success('Reservation successful!');
-      // TODO: close your modal or reset form here if needed
+      closeModal();
     } catch (err) {
       console.error(err);
       const message =
@@ -132,9 +196,141 @@ const BookingForm = ({ restaurant, closeModal }) => {
     } finally {
       setLoading(false);
     }
-  };
+  };*/
 
-  // 4) filter available & build guest options
+  /*
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!user) {
+    console.error('User is not logged in.');
+    navigate('/login', {
+      state: {
+        from: {
+          pathname: `/restaurants/${restaurant._id}`,
+        },
+      },
+    });
+    return;
+  }
+
+  if (!isValid) {
+    console.error('Form is not valid.');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    // Step 1: Create the reservation
+    const payload = {
+      userId: user.id,
+      ...formData,
+    };
+    console.log('Reservation payload:', payload);
+
+    const reservationResponse = await axiosInstance.post('/reservations', payload);
+    console.log('Reservation response:', reservationResponse.data);
+
+    const reservationId = reservationResponse.data._id; // Assuming the reservation ID is returned in the response
+
+    toast.success('Reservation successful!');
+
+    // Step 2: Redeem the reward (if selected)
+    if (formData.rewardId) {
+      console.log('Redeeming reward with ID:', formData.rewardId);
+      const redemptionResponse = await axiosInstance.post('/redemptions/redeem', {
+        userEmail: user.email,
+        rewardId: formData.rewardId,
+        reservationId, // Pass the reservation ID to the backend
+      });
+      console.log('Reward redemption response:', redemptionResponse.data);
+      toast.success('Reward redeemed successfully!');
+    }
+
+    closeModal();
+  } catch (err) {
+    console.error('Error during reservation or redemption:', err.message);
+    const message =
+      err.response?.data?.message ||
+      err.message ||
+      'Reservation failed. Please try again.';
+    toast.error(message);
+  } finally {
+    setLoading(false);
+  }
+};
+*/
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!user) {
+    console.error('User is not logged in.');
+    navigate('/login', {
+      state: {
+        from: {
+          pathname: `/restaurants/${restaurant._id}`,
+        },
+      },
+    });
+    return;
+  }
+
+  if (!isValid) {
+    console.error('Form is not valid.');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    // Step 1: Create the reservation
+    const payload = {
+      userId: user.id,
+      ...formData,
+    };
+    console.log('Reservation payload:', payload);
+
+    const reservationResponse = await axiosInstance.post('/reservations', payload);
+    console.log('Reservation response:', reservationResponse.data);
+
+    // Extract the reservation ID
+    const reservationId = reservationResponse.data.reservation?._id || reservationResponse.data._id; // Ensure `_id` exists in the response
+    if (!reservationId) {
+      throw new Error('Reservation ID is missing in the response.');
+    }
+
+    toast.success('Reservation successful!');
+    console.log('Reservation ID:', reservationId);
+
+    // Step 2: Redeem the reward (if selected)
+    if (formData.rewardId) {
+      console.log('Redeeming reward with ID:', formData.rewardId);
+      const redemptionPayload = {
+        userEmail: user.email,
+        rewardId: formData.rewardId,
+        reservationId, // Pass the reservation ID to the backend
+      };
+      console.log('Redemption payload:', redemptionPayload);
+
+      const redemptionResponse = await axiosInstance.post('/redemptions/redeem', redemptionPayload);
+      console.log('Reward redemption response:', redemptionResponse.data);
+      toast.success('Reward redeemed successfully!');
+    }
+
+    closeModal();
+  } catch (err) {
+    console.error('Error during reservation or redemption:', err.message);
+    const message =
+      err.response?.data?.message ||
+      err.message ||
+      'Reservation failed. Please try again.';
+    toast.error(message);
+  } finally {
+    setLoading(false);
+  }
+};
+
   const availableTables = tables.filter((t) => t.isAvailable);
   const selectedTable = tables.find((t) => t.id === formData.tableId) || {};
   const guestOptions = selectedTable.minCovers
@@ -143,13 +339,11 @@ const BookingForm = ({ restaurant, closeModal }) => {
         (_, i) => selectedTable.minCovers + i
       )
     : [];
-
-  // 5) today for date min
   const today = new Date().toISOString().split('T')[0];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Step 1 */}
+      {/* Step 1: Select a Table */}
       {step === 1 && (
         <div>
           <label className="block text-sm font-medium mb-2">
@@ -158,7 +352,7 @@ const BookingForm = ({ restaurant, closeModal }) => {
           {loading && <p className="text-gray-500">Loading layout…</p>}
           {error && <p className="text-red-500">{error}</p>}
           {!loading && !error && (
-            <div className="w-full flex justify-center overflow-auto p-4 xbg-gray-50 rounded">
+            <div className="w-full flex justify-center overflow-auto p-4 bg-gray-50 rounded">
               <Canvas
                 tables={availableTables}
                 selectedId={formData.tableId}
@@ -182,7 +376,7 @@ const BookingForm = ({ restaurant, closeModal }) => {
         </div>
       )}
 
-      {/* Step 2 */}
+      {/* Step 2: Select Guests, Date, and Time */}
       {step === 2 && (
         <div>
           <div className="bg-white p-4 grid grid-cols-2 gap-4 rounded shadow">
@@ -249,26 +443,72 @@ const BookingForm = ({ restaurant, closeModal }) => {
               Back
             </button>
             <button
-              type="submit"
-              disabled={!isValid || loading}
+              type="button"
+              onClick={() => setStep(3)}
+              disabled={!isValid}
               className={`px-6 py-3 bg-[#ef7d70] cursor-pointer text-white font-semibold rounded transition-opacity ${
-                !isValid || loading
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:opacity-90'
+                !isValid ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
               }`}
             >
-              {loading ? (
-                <ThreeDots
-                  height="30"
-                  width="30"
-                  color="#fff"
-                  ariaLabel="three-dots-loading"
-                  wrapperStyle={{}}
-                  visible={true}
-                />
-              ) : (
-                'Reserve'
-              )}
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Select a Reward */}
+      {step === 3 && (
+        <div>
+          <h2 className="text-lg font-bold mb-4">Available Rewards</h2>
+          {rewards.length > 0 ? (
+            <ul className="space-y-2">
+              {rewards.map((reward) => (
+                <li
+                  key={reward._id}
+                  className={`p-3 border rounded cursor-pointer ${
+                    formData.rewardId === reward._id
+                      ? 'bg-green-100 border-green-500'
+                      : reward.pointsCost > user.points
+                      ? 'bg-gray-200 border-gray-400 cursor-not-allowed'
+                      : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
+                  onClick={() =>
+                    reward.pointsCost <= user.points &&
+                    handleRewardSelect(reward._id)
+                  }
+                >
+                  <h4 className="font-bold">{reward.name}</h4>
+                  <p className="text-sm text-gray-600">{reward.description}</p>
+                  <p className="text-sm text-gray-500">
+                    Points: {reward.pointsCost}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">No rewards available for this restaurant.</p>
+          )}
+
+          <div className="flex justify-between cursor-pointer items-center mt-6">
+            <button
+              type="button"
+              onClick={() => setStep(2)}
+              className="px-4 py-2 border rounded hover:bg-gray-100"
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-3 bg-[#ef7d70] cursor-pointer text-white font-semibold rounded hover:opacity-90"
+            >
+              Reserve
+            </button>
+            <button
+              type="button"
+              onClick={() => handleRewardSelect(null)}
+              className="px-6 py-3 bg-gray-300 cursor-pointer text-black font-semibold rounded hover:bg-gray-400"
+            >
+              Skip
             </button>
           </div>
         </div>
