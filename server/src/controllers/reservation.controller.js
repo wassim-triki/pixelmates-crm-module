@@ -7,6 +7,7 @@ const User = require('../models/User');
 
 const mongoose = require('mongoose');
 const asyncHandler = require('../utils/asyncHandler');
+const Role = require('../models/Role');
 
 const calculateEndTime = (dateString, startTime) => {
   const [hours, minutes] = startTime.split(':').map(Number);
@@ -89,56 +90,93 @@ exports.checkAvailability = async (req, res) => {
 const RESERVATION_DURATION_MINUTES = 90;
 
 exports.createReservation = asyncHandler(async (req, res) => {
-  const restaurantId = req.user.restaurantId;
-  const userId = req.user._id;
-  const { guests, date, time, tableId } = req.body;
+  const { guests, date, time, tableId, userId: bodyUserId } = req.body;
 
-  // 0️⃣ Validate input
-  if (!guests || !date || !time || !tableId) {
-    return res
-      .status(400)
-      .json({ message: '`guests`, `date`, `time` and `tableId` are required' });
+  // ─── A) DETERMINE WHO THIS RESERVATION IS FOR ─────────────
+  // 1) get caller’s own userId
+  let targetUserId = req.user.userId;
+
+  // 2) load their role document
+  const callerRole = await Role.findById(req.user.role);
+  const roleName = callerRole?.name || 'Client';
+
+  // 3) only Admin/SuperAdmin may override userId
+  if (
+    bodyUserId &&
+    bodyUserId !== targetUserId &&
+    (roleName === 'Admin' || roleName === 'SuperAdmin')
+  ) {
+    if (!mongoose.Types.ObjectId.isValid(bodyUserId)) {
+      return res.status(400).json({ message: 'Invalid override userId' });
+    }
+    targetUserId = bodyUserId;
   }
 
-  // 1️⃣ Build start DateTime from date + time
+  // ─── B) PARSE & VALIDATE START ─────────────────────────────
   const start = new Date(`${date}T${time}:00`);
   if (isNaN(start)) {
-    return res.status(400).json({ message: 'Invalid `date` or `time` format' });
+    return res.status(400).json({ message: 'Invalid date or time format' });
+  }
+  if (start < Date.now()) {
+    return res.status(400).json({ message: 'Cannot book in the past' });
   }
 
-  // 2️⃣ Compute end time (+90 minutes)
+  // ─── C) COMPUTE END ────────────────────────────────────────
   const end = new Date(start.getTime() + RESERVATION_DURATION_MINUTES * 60_000);
 
-  // 3️⃣ Ensure the table exists, belongs to this restaurant, and is available
-  const table = await Table.findOne({
-    _id: tableId,
-    restaurant: restaurantId,
-    isAvailable: true,
-  });
-  if (!table) {
-    return res
-      .status(404)
-      .json({ message: 'Table not found or not available' });
+  // ─── D) LOAD & CHECK TABLE ─────────────────────────────────
+  const table = await Table.findById(tableId);
+  if (!table || table.isAvailable === false) {
+    return res.status(404).json({ message: 'Table not found or unavailable' });
   }
 
-  // 4️⃣ Check for time‐slot collision (non-cancelled only)
+  // ─── E) LOAD & CHECK RESTAURANT ────────────────────────────
+  const restaurant = await Restaurant.findById(table.restaurant);
+  if (!restaurant || restaurant.isPublished === false) {
+    return res
+      .status(403)
+      .json({ message: 'Restaurant not accepting reservations' });
+  }
+
+  // ─── F) ENFORCE OPEN HOURS ─────────────────────────────────
+  const [openH, openM] = restaurant.workFrom.split(':').map(Number);
+  const [closeH, closeM] = restaurant.workTo.split(':').map(Number);
+  const open = new Date(start);
+  open.setHours(openH, openM, 0, 0);
+  const close = new Date(start);
+  close.setHours(closeH, closeM, 0, 0);
+
+  if (start < open || end > close) {
+    return res.status(400).json({
+      message: `Reservations are between ${restaurant.workFrom} and ${restaurant.workTo}`,
+    });
+  }
+
+  // ─── G) VALIDATE GUEST COUNT ───────────────────────────────
+  if (guests < table.minCovers || guests > table.maxCovers) {
+    return res.status(400).json({
+      message: `Guests must be between ${table.minCovers} and ${table.maxCovers}`,
+    });
+  }
+
+  // ─── H) CHECK FOR OVERLAPS ─────────────────────────────────
   const conflict = await Reservation.findOne({
-    restaurant: restaurantId,
-    table: tableId,
+    table: table._id,
     status: { $ne: 'cancelled' },
-    $or: [{ start: { $lt: end }, end: { $gt: start } }],
+    start: { $lt: end },
+    end: { $gt: start },
   });
   if (conflict) {
     return res
       .status(409)
-      .json({ message: 'Requested time slot is already booked' });
+      .json({ message: 'That time slot is already booked' });
   }
 
-  // 5️⃣ Create the reservation
+  // ─── I) CREATE & RESPOND ───────────────────────────────────
   const reservation = await Reservation.create({
-    user: userId,
-    restaurant: restaurantId,
-    table: tableId,
+    user: targetUserId,
+    restaurant: restaurant._id,
+    table: table._id,
     covers: guests,
     start,
     end,

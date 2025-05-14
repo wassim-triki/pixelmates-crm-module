@@ -126,11 +126,11 @@ import MyRestaurant from './pages/MyRestaurant';
 import VerifyEmail from './pages/VerifyEmail';
 import FloorConfiguration from './pages/FloorConfiguration/FloorConfiguration';
 
-import LoyaltyUsersPage from './components/Dashboard/LoyaltyUsersPage'; 
+import LoyaltyUsersPage from './components/Dashboard/LoyaltyUsersPage';
 
 import RewardsPage from './components/Dashboard/RewardsPage';
 import RedemptionsPage from './components/Dashboard/RedemptionsPage';
-
+import Reservations from './pages/Reservations';
 
 function HomeRedirect() {
   const { user } = useAuth();
@@ -333,8 +333,16 @@ const Markup = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/reservations"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <Reservations />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* <Route
+          {/* <Route
           path="/admin/loyalty-users"
           element={
             <ProtectedRoute requiredRole="Admin">
@@ -342,26 +350,24 @@ const Markup = () => {
             </ProtectedRoute>
           } 
         /> */}
-  
 
-        
-    <Route
-      path="/admin/rewards"
-      element={
-        <ProtectedRoute requiredRole="Admin">
-          <RewardsPage />
-        </ProtectedRoute>
-      }
-    />
+          <Route
+            path="/admin/rewards"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <RewardsPage />
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-      path="/admin/redemptions"
-      element={
-        <ProtectedRoute requiredRole="Admin">
-          <RedemptionsPage />
-        </ProtectedRoute>
-      }
-    />
+          <Route
+            path="/admin/redemptions"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <RedemptionsPage />
+              </ProtectedRoute>
+            }
+          />
 
           {allroutes.map((data, i) => (
             <Route

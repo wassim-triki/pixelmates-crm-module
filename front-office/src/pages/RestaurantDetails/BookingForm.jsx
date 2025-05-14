@@ -1,9 +1,11 @@
 // src/components/BookingForm.jsx
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../config/axios';
 import Canvas from '../../../../back-office/src/jsx/pages/FloorConfiguration/Canvas';
 import { toast } from 'react-toastify'; // Import toast
 import { ThreeDots } from 'react-loader-spinner'; // Import spinner
+import { useAuth } from '../../context/authContext';
 
 // Utility: generate 30-min slots between two "HH:mm" strings
 const generateSlots = (open, close) => {
@@ -89,18 +91,47 @@ const BookingForm = ({ restaurant, closeModal }) => {
   };
   const handleTableSelect = (id) => setFormData((f) => ({ ...f, tableId: id }));
   const handleSlotClick = (slot) => setFormData((f) => ({ ...f, time: slot }));
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // redirect anonymous users
+    if (!user) {
+      navigate('/login', {
+        state: {
+          from: {
+            pathname: `/restaurants/${restaurant._id}`,
+          },
+        },
+      });
+      return;
+    }
+
     if (!isValid) return;
 
-    // Fake request: simulate delay
     setLoading(true);
-    console.log('Reservation data:', formData);
-    const response = await axiosInstance.post(`/reservations`, formData);
+    try {
+      const payload = {
+        userId: user.id,
+        ...formData,
+      };
+      console.log('Reservation data:', payload);
 
-    toast.success('Reservation successful!');
+      await axiosInstance.post('/reservations', payload);
 
-    setLoading(false);
+      toast.success('Reservation successful!');
+      // TODO: close your modal or reset form here if needed
+    } catch (err) {
+      console.error(err);
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        'Reservation failed. Please try again.';
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 4) filter available & build guest options
