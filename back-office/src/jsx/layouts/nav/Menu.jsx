@@ -47,82 +47,82 @@ export const AdminMenuList = [
     ],
   },
   //Apps
-  // {
-  //   title: 'Apps',
-  //   classsChange: 'mm-collapse',
-  //   iconStyle: <i className="flaticon-381-television" />,
-  //   content: [
-  //     {
-  //       title: 'Profile',
-  //       to: 'app-profile',
-  //     },
-  //     {
-  //       title: 'Update Profile',
-  //       to: 'update-profile',
-  //     },
+  /*{
+    title: 'Apps',
+    classsChange: 'mm-collapse',
+    iconStyle: <i className="flaticon-381-television" />,
+    content: [
+      {
+        title: 'Profile',
+        to: 'app-profile',
+      },
+      {
+        title: 'Update Profile',
+        to: 'update-profile',
+      },
 
-  //     {
-  //       title: 'Post Details',
-  //       to: 'post-details',
-  //     },
-  //     {
-  //       title: 'Email',
-  //       hasMenu: true,
-  //       content: [
-  //         {
-  //           title: 'Compose',
-  //           to: 'email-compose',
-  //         },
-  //         {
-  //           title: 'Index',
-  //           to: 'email-inbox',
-  //         },
-  //         {
-  //           title: 'Read',
-  //           to: 'email-read',
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: 'Calendar',
-  //       to: 'app-calender',
-  //     },
-  //     {
-  //       title: 'Shop',
-  //       hasMenu: true,
-  //       content: [
-  //         {
-  //           title: 'Product Grid',
-  //           to: 'ecom-product-grid',
-  //         },
-  //         {
-  //           title: 'Product List',
-  //           to: 'ecom-product-list',
-  //         },
-  //         {
-  //           title: 'Product Details',
-  //           to: 'ecom-product-detail',
-  //         },
-  //         {
-  //           title: 'Order',
-  //           to: 'ecom-product-order',
-  //         },
-  //         {
-  //           title: 'Checkout',
-  //           to: 'ecom-checkout',
-  //         },
-  //         {
-  //           title: 'Invoice',
-  //           to: 'ecom-invoice',
-  //         },
-  //         {
-  //           title: 'Customers',
-  //           to: 'ecom-customers',
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
+      {
+        title: 'Post Details',
+        to: 'post-details',
+      },
+      {
+        title: 'Email',
+        hasMenu: true,
+        content: [
+          {
+            title: 'Compose',
+            to: 'email-compose',
+          },
+          {
+            title: 'Index',
+            to: 'email-inbox',
+          },
+          {
+            title: 'Read',
+            to: 'email-read',
+          },
+        ],
+      },
+      {
+        title: 'Calendar',
+        to: 'app-calender',
+      },
+      {
+        title: 'Shop',
+        hasMenu: true,
+        content: [
+          {
+            title: 'Product Grid',
+            to: 'ecom-product-grid',
+          },
+          {
+            title: 'Product List',
+            to: 'ecom-product-list',
+          },
+          {
+            title: 'Product Details',
+            to: 'ecom-product-detail',
+          },
+          {
+            title: 'Order',
+            to: 'ecom-product-order',
+          },
+          {
+            title: 'Checkout',
+            to: 'ecom-checkout',
+          },
+          {
+            title: 'Invoice',
+            to: 'ecom-invoice',
+          },
+          {
+            title: 'Customers',
+            to: 'ecom-customers',
+          },
+        ],
+      },
+    ],
+  },*/
 
   // {
   //   title: 'CMS',
@@ -184,77 +184,77 @@ export const AdminMenuList = [
   //   ],
   // },
   //Boosttrap
-  // {
-  //   title: 'Bootstrap',
-  //   classsChange: 'mm-collapse',
-  //   iconStyle: <i className="flaticon-381-internet" />,
-  //   content: [
-  //     {
-  //       title: 'Accordion',
-  //       to: 'ui-accordion',
-  //     },
-  //     {
-  //       title: 'Alert',
-  //       to: 'ui-alert',
-  //     },
-  //     {
-  //       title: 'Badge',
-  //       to: 'ui-badge',
-  //     },
-  //     {
-  //       title: 'Button',
-  //       to: 'ui-button',
-  //     },
-  //     {
-  //       title: 'Modal',
-  //       to: 'ui-modal',
-  //     },
-  //     {
-  //       title: 'Button Group',
-  //       to: 'ui-button-group',
-  //     },
-  //     {
-  //       title: 'List Group',
-  //       to: 'ui-list-group',
-  //     },
-  //     {
-  //       title: 'Cards',
-  //       to: 'ui-card',
-  //     },
-  //     {
-  //       title: 'Carousel',
-  //       to: 'ui-carousel',
-  //     },
-  //     {
-  //       title: 'Dropdown',
-  //       to: 'ui-dropdown',
-  //     },
-  //     {
-  //       title: 'Popover',
-  //       to: 'ui-popover',
-  //     },
-  //     {
-  //       title: 'Progressbar',
-  //       to: 'ui-progressbar',
-  //     },
-  //     {
-  //       title: 'Tab',
-  //       to: 'ui-tab',
-  //     },
-  //     {
-  //       title: 'Typography',
-  //       to: 'ui-typography',
-  //     },
-  //     {
-  //       title: 'Pagination',
-  //       to: 'ui-pagination',
-  //     },
-  //     {
-  //       title: 'Grid',
-  //       to: 'ui-grid',
-  //     },
-  //   ],
-  // },
+  /*{
+    title: 'Bootstrap',
+    classsChange: 'mm-collapse',
+    iconStyle: <i className="flaticon-381-internet" />,
+    content: [
+      {
+        title: 'Accordion',
+        to: 'ui-accordion',
+      },
+      {
+        title: 'Alert',
+        to: 'ui-alert',
+      },
+      {
+        title: 'Badge',
+        to: 'ui-badge',
+      },
+      {
+        title: 'Button',
+        to: 'ui-button',
+      },
+      {
+        title: 'Modal',
+        to: 'ui-modal',
+      },
+      {
+        title: 'Button Group',
+        to: 'ui-button-group',
+      },
+      {
+        title: 'List Group',
+        to: 'ui-list-group',
+      },
+      {
+        title: 'Cards',
+        to: 'ui-card',
+      },
+      {
+        title: 'Carousel',
+        to: 'ui-carousel',
+      },
+      {
+        title: 'Dropdown',
+        to: 'ui-dropdown',
+      },
+      {
+        title: 'Popover',
+        to: 'ui-popover',
+      },
+      {
+        title: 'Progressbar',
+        to: 'ui-progressbar',
+      },
+      {
+        title: 'Tab',
+        to: 'ui-tab',
+      },
+      {
+        title: 'Typography',
+        to: 'ui-typography',
+      },
+      {
+        title: 'Pagination',
+        to: 'ui-pagination',
+      },
+      {
+        title: 'Grid',
+        to: 'ui-grid',
+      },
+    ],
+  },
   //plugins
   // {
   //   title: 'Plugins',
@@ -282,12 +282,12 @@ export const AdminMenuList = [
   //       to: 'uc-nestable',
   //     },
 
-  //     {
-  //       title: 'Light Gallery',
-  //       to: 'uc-lightgallery',
-  //     },
-  //   ],
-  // },
+      {
+        title: 'Light Gallery',
+        to: 'uc-lightgallery',
+      },
+    ],
+  },*/
   // //Widget
   // {
   //   title: 'Widget',

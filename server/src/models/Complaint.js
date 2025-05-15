@@ -57,7 +57,6 @@ const complaintSchema = new mongoose.Schema({
     'Service',
     'Cleanliness',
     'Billing',
-    'Other',
     'Delivery Delay',
     'Order Missing',
     'Wrong Order',
@@ -85,7 +84,9 @@ const complaintSchema = new mongoose.Schema({
     'Food Not Fresh',
     'Delivery Personnel Misbehavior',
     'Unclear Menu',
-    'Poor Customer Support'
+    'Poor Customer Support',
+    'Other'
+
   ],
     default: 'Other',
     required: true
