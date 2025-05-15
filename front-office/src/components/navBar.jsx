@@ -86,7 +86,7 @@ const Navbar = () => {
             </>
           )}
           <Link
-            to="/restaurant"
+            to="/restaurants"
             className="text-white text-sm lg:text-base font-bold hover:text-[#FA8072] transition whitespace-nowrap"
           >
             Restaurants
