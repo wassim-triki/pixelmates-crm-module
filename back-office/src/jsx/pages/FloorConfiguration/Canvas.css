@@ -2,8 +2,8 @@
 /* force your grid to be a “room-size” instead of filling the browser */
 .canvas {
   /* flex: 1; */
-  width: 550px; /* or whatever fits your restaurant floor */
-  height: 550px; /* pick an aspect ratio that makes sense */
+  width: 750px; /* or whatever fits your restaurant floor */
+  height: 650px; /* pick an aspect ratio that makes sense */
   background-color: #fdfdfd;
   background-size: 10px 10px !important;
   border-radius: 0.8rem;
@@ -24,6 +24,9 @@
 .table-instance {
   border: 2px solid #fd6e57;
   background: #fff;
+  min-width: 50px;
+  min-height: 50px;
+  transition: all 0.2s ease;
 }
 
 .table-instance.rectangle {
@@ -171,4 +174,55 @@
   border-color: #aaa;
   box-shadow: 0 0 0 2px rgba(170, 170, 170, 0.5);
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .table-instance {
+    min-width: 10px !important;
+    min-height: 10px !important;
+  }
+  
+  .label-top, .label-bottom {
+    font-size: 0.6rem;
+    padding: 1px 3px;
+  }
+  
+  .toolbar {
+    top: -40px;
+  }
+  
+  .toolbar button {
+    padding: 4px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Tablette */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .table-instance {
+    min-width: 20px;
+    min-height: 20px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .table-instance {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+/* Gestion des poignées de redimensionnement */
+.react-resizable-handle {
+  width: 8px;
+  height: 8px;
+}
+
+@media (min-width: 768px) {
+  .react-resizable-handle {
+    width: 10px;
+    height: 10px;
+  }
 }

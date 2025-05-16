@@ -1,5 +1,75 @@
 .floor-config {
   display: flex;
-  height: 100vh;
-  /* vertically center the canvas + sidebar */
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.canvas-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start; /* Changé de center à flex-start */
+  align-items: flex-start;
+  overflow: auto;
+  padding: 1rem;
+  width: 100%;
+  background: #f5f5f5;
+  border-radius: 0.8rem;
+}
+
+.canvas {
+  position: relative;
+  background-color: #fdfdfd;
+  background-size: 20px 20px;
+  background-image: linear-gradient(to right, #ddd 1px, transparent 1px),
+                  linear-gradient(to bottom, #ddd 1px, transparent 1px);
+  border-radius: 0.8rem;
+  min-width: 300%;
+  min-height: 500px;
+  margin: 0;
+  transform-origin: 0 0;
+}
+
+/* Mobile (par défaut) */
+@media (max-width: 767px) {
+  .canvas {
+    transform: scale(0.8);
+  }
+  
+  .table-instance {
+    min-width: 10px !important;
+    min-height: 10px !important;
+  }
+}
+
+/* Tablette (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .floor-config {
+    flex-direction: row;
+    height: 200vh;
+  }
+  
+  .canvas {
+    transform: scale(1);
+  }
+}
+
+/* Desktop (1024px et plus) */
+@media (min-width: 1024px) {
+  .floor-config {
+    flex-direction: row;
+    height: 200vh;
+  }
+  
+  .canvas {
+    transform: scale(1.2);
+  }
+}
+
+/* Grand écran (1200px et plus) */
+@media (min-width: 1200px) {
+  .canvas {
+    transform: scale(1.5);
+  }
 }

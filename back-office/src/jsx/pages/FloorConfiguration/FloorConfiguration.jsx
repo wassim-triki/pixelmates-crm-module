@@ -149,31 +149,31 @@ export default function FloorConfiguration() {
     { rectangle: 0, circle: 0 }
   );
 
-  return (
-    <div className="floor-config">
-      <Sidebar
-        tableCounts={tableCounts}
-        onShapeDragStart={() => {}}
-        selectedTable={tables.find((t) => t.id === selectedId)}
-        onDetailChange={(f, v) => handleUpdate(selectedId, { [f]: v })}
-        handleSubmit={handleSubmit}
-        submitting={submitting}
-        successMsg={successMsg}
-        errorMsg={errorMsg}
-      />
+return (
+  <div className="floor-config">
+    <Sidebar
+      tableCounts={tableCounts}
+      onShapeDragStart={() => {}}
+      selectedTable={tables.find((t) => t.id === selectedId)}
+      onDetailChange={(f, v) => handleUpdate(selectedId, { [f]: v })}
+      handleSubmit={handleSubmit}
+      submitting={submitting}
+      successMsg={successMsg}
+      errorMsg={errorMsg}
+    />
 
-      <div className="canvas-wrapper">
-        <Canvas
-          tables={tables}
-          selectedId={selectedId}
-          onDrop={handleDrop}
-          onSelect={handleSelect}
-          onUpdate={handleUpdate}
-          onDuplicate={handleDuplicate}
-          onDelete={handleDelete}
-          onToggleShape={handleToggleShape}
-        />
-      </div>
+    <div className="canvas-wrapper">
+      <Canvas
+        tables={tables}
+        selectedId={selectedId}
+        onDrop={handleDrop}
+        onSelect={handleSelect}
+        onUpdate={handleUpdate}
+        onDuplicate={handleDuplicate}
+        onDelete={handleDelete}
+        onToggleShape={handleToggleShape}
+      />
     </div>
-  );
+  </div>
+);
 }

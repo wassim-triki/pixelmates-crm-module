@@ -1,10 +1,10 @@
 // src/jsx/pages/FloorConfiguration/Canvas.jsx
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect,useState } from 'react';
 import { FaClone, FaTrash, FaSquare, FaCircle } from 'react-icons/fa';
 import { Rnd } from 'react-rnd';
 import './Canvas.css';
 
-export default function Canvas({
+export default function Canvas({ 
   tables,
   selectedId,
   onDrop,
@@ -16,6 +16,9 @@ export default function Canvas({
   interactive = true,
 }) {
   const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+
 
   const handleDragOver = (e) => {
     if (!interactive) return;
@@ -49,12 +52,52 @@ export default function Canvas({
       }
     : {};
 
-  useEffect(() => {
-    console.log('TABLES CANVAS', tables);
+useEffect(() => {
+    if (!ref.current || tables.length === 0) return;
+
+    const calculateLayout = () => {
+      const padding = 100; // Marge autour des tables
+      const maxX = Math.max(...tables.map(t => t.x + t.w), 0) + padding;
+      const maxY = Math.max(...tables.map(t => t.y + t.h), 0) + padding;
+
+      // Dimensions du contenu
+      const contentWidth = Math.max(maxX, 800);
+      const contentHeight = Math.max(maxY, 600);
+
+      // Dimensions disponibles
+      const container = ref.current.parentElement;
+      const availableWidth = container.clientWidth;
+      const availableHeight = container.clientHeight;
+
+      // Calcul du zoom optimal
+      const widthScale = availableWidth / contentWidth;
+      const heightScale = availableHeight / contentHeight;
+      const optimalScale = Math.min(widthScale, heightScale, 1);
+
+      setDimensions({
+        width: contentWidth,
+        height: contentHeight
+      });
+      setScale(optimalScale);
+    };
+
+    calculateLayout();
+    window.addEventListener('resize', calculateLayout);
+    return () => window.removeEventListener('resize', calculateLayout);
   }, [tables]);
 
   return (
-    <div ref={ref} className={canvasClass} {...canvasProps}>
+    <div 
+      ref={ref} 
+      className={canvasClass} 
+      {...canvasProps}
+      style={{
+        width: `${dimensions.width}px`,
+        height: `${dimensions.height}px`,
+        transform: `scale(${scale})`,
+        transformOrigin: '0 0'
+      }}
+    >
       {tables.map((table) => {
         const isSelected = table.id === selectedId;
 
