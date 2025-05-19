@@ -1,7 +1,7 @@
 // src/components/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../../assets/images/logo-officiel-menufy.png';
+import logo from '../../assets/images/logo-officiel-menufy-long.png';
 import axiosInstance from '../../config/axios';
 import { login } from '../../services/AuthService';
 import { useAuth } from '../../context/authContext';

@@ -44,21 +44,24 @@ async function ensureLogoExists() {
         const possibleSourcePaths = [
           path.join(
             __dirname,
-            '../../../back-office/src/assets/images/Logo-officiel-MenuFy.png'
+            '../../../back-office/src/assets/images/Logo-officiel-MenuFy-long.png'
           ),
           path.join(
             __dirname,
-            '../../back-office/src/assets/images/Logo-officiel-MenuFy.png'
+            '../../back-office/src/assets/images/Logo-officiel-MenuFy-long.png'
           ),
           path.join(
             __dirname,
-            '../back-office/src/assets/images/Logo-officiel-MenuFy.png'
+            '../back-office/src/assets/images/Logo-officiel-MenuFy-long.png'
           ),
           path.join(
             __dirname,
-            '../../../public/images/Logo-officiel-MenuFy.png'
+            '../../../public/images/Logo-officiel-MenuFy-long.png'
           ),
-          path.join(__dirname, '../../public/images/Logo-officiel-MenuFy.png'),
+          path.join(
+            __dirname,
+            '../../public/images/Logo-officiel-MenuFy-long.png'
+          ),
         ];
 
         let copied = false;
