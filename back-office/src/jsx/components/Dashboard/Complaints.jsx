@@ -11,7 +11,7 @@ import {
 import { formatError } from '../../../services/AuthService.js';
 import { useAuth } from '../../../context/authContext';
 import jsPDF from 'jspdf';
-import logo from '../../../assets/images/logo-officiel-menufy-long.png'; // Make sure this path is correct
+import logo from '../../../assets/images/Logo-officiel-MenuFy.png'; // Make sure this path is correct
 import AnalyticsModal from './AnalyticsModal';
 import {
   getComplaints,
@@ -538,7 +538,7 @@ const ComplaintList = () => {
     try {
       // Use the external logo URL
       const logoUrl =
-        'http://localhost:4000/src/assets/images/Logo-officiel-MenuFy-long.png';
+        'http://localhost:4000/src/assets/images/Logo-officiel-MenuFy.png';
 
       // Create an image element to load the logo
       const img = new Image();
