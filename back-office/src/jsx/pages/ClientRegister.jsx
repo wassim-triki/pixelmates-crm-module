@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
-import logo from '../../assets/images/logo-officiel-menufy.png';
+import logo from '../../assets/images/logo-officiel-menufy-long.png';
 import {
   loadingToggleAction,
   signupAction,
@@ -25,7 +25,7 @@ function Register(props) {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     dispatch({
       type: 'CLEAR_MESSAGES',
@@ -96,7 +96,8 @@ function Register(props) {
                 <div className="col-xl-12">
                   <div className="auth-form">
                     <div className="mb-4 text-center">
-                      <h1 className="mb-1 font-w800">Sign Up</h1><br />
+                      <h1 className="mb-1 font-w800">Sign Up</h1>
+                      <br />
                       <h4 className="text-center mb-4">Sign Up Your Account</h4>
                     </div>
                     {props.errorMessage && (
@@ -161,7 +162,9 @@ function Register(props) {
                           onChange={handleChange}
                         />
                         {errors.phone && (
-                          <div className="text-danger fs-12">{errors.phone}</div>
+                          <div className="text-danger fs-12">
+                            {errors.phone}
+                          </div>
                         )}
                       </div>
 
@@ -177,7 +180,9 @@ function Register(props) {
                           onChange={handleChange}
                         />
                         {errors.email && (
-                          <div className="text-danger fs-12">{errors.email}</div>
+                          <div className="text-danger fs-12">
+                            {errors.email}
+                          </div>
                         )}
                       </div>
 
@@ -201,7 +206,9 @@ function Register(props) {
                           </span>
                         </div>
                         {errors.password && (
-                          <div className="text-danger fs-12">{errors.password}</div>
+                          <div className="text-danger fs-12">
+                            {errors.password}
+                          </div>
                         )}
                       </div>
 
@@ -211,7 +218,9 @@ function Register(props) {
                         </label>
                         <div className="position-relative">
                           <input
-                            type={showPassword.confirmPassword ? 'text' : 'password'}
+                            type={
+                              showPassword.confirmPassword ? 'text' : 'password'
+                            }
                             className="form-control form-control-sm"
                             name="confirmPassword"
                             value={formData.confirmPassword}
@@ -225,7 +234,9 @@ function Register(props) {
                           </span>
                         </div>
                         {errors.confirmPassword && (
-                          <div className="text-danger fs-12">{errors.confirmPassword}</div>
+                          <div className="text-danger fs-12">
+                            {errors.confirmPassword}
+                          </div>
                         )}
                       </div>
 

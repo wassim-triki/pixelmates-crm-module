@@ -17,7 +17,10 @@ const transporter = nodemailer.createTransport({
 module.exports = async function sendEmail({ to, subject, template, data }) {
   try {
     // Path to the logo file
-    const logoPath = path.join(__dirname, '../public/images/Logo-officiel-MenuFy.png');
+    const logoPath = path.join(
+      __dirname,
+      '../public/images/logo-officiel-menufy-long.png'
+    );
 
     // Check if the logo file exists
     try {
@@ -32,7 +35,7 @@ module.exports = async function sendEmail({ to, subject, template, data }) {
     // Add logo CID to the data
     const enhancedData = {
       ...data,
-      logoUrl: 'cid:menufy-logo'
+      logoUrl: 'cid:menufy-logo',
     };
 
     const emailBody = await ejs.renderFile(templatePath, enhancedData);
@@ -47,9 +50,9 @@ module.exports = async function sendEmail({ to, subject, template, data }) {
         {
           filename: 'Logo-officiel-MenuFy.png',
           path: logoPath,
-          cid: 'menufy-logo' // Same cid value as in the html img src
-        }
-      ]
+          cid: 'menufy-logo', // Same cid value as in the html img src
+        },
+      ],
     };
 
     return transporter.sendMail(mailOptions);
