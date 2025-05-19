@@ -58,6 +58,10 @@ const ComplaintList = () => {
           'Admin user fetching complaints for restaurant:',
           user.restaurant._id
         );
+        console.log(
+          'Admin user fetching complaints for restaurant:',
+          user.restaurant._id
+        );
         response = await getComplaintsByRestaurant(user.restaurant._id);
       } else {
         // SuperAdmin can see all complaints
@@ -65,6 +69,11 @@ const ComplaintList = () => {
         response = await getComplaints();
       }
 
+      console.log(
+        'Complaints fetched:',
+        response.data?.length || 0,
+        'complaints'
+      );
       console.log(
         'Complaints fetched:',
         response.data?.length || 0,
@@ -98,6 +107,10 @@ const ComplaintList = () => {
           'Admin searching complaints for restaurant:',
           user.restaurant._id
         );
+        console.log(
+          'Admin searching complaints for restaurant:',
+          user.restaurant._id
+        );
         response = await getComplaintsByRestaurant(user.restaurant._id);
       } else {
         // SuperAdmin can search all complaints
@@ -116,6 +129,8 @@ const ComplaintList = () => {
           (c.category && c.category.toLowerCase().includes(lowerTerm)) ||
           (c.user?.name && c.user.name.toLowerCase().includes(lowerTerm)) ||
           (c.user?.email && c.user.email.toLowerCase().includes(lowerTerm)) ||
+          (c.restaurant?.name &&
+            c.restaurant.name.toLowerCase().includes(lowerTerm))
           (c.restaurant?.name &&
             c.restaurant.name.toLowerCase().includes(lowerTerm))
         );
@@ -145,6 +160,10 @@ const ComplaintList = () => {
     try {
       // Get status note if status is changing
       let statusNote = '';
+      if (
+        originalComplaint &&
+        originalComplaint.status !== selectedComplaint.status
+      ) {
       if (
         originalComplaint &&
         originalComplaint.status !== selectedComplaint.status
@@ -226,13 +245,42 @@ const ComplaintList = () => {
         15,
         40
       );
+      doc.text(
+        `Report generated on: ${new Date().toLocaleDateString()}`,
+        15,
+        40
+      );
       doc.setFont('helvetica', 'bold');
+      doc.text(`Complaint ID: ${complaint._id}`, pageWidth - 15, 40, {
+        align: 'right',
+      });
       doc.text(`Complaint ID: ${complaint._id}`, pageWidth - 15, 40, {
         align: 'right',
       });
 
       // Add status badge
       doc.setFillColor(
+        complaint.status === 'Resolved'
+          ? 40
+          : complaint.status === 'In Progress'
+          ? 255
+          : complaint.status === 'Pending'
+          ? 220
+          : 108,
+        complaint.status === 'Resolved'
+          ? 167
+          : complaint.status === 'In Progress'
+          ? 193
+          : complaint.status === 'Pending'
+          ? 53
+          : 117,
+        complaint.status === 'Resolved'
+          ? 69
+          : complaint.status === 'In Progress'
+          ? 7
+          : complaint.status === 'Pending'
+          ? 69
+          : 125
         complaint.status === 'Resolved'
           ? 40
           : complaint.status === 'In Progress'
@@ -284,6 +332,27 @@ const ComplaintList = () => {
           : complaint.priority === 'Low'
           ? 69
           : 125
+        complaint.priority === 'High'
+          ? 220
+          : complaint.priority === 'Medium'
+          ? 255
+          : complaint.priority === 'Low'
+          ? 40
+          : 108,
+        complaint.priority === 'High'
+          ? 53
+          : complaint.priority === 'Medium'
+          ? 193
+          : complaint.priority === 'Low'
+          ? 167
+          : 117,
+        complaint.priority === 'High'
+          ? 69
+          : complaint.priority === 'Medium'
+          ? 7
+          : complaint.priority === 'Low'
+          ? 69
+          : 125
       );
       doc.rect(60, 45, 40, 10, 'F');
       doc.setTextColor(255, 255, 255);
@@ -299,9 +368,20 @@ const ComplaintList = () => {
       doc.text(complaint.title || 'N/A', pageWidth / 2, 70, {
         align: 'center',
       });
+      doc.text(complaint.title || 'N/A', pageWidth / 2, 70, {
+        align: 'center',
+      });
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
+      doc.text(
+        `Restaurant: ${complaint.restaurant?.name || 'N/A'} | Category: ${
+          complaint.category || 'N/A'
+        }`,
+        pageWidth / 2,
+        80,
+        { align: 'center' }
+      );
       doc.text(
         `Restaurant: ${complaint.restaurant?.name || 'N/A'} | Category: ${
           complaint.category || 'N/A'
@@ -327,7 +407,22 @@ const ComplaintList = () => {
             complaint.user?.lastName || ''
           }`,
         },
+        {
+          label: 'Customer Name',
+          value: `${complaint.user?.firstName || ''} ${
+            complaint.user?.lastName || ''
+          }`,
+        },
         { label: 'Phone', value: complaint.user?.phone || 'N/A' },
+        {
+          label: 'Created Date',
+          value: new Date(complaint.createdAt).toLocaleString(),
+        },
+        {
+          label: 'Last Updated',
+          value: new Date(complaint.updatedAt).toLocaleString(),
+        },
+        { label: 'Category', value: complaint.category || 'N/A' },
         {
           label: 'Created Date',
           value: new Date(complaint.createdAt).toLocaleString(),
@@ -377,6 +472,12 @@ const ComplaintList = () => {
         descriptionText,
         pageWidth - 30
       );
+      const descriptionText =
+        complaint.description || 'No description provided';
+      const splitDescription = doc.splitTextToSize(
+        descriptionText,
+        pageWidth - 30
+      );
 
       doc.text(splitDescription, 15, yPos);
 
@@ -389,6 +490,9 @@ const ComplaintList = () => {
         doc.rect(0, 0, pageWidth, 15, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(10);
+        doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
+          align: 'center',
+        });
         doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
           align: 'center',
         });
@@ -430,10 +534,18 @@ const ComplaintList = () => {
           doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
             align: 'center',
           });
+          doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
+            align: 'center',
+          });
           doc.setTextColor(textColor[0], textColor[1], textColor[2]);
           yPos = 30;
         }
 
+        doc.setFillColor(
+          secondaryColor[0],
+          secondaryColor[1],
+          secondaryColor[2]
+        );
         doc.setFillColor(
           secondaryColor[0],
           secondaryColor[1],
@@ -448,6 +560,11 @@ const ComplaintList = () => {
           secondaryColor[1],
           secondaryColor[2]
         );
+        doc.setTextColor(
+          secondaryColor[0],
+          secondaryColor[1],
+          secondaryColor[2]
+        );
         doc.text('Comments', 15, yPos + 5);
         doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
@@ -457,6 +574,13 @@ const ComplaintList = () => {
         complaint.comments.forEach((comment, index) => {
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(10);
+          doc.text(
+            `${new Date(comment.createdAt).toLocaleDateString()} - ${
+              comment.user?.name || 'Unknown'
+            }:`,
+            15,
+            yPos
+          );
           doc.text(
             `${new Date(comment.createdAt).toLocaleDateString()} - ${
               comment.user?.name || 'Unknown'
@@ -483,6 +607,9 @@ const ComplaintList = () => {
             doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
               align: 'center',
             });
+            doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
+              align: 'center',
+            });
             doc.setTextColor(textColor[0], textColor[1], textColor[2]);
             yPos = 30;
           }
@@ -503,6 +630,18 @@ const ComplaintList = () => {
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100, 100, 100);
+        doc.text(
+          'Generated by MenuFy - Restaurant Management System',
+          pageWidth / 2,
+          pageHeight - 22,
+          { align: 'center' }
+        );
+        doc.text(
+          `www.menufy.com | Contact: support@menufy.com | Page ${i} of ${pageCount}`,
+          pageWidth / 2,
+          pageHeight - 17,
+          { align: 'center' }
+        );
         doc.text(
           'Generated by MenuFy - Restaurant Management System',
           pageWidth / 2,
@@ -539,6 +678,8 @@ const ComplaintList = () => {
       // Use the external logo URL
       const logoUrl =
         'http://localhost:4000/src/assets/images/Logo-officiel-MenuFy-long.png';
+      const logoUrl =
+        'http://localhost:4000/src/assets/images/Logo-officiel-MenuFy-long.png';
 
       // Create an image element to load the logo
       const img = new Image();
@@ -550,6 +691,7 @@ const ComplaintList = () => {
       img.src = logoUrl;
 
       // When the image is loaded, add it to the PDF
+      img.onload = function () {
       img.onload = function () {
         try {
           // Create a canvas to convert the image to a data URL
@@ -572,6 +714,9 @@ const ComplaintList = () => {
           console.log(
             'Logo loaded successfully and will be added to the footer'
           );
+          console.log(
+            'Logo loaded successfully and will be added to the footer'
+          );
         } catch (e) {
           console.error('Error converting logo to data URL:', e);
         }
@@ -582,11 +727,13 @@ const ComplaintList = () => {
 
       // Handle image loading error
       img.onerror = function () {
+      img.onerror = function () {
         console.error('Error loading logo from URL:', logoUrl);
         // Try with the imported logo as fallback
         try {
           const fallbackImg = new Image();
           fallbackImg.src = logo;
+          fallbackImg.onload = function () {
           fallbackImg.onload = function () {
             try {
               // Create a canvas to convert the fallback image to a data URL
@@ -609,11 +756,15 @@ const ComplaintList = () => {
               console.log(
                 'Fallback logo loaded successfully and will be added to the footer'
               );
+              console.log(
+                'Fallback logo loaded successfully and will be added to the footer'
+              );
             } catch (e) {
               console.error('Error converting fallback logo to data URL:', e);
             }
             finalizePDF();
           };
+          fallbackImg.onerror = function () {
           fallbackImg.onerror = function () {
             console.error('Fallback logo also failed to load');
             finalizePDF();
@@ -625,6 +776,7 @@ const ComplaintList = () => {
       };
 
       // If image takes too long, continue anyway after a timeout
+      setTimeout(function () {
       setTimeout(function () {
         if (!img.complete) {
           console.warn('Logo image loading timeout - continuing without logo');
@@ -924,6 +1076,11 @@ const ComplaintList = () => {
       <AnalyticsModal
         show={showAnalyticsModal}
         onHide={() => setShowAnalyticsModal(false)}
+        restaurantId={
+          user?.role?.name === 'Admin' && user?.restaurant?._id
+            ? user.restaurant._id
+            : ''
+        }
         restaurantId={
           user?.role?.name === 'Admin' && user?.restaurant?._id
             ? user.restaurant._id
