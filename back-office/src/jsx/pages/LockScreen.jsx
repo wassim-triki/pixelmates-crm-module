@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import logo from '../../assets/images/logo-officiel-menufy-long.png';
+// import logo from '../../assets/images/logo-officiel-menufy-long.png';
 
 const LockScreen = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const LockScreen = () => {
                   <div className="auth-form">
                     <div className="text-center mb-3">
                       <Link to={'/'}>
-                        <img src={logo} alt="logo" />
+                        {/* <img src={logo} alt="logo" /> */}
                       </Link>
                     </div>
                     <h4 className="text-center mb-4 ">Account Locked</h4>
