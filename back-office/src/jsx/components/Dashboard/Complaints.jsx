@@ -11,7 +11,6 @@ import {
 import { formatError } from '../../../services/AuthService.js';
 import { useAuth } from '../../../context/authContext';
 import jsPDF from 'jspdf';
-import logo from '../../../assets/images/Logo-officiel-MenuFy.png'; // Make sure this path is correct
 import AnalyticsModal from './AnalyticsModal';
 import {
   getComplaints,
@@ -52,17 +51,22 @@ const ComplaintList = () => {
     try {
       let response;
 
-      // If user is Admin, only fetch complaints for their restaurant
       if (user?.role?.name === 'Admin' && user?.restaurant?._id) {
-        console.log('Admin user fetching complaints for restaurant:', user.restaurant._id);
+        console.log(
+          'Admin user fetching complaints for restaurant:',
+          user.restaurant._id
+        );
         response = await getComplaintsByRestaurant(user.restaurant._id);
       } else {
-        // SuperAdmin can see all complaints
         console.log('SuperAdmin fetching all complaints');
         response = await getComplaints();
       }
 
-      console.log('Complaints fetched:', response.data?.length || 0, 'complaints');
+      console.log(
+        'Complaints fetched:',
+        response.data?.length || 0,
+        'complaints'
+      );
       setComplaints(response.data || []);
     } catch (err) {
       console.error('Error fetching complaints:', err);
@@ -85,12 +89,13 @@ const ComplaintList = () => {
     try {
       let response;
 
-      // If user is Admin, only search within their restaurant's complaints
       if (user?.role?.name === 'Admin' && user?.restaurant?._id) {
-        console.log('Admin searching complaints for restaurant:', user.restaurant._id);
+        console.log(
+          'Admin searching complaints for restaurant:',
+          user.restaurant._id
+        );
         response = await getComplaintsByRestaurant(user.restaurant._id);
       } else {
-        // SuperAdmin can search all complaints
         console.log('SuperAdmin searching all complaints');
         response = await getComplaints();
       }
@@ -106,7 +111,8 @@ const ComplaintList = () => {
           (c.category && c.category.toLowerCase().includes(lowerTerm)) ||
           (c.user?.name && c.user.name.toLowerCase().includes(lowerTerm)) ||
           (c.user?.email && c.user.email.toLowerCase().includes(lowerTerm)) ||
-          (c.restaurant?.name && c.restaurant.name.toLowerCase().includes(lowerTerm))
+          (c.restaurant?.name &&
+            c.restaurant.name.toLowerCase().includes(lowerTerm))
         );
       });
 
@@ -132,9 +138,47 @@ const ComplaintList = () => {
     setLoading(true);
     setError(null);
     try {
+      // Ensure valid values for status, priority, and category
+      const validStatuses = ['Pending', 'In Progress', 'Resolved', 'Closed'];
+      const validPriorities = ['Low', 'Medium', 'High'];
+      const validCategories = [
+        'Food Quality',
+        'Service',
+        'Cleanliness',
+        'Billing',
+        'Other',
+      ];
+      const validResponses = [
+        'Refund',
+        'Replacement',
+        'Apology',
+        'Discount',
+        'No Action',
+        null,
+      ];
+
+      if (!validStatuses.includes(selectedComplaint.status)) {
+        throw new Error('Invalid status value');
+      }
+      if (!validPriorities.includes(selectedComplaint.priority)) {
+        throw new Error('Invalid priority value');
+      }
+      if (!validCategories.includes(selectedComplaint.category)) {
+        throw new Error('Invalid category value');
+      }
+      if (
+        selectedComplaint.response &&
+        !validResponses.includes(selectedComplaint.response)
+      ) {
+        throw new Error('Invalid response value');
+      }
+
       // Get status note if status is changing
       let statusNote = '';
-      if (originalComplaint && originalComplaint.status !== selectedComplaint.status) {
+      if (
+        originalComplaint &&
+        originalComplaint.status !== selectedComplaint.status
+      ) {
         statusNote = `Status changed from ${originalComplaint.status} to ${selectedComplaint.status}`;
       }
 
@@ -144,11 +188,11 @@ const ComplaintList = () => {
           status: selectedComplaint.status,
           priority: selectedComplaint.priority,
           category: selectedComplaint.category,
-          response: selectedComplaint.response || null,
+          response: selectedComplaint.response || undefined, // Allow null
         },
         selectedComplaint._id,
-        user?._id, // Pass the current user ID
-        statusNote // Pass the status note
+        user?._id,
+        statusNote
       );
 
       // Check if status changed to Resolved
@@ -160,6 +204,7 @@ const ComplaintList = () => {
         try {
           await sendResolvedSMS(selectedComplaint._id);
         } catch (smsError) {
+          console.error('Failed to send SMS:', smsError);
           setError(
             `Complaint updated, but failed to send SMS: ${formatError(
               smsError
@@ -171,6 +216,7 @@ const ComplaintList = () => {
       await fetchComplaints();
       handleCloseEditModal();
     } catch (err) {
+      console.error('Update error:', err);
       setError(formatError(err) || 'Failed to update complaint');
     } finally {
       setLoading(false);
@@ -189,132 +235,220 @@ const ComplaintList = () => {
     const secondaryColor = [250, 128, 114]; // #FA8072 - Salmon
     const textColor = [51, 51, 51]; // #333333 - Dark Gray
 
-    // Function to finalize the PDF generation
-    const finalizePDF = () => {
-      // Add header with blue background
+    // Set default text color
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+    // Add header with blue background
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+
+    // Add document title
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255); // White
+    doc.setFontSize(22);
+    doc.text('COMPLAINT REPORT', pageWidth - 15, 20, { align: 'right' });
+
+    // Reset text color
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+    // Add complaint ID and date
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(
+      `Report generated on: ${new Date().toLocaleDateString()}`,
+      15,
+      40
+    );
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Complaint ID: ${complaint._id}`, pageWidth - 15, 40, {
+      align: 'right',
+    });
+
+    // Add status badge
+    doc.setFillColor(
+      complaint.status === 'Resolved'
+        ? 40
+        : complaint.status === 'In Progress'
+        ? 255
+        : complaint.status === 'Pending'
+        ? 220
+        : 108,
+      complaint.status === 'Resolved'
+        ? 167
+        : complaint.status === 'In Progress'
+        ? 193
+        : complaint.status === 'Pending'
+        ? 53
+        : 117,
+      complaint.status === 'Resolved'
+        ? 69
+        : complaint.status === 'In Progress'
+        ? 7
+        : complaint.status === 'Pending'
+        ? 69
+        : 125
+    );
+    doc.rect(15, 45, 40, 10, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.text(complaint.status || 'N/A', 35, 51, { align: 'center' });
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+    // Add priority badge
+    doc.setFillColor(
+      complaint.priority === 'High'
+        ? 220
+        : complaint.priority === 'Medium'
+        ? 255
+        : complaint.priority === 'Low'
+        ? 40
+        : 108,
+      complaint.priority === 'High'
+        ? 53
+        : complaint.priority === 'Medium'
+        ? 193
+        : complaint.priority === 'Low'
+        ? 167
+        : 117,
+      complaint.priority === 'High'
+        ? 69
+        : complaint.priority === 'Medium'
+        ? 7
+        : complaint.priority === 'Low'
+        ? 69
+        : 125
+    );
+    doc.rect(60, 45, 40, 10, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.text(complaint.priority || 'N/A', 80, 51, { align: 'center' });
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+    // Add summary section
+    doc.setFillColor(240, 240, 240); // Light gray
+    doc.rect(15, 60, pageWidth - 30, 25, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text(complaint.title || 'N/A', pageWidth / 2, 70, {
+      align: 'center',
+    });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(
+      `Restaurant: ${complaint.restaurant?.name || 'N/A'} | Category: ${
+        complaint.category || 'N/A'
+      }`,
+      pageWidth / 2,
+      80,
+      { align: 'center' }
+    );
+
+    // Add complaint details section
+    yPos = 95;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('Complaint Details', 15, yPos);
+    yPos += 10;
+
+    // Create details table manually
+    const details = [
+      { label: 'Customer', value: complaint.user?.email || 'N/A' },
+      {
+        label: 'Customer Name',
+        value: `${complaint.user?.firstName || ''} ${
+          complaint.user?.lastName || ''
+        }`,
+      },
+      { label: 'Phone', value: complaint.user?.phone || 'N/A' },
+      {
+        label: 'Created Date',
+        value: new Date(complaint.createdAt).toLocaleString(),
+      },
+      {
+        label: 'Last Updated',
+        value: new Date(complaint.updatedAt).toLocaleString(),
+      },
+      { label: 'Category', value: complaint.category || 'N/A' },
+    ];
+
+    // Draw details
+    details.forEach((item, index) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text(item.label + ':', 15, yPos);
+
+      doc.setFont('helvetica', 'normal');
+      doc.text(item.value, 60, yPos);
+
+      yPos += 8;
+
+      // Add spacing after every 3 items
+      if ((index + 1) % 3 === 0) yPos += 5;
+    });
+
+    yPos += 10;
+
+    // Add description section
+    doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.rect(15, yPos - 5, pageWidth - 30, 0.5, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text('Description', 15, yPos + 5);
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+    yPos += 15;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+
+    const descriptionText = complaint.description || 'No description provided';
+    const splitDescription = doc.splitTextToSize(descriptionText, pageWidth - 30);
+
+    doc.text(splitDescription, 15, yPos);
+
+    yPos += splitDescription.length * 7 + 15;
+
+    // Check if we need a new page
+    if (yPos > pageHeight - 50) {
+      doc.addPage();
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.rect(0, 0, pageWidth, 30, 'F');
-
-      // Add document title
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(255, 255, 255); // White
-      doc.setFontSize(22);
-      doc.text('COMPLAINT REPORT', pageWidth - 15, 20, { align: 'right' });
-
-      // Reset text color
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-
-      // Add complaint ID and date
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Report generated on: ${new Date().toLocaleDateString()}`, 15, 40);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Complaint ID: ${complaint._id}`, pageWidth - 15, 40, { align: 'right' });
-
-      // Add status badge
-      doc.setFillColor(
-        complaint.status === 'Resolved' ? 40 :
-        complaint.status === 'In Progress' ? 255 :
-        complaint.status === 'Pending' ? 220 : 108,
-        complaint.status === 'Resolved' ? 167 :
-        complaint.status === 'In Progress' ? 193 :
-        complaint.status === 'Pending' ? 53 : 117,
-        complaint.status === 'Resolved' ? 69 :
-        complaint.status === 'In Progress' ? 7 :
-        complaint.status === 'Pending' ? 69 : 125
-      );
-      doc.rect(15, 45, 40, 10, 'F');
+      doc.rect(0, 0, pageWidth, 15, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(10);
-      doc.text(complaint.status || 'N/A', 35, 51, { align: 'center' });
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-
-      // Add priority badge
-      doc.setFillColor(
-        complaint.priority === 'High' ? 220 :
-        complaint.priority === 'Medium' ? 255 :
-        complaint.priority === 'Low' ? 40 : 108,
-        complaint.priority === 'High' ? 53 :
-        complaint.priority === 'Medium' ? 193 :
-        complaint.priority === 'Low' ? 167 : 117,
-        complaint.priority === 'High' ? 69 :
-        complaint.priority === 'Medium' ? 7 :
-        complaint.priority === 'Low' ? 69 : 125
-      );
-      doc.rect(60, 45, 40, 10, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.text(complaint.priority || 'N/A', 80, 51, { align: 'center' });
-      doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-
-      // Add summary section
-      doc.setFillColor(240, 240, 240); // Light gray
-      doc.rect(15, 60, pageWidth - 30, 25, 'F');
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.text(complaint.title || 'N/A', pageWidth / 2, 70, { align: 'center' });
-
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text(`Restaurant: ${complaint.restaurant?.name || 'N/A'} | Category: ${complaint.category || 'N/A'}`,
-        pageWidth / 2, 80, { align: 'center' });
-
-      // Add complaint details section
-      yPos = 95;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.text('Complaint Details', 15, yPos);
-      yPos += 10;
-
-      // Create details table manually
-      const details = [
-        { label: 'Customer', value: complaint.user?.email || 'N/A' },
-        { label: 'Customer Name', value: `${complaint.user?.firstName || ''} ${complaint.user?.lastName || ''}` },
-        { label: 'Phone', value: complaint.user?.phone || 'N/A' },
-        { label: 'Created Date', value: new Date(complaint.createdAt).toLocaleString() },
-        { label: 'Last Updated', value: new Date(complaint.updatedAt).toLocaleString() },
-        { label: 'Category', value: complaint.category || 'N/A' }
-      ];
-
-      // Draw details
-      details.forEach((item, index) => {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
-        doc.text(item.label + ':', 15, yPos);
-
-        doc.setFont('helvetica', 'normal');
-        doc.text(item.value, 60, yPos);
-
-        yPos += 8;
-
-        // Add spacing after every 3 items
-        if ((index + 1) % 3 === 0) yPos += 5;
+      doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
+        align: 'center',
       });
-
-      yPos += 10;
-
-      // Add description section
-      doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-      doc.rect(15, yPos - 5, pageWidth - 30, 0.5, 'F');
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-      doc.text('Description', 15, yPos + 5);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+      yPos = 30;
+    }
 
-      yPos += 15;
+    // Add response section
+    doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.rect(15, yPos - 5, pageWidth - 30, 0.5, 'F');
 
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text('Official Response', 15, yPos + 5);
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
-      const descriptionText = complaint.description || 'No description provided';
-      const splitDescription = doc.splitTextToSize(descriptionText, pageWidth - 30);
+    yPos += 15;
 
-      doc.text(splitDescription, 15, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
 
-      yPos += splitDescription.length * 7 + 15;
+    const responseText = complaint.response || 'No official response yet';
+    const splitResponse = doc.splitTextToSize(responseText, pageWidth - 30);
 
+    doc.text(splitResponse, 15, yPos);
+
+    yPos += splitResponse.length * 7 + 15;
+
+    // Add comments section if available
+    if (complaint.comments && complaint.comments.length > 0) {
       // Check if we need a new page
       if (yPos > pageHeight - 50) {
         doc.addPage();
@@ -322,223 +456,90 @@ const ComplaintList = () => {
         doc.rect(0, 0, pageWidth, 15, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(10);
-        doc.text('Complaint Report - Continued', pageWidth / 2, 10, { align: 'center' });
+        doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
+          align: 'center',
+        });
         doc.setTextColor(textColor[0], textColor[1], textColor[2]);
         yPos = 30;
       }
 
-      // Add response section
       doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
       doc.rect(15, yPos - 5, pageWidth - 30, 0.5, 'F');
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-      doc.text('Official Response', 15, yPos + 5);
+      doc.text('Comments', 15, yPos + 5);
       doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
       yPos += 15;
 
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(11);
+      // Add comments manually
+      complaint.comments.forEach((comment, index) => {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(
+          `${new Date(comment.createdAt).toLocaleDateString()} - ${
+            comment.user?.name || 'Unknown'
+          }:`,
+          15,
+          yPos
+        );
 
-      const responseText = complaint.response || 'No official response yet';
-      const splitResponse = doc.splitTextToSize(responseText, pageWidth - 30);
+        yPos += 7;
 
-      doc.text(splitResponse, 15, yPos);
+        doc.setFont('helvetica', 'normal');
+        const commentText = doc.splitTextToSize(comment.text, pageWidth - 40);
+        doc.text(commentText, 20, yPos);
 
-      yPos += splitResponse.length * 7 + 15;
+        yPos += commentText.length * 7 + 10;
 
-      // Add comments section if available
-      if (complaint.comments && complaint.comments.length > 0) {
-        // Check if we need a new page
-        if (yPos > pageHeight - 50) {
+        // Check if we need a new page for next comment
+        if (index < complaint.comments.length - 1 && yPos > pageHeight - 30) {
           doc.addPage();
           doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
           doc.rect(0, 0, pageWidth, 15, 'F');
           doc.setTextColor(255, 255, 255);
           doc.setFontSize(10);
-          doc.text('Complaint Report - Continued', pageWidth / 2, 10, { align: 'center' });
+          doc.text('Complaint Report - Continued', pageWidth / 2, 10, {
+            align: 'center',
+          });
           doc.setTextColor(textColor[0], textColor[1], textColor[2]);
           yPos = 30;
         }
-
-        doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-        doc.rect(15, yPos - 5, pageWidth - 30, 0.5, 'F');
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-        doc.text('Comments', 15, yPos + 5);
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-
-        yPos += 15;
-
-        // Add comments manually
-        complaint.comments.forEach((comment, index) => {
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(10);
-          doc.text(`${new Date(comment.createdAt).toLocaleDateString()} - ${comment.user?.name || 'Unknown'}:`, 15, yPos);
-
-          yPos += 7;
-
-          doc.setFont('helvetica', 'normal');
-          const commentText = doc.splitTextToSize(comment.text, pageWidth - 40);
-          doc.text(commentText, 20, yPos);
-
-          yPos += commentText.length * 7 + 10;
-
-          // Check if we need a new page for next comment
-          if (index < complaint.comments.length - 1 && yPos > pageHeight - 30) {
-            doc.addPage();
-            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            doc.rect(0, 0, pageWidth, 15, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(10);
-            doc.text('Complaint Report - Continued', pageWidth / 2, 10, { align: 'center' });
-            doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-            yPos = 30;
-          }
-        });
-      }
-
-      // Add footer to all pages
-      const pageCount = doc.internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-
-        // Footer line
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.5);
-        doc.line(15, pageHeight - 30, pageWidth - 15, pageHeight - 30);
-
-        // Footer text
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100, 100, 100);
-        doc.text('Generated by MenuFy - Restaurant Management System', pageWidth / 2, pageHeight - 22, { align: 'center' });
-        doc.text(`www.menufy.com | Contact: support@menufy.com | Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - 17, { align: 'center' });
-
-        // Add logo to footer if available
-        if (window.logoDataURL) {
-          try {
-            // Add small logo to the left side of the footer
-            doc.addImage(window.logoDataURL, 'PNG', 15, pageHeight - 25, 20, 8);
-          } catch (e) {
-            console.error('Error adding logo to footer:', e);
-          }
-        }
-      }
-
-      // Save PDF
-      doc.save(`Complaint_${complaint._id}_Report.pdf`);
-    };
-
-    // Set default text color
-    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-
-    // Add Logo from external URL
-    try {
-      // Use the external logo URL
-      const logoUrl = 'http://localhost:4000/src/assets/images/Logo-officiel-MenuFy.png';
-
-      // Create an image element to load the logo
-      const img = new Image();
-
-      // Set cross-origin to anonymous to avoid CORS issues
-      img.crossOrigin = 'Anonymous';
-
-      // Set the image source to the logo URL
-      img.src = logoUrl;
-
-      // When the image is loaded, add it to the PDF
-      img.onload = function() {
-        try {
-          // Create a canvas to convert the image to a data URL
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-
-          // Set canvas dimensions to match the image
-          canvas.width = img.width;
-          canvas.height = img.height;
-
-          // Draw image on canvas
-          ctx.drawImage(img, 0, 0);
-
-          // Get base64 data URL
-          const dataURL = canvas.toDataURL('image/png');
-
-          // Store the data URL in a global variable for use in the footer
-          window.logoDataURL = dataURL;
-
-          console.log('Logo loaded successfully and will be added to the footer');
-        } catch (e) {
-          console.error('Error converting logo to data URL:', e);
-        }
-
-        // Continue with PDF generation
-        finalizePDF();
-      };
-
-      // Handle image loading error
-      img.onerror = function() {
-        console.error('Error loading logo from URL:', logoUrl);
-        // Try with the imported logo as fallback
-        try {
-          const fallbackImg = new Image();
-          fallbackImg.src = logo;
-          fallbackImg.onload = function() {
-            try {
-              // Create a canvas to convert the fallback image to a data URL
-              const canvas = document.createElement('canvas');
-              const ctx = canvas.getContext('2d');
-
-              // Set canvas dimensions to match the image
-              canvas.width = fallbackImg.width;
-              canvas.height = fallbackImg.height;
-
-              // Draw image on canvas
-              ctx.drawImage(fallbackImg, 0, 0);
-
-              // Get base64 data URL
-              const dataURL = canvas.toDataURL('image/png');
-
-              // Store the data URL in a global variable for use in the footer
-              window.logoDataURL = dataURL;
-
-              console.log('Fallback logo loaded successfully and will be added to the footer');
-            } catch (e) {
-              console.error('Error converting fallback logo to data URL:', e);
-            }
-            finalizePDF();
-          };
-          fallbackImg.onerror = function() {
-            console.error('Fallback logo also failed to load');
-            finalizePDF();
-          };
-        } catch (fallbackError) {
-          console.error('Error with fallback logo:', fallbackError);
-          finalizePDF();
-        }
-      };
-
-      // If image takes too long, continue anyway after a timeout
-      setTimeout(function() {
-        if (!img.complete) {
-          console.warn('Logo image loading timeout - continuing without logo');
-          finalizePDF();
-        }
-      }, 3000);
-
-      // Return early - the actual PDF generation will happen in the callbacks
-      return;
-    } catch (error) {
-      console.error('Error in logo loading process:', error);
-      // Continue with PDF generation without the logo
-      finalizePDF();
+      });
     }
 
+    // Add footer to all pages
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
 
+      // Footer line
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+      doc.line(15, pageHeight - 30, pageWidth - 15, pageHeight - 30);
+
+      // Footer text
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 100, 100);
+      doc.text(
+        'Generated by MenuFy - Restaurant Management System',
+        pageWidth / 2,
+        pageHeight - 22,
+        { align: 'center' }
+      );
+      doc.text(
+        `www.menufy.com | Contact: support@menufy.com | Page ${i} of ${pageCount}`,
+        pageWidth / 2,
+        pageHeight - 17,
+        { align: 'center' }
+      );
+    }
+
+    // Save PDF
+    doc.save(`Complaint_${complaint._id}_Report.pdf`);
   };
 
   // Form Validation
@@ -569,13 +570,14 @@ const ComplaintList = () => {
     setSelectedComplaint(null);
     setValidationErrors({});
   };
-  // Modify handleShowEditModal to track original complaint
+
   const handleShowEditModal = (complaint) => {
     setSelectedComplaint(complaint);
-    setOriginalComplaint(complaint); // Store original data
+    setOriginalComplaint(complaint);
     setShowEditModal(true);
     setValidationErrors({});
   };
+
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setSelectedComplaint(null);
@@ -799,8 +801,7 @@ const ComplaintList = () => {
             </Dropdown.Item>
             <Dropdown.Item onClick={() => requestSort('category')}>
               Category
-            </Dropdown.Item>{' '}
-            {/* Added */}
+            </Dropdown.Item>
             <Dropdown.Item onClick={() => requestSort('createdAt')}>
               Created Date
             </Dropdown.Item>
@@ -824,7 +825,11 @@ const ComplaintList = () => {
       <AnalyticsModal
         show={showAnalyticsModal}
         onHide={() => setShowAnalyticsModal(false)}
-        restaurantId={user?.role?.name === 'Admin' && user?.restaurant?._id ? user.restaurant._id : ''}
+        restaurantId={
+          user?.role?.name === 'Admin' && user?.restaurant?._id
+            ? user.restaurant._id
+            : ''
+        }
       />
 
       {/* Complaint Table */}
@@ -1212,6 +1217,35 @@ const ComplaintList = () => {
                     {validationErrors.priority}
                   </Form.Control.Feedback>
                 </Form.Group>
+                <Form.Group className="col-md-6 mb-3" controlId="editCategory">
+                  <Form.Label>Category</Form.Label>
+                  <Form.Select
+                    value={selectedComplaint.category || ''}
+                    onChange={(e) =>
+                      setSelectedComplaint({
+                        ...selectedComplaint,
+                        category: e.target.value,
+                      })
+                    }
+                    isInvalid={!!validationErrors.category}
+                  >
+                    <option value="">Select Category</option>
+                    {[
+                      'Food Quality',
+                      'Service',
+                      'Cleanliness',
+                      'Billing',
+                      'Other',
+                    ].map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.category}
+                  </Form.Control.Feedback>
+                </Form.Group>
                 <Form.Group className="col-md-6 mb-3" controlId="editResponse">
                   <Form.Label>Response</Form.Label>
                   <Form.Select
@@ -1253,7 +1287,6 @@ const ComplaintList = () => {
           >
             Cancel
           </Button>
-
           <Button
             variant="primary"
             onClick={handleUpdateComplaint}
